@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import bcrypt
 
+
 class User(ABC):
     users_list = []
 
@@ -51,6 +52,7 @@ class User(ABC):
         print(f"User {username} registered successfully with email {email}")
         return new_user
 
+
 class Client(User):
     def __init__(self, username, email, password, address, client_id):
         super().__init__(username, email, password, address)
@@ -96,6 +98,7 @@ class Client(User):
         if product in self.liked_list:
             self.liked_list.remove(product)
             print(f"{product} removed from liked list.")
+
 
 class Management(User):
     def __init__(self, username, email, password, address, worker_id, role):
