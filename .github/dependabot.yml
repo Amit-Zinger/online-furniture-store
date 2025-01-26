@@ -1,0 +1,9 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/requirements" # Directory containing the requirements files
+    schedule:
+      interval: "daily" # Check for updates daily
+    commit-message:
+      prefix: "deps"
+      include: "scope" 
