@@ -46,7 +46,7 @@ flake8==7.1.1
     # via -r requirements.in
 idna==3.10
     # via requests
-ipython==8.12.3
+ipython==8.31.0
     # via pipreqs
 jedi==0.19.2
     # via ipython
@@ -182,5 +182,5 @@ webencodings==0.5.1
     # via
     #   bleach
     #   tinycss2
-yarg==0.1.9
+yarg==0.1.10
     # via pipreqs
