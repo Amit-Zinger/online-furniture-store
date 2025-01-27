@@ -1,95 +1,232 @@
-from furniture_class import Furniture
+from abc import ABC
+from typing import List, Callable
+from app.utils import calc_discount
 
-class FurnitureFactory:
-    @staticmethod
-    def create_furniture(furniture_type, **kwargs):
+
+class Furniture(ABC):
+    """
+    Abstract class representing a piece of furniture.
+    """
+
+    def __init__(
+            self,
+            name: str,
+            description: str,
+            price: float,
+            dimensions: str,
+            serial_number: str,
+            quantity: int,
+            weight: float,
+            manufacturing_country: str,
+            interested_clients: List[str] = None,
+    ):
+        self.name = name
+        self.description = description
+        self.price = price
+        self.dimensions = dimensions
+        self.serial_number = serial_number
+        self.quantity = quantity
+        self.weight = weight
+        self.manufacturing_country = manufacturing_country
+        self.interested_clients = interested_clients if interested_clients else []
+        self._observers: List[Callable] = []
+
+    def add_observer(self, observer: Callable):
         """
-        Factory method to create furniture objects.
+        Add an observer (e.g., Inventory) to be notified on changes.
+        """
+        if observer not in self._observers:
+            self._observers.append(observer)
+
+    def remove_observer(self, observer: Callable):
+        """
+        Remove an observer.
+        """
+        if observer in self._observers:
+            self._observers.remove(observer)
+
+    def notify_observers(self, message: str):
+        """
+        Notify all observers about a change in quantity.
+        """
+        for observer in self._observers:
+            observer(self, message)
+
+    def update_quantity(self, new_quantity: int):
+        """
+        Update the quantity of the furniture and notify observers if it changes.
+        """
+        if new_quantity != self.quantity:
+            old_quantity = self.quantity
+            self.quantity = new_quantity
+            self.notify_observers(
+                f"Quantity of {self.name} updated from {old_quantity} to {new_quantity}."
+            )
+
+    def apply_discount(self, discount_percentage: float):
+        """
+        Apply a discount to the price of the furniture.
 
         Parameters:
-        furniture_type: Type of furniture (e.g., 'Chair', 'Sofa').
-        kwargs: Attributes required to create the furniture object.
-
-        Outputs:
-        Instance of the specified furniture class.
+        discount_percentage (float): The percentage discount to apply.
         """
-        if not (kwargs.get('serial_number') and kwargs.get('name') and kwargs.get('price')):
-            raise ValueError("Basic attributes missing fail to create furniture object")
+        self.price = calc_discount(self.price, discount_percentage)
 
-        # Creating Chair object
-        if furniture_type == 'Chair':
-            return Chair(
-                name=kwargs.get('name', 'Unnamed'),
-                description=kwargs.get('description', ''),
-                price=kwargs.get('price', 0),
-                dimensions=kwargs.get('dimensions', 'Unknown'),
-                serial_number=kwargs.get('serial_number', 'Unknown'),
-                quantity = kwargs.get('quantity', 0),
-                weight=kwargs.get('weight', 0),
-                manufacturing_country=kwargs.get('manufacturing_country', 'Unknown'),
-                #Specific attributes for chair
-                has_weels=kwargs.get('has_weels', False),
-                how_many_legs=kwargs.get('how_many_legs', 'Unknown')
-            )
-        # Creating Sofa object
-        elif furniture_type == 'Sofa':
-            return Sofa(
-                name=kwargs.get('name', 'Unnamed'),
-                description=kwargs.get('description', ''),
-                price=kwargs.get('price', 0),
-                dimensions=kwargs.get('dimensions', 'Unknown'),
-                serial_number=kwargs.get('serial_number', 'Unknown'),
-                quantity=kwargs.get('quantity', 0),
-                weight=kwargs.get('weight', 0),
-                manufacturing_country=kwargs.get('manufacturing_country', 'Unknown'),
-                # Specific attributes for sofa
-                can_turn_to_bad=kwargs.get('can_turn_to_bad', False),
-                how_many_seats=kwargs.get('how_many_seats', 'Unknown')
-            )
-        # Creating Table object
-        elif furniture_type == 'Table':
-            return Table(
-                name=kwargs.get('name', 'Unnamed'),
-                description=kwargs.get('description', ''),
-                price=kwargs.get('price', 0),
-                dimensions=kwargs.get('dimensions', 'Unknown'),
-                serial_number=kwargs.get('serial_number', 'Unknown'),
-                quantity=kwargs.get('quantity', 0),
-                weight=kwargs.get('weight', 0),
-                manufacturing_country=kwargs.get('manufacturing_country', 'Unknown'),
-                # Specific attributes for table
-                expandable=kwargs.get('expandable', False),
-                how_many_seats=kwargs.get('how_many_seats', 'Unknown')
-            )
-        # Creating Bed object
-        elif furniture_type == 'Bed':
-            return Bed(
-                name=kwargs.get('name', 'Unnamed'),
-                description=kwargs.get('description', ''),
-                price=kwargs.get('price', 0),
-                dimensions=kwargs.get('dimensions', 'Unknown'),
-                serial_number=kwargs.get('serial_number', 'Unknown'),
-                quantity=kwargs.get('quantity', 0),
-                weight=kwargs.get('weight', 0),
-                manufacturing_country=kwargs.get('manufacturing_country', 'Unknown'),
-                # Specific attributes for bad
-                has_storage=kwargs.get('has_storage', False),
-                has_back=kwargs.get('has_back', False)
-            )
-        # Creating Closet object
-        elif furniture_type == 'Closet':
-            return Closet(
-                name=kwargs.get('name', 'Unnamed'),
-                description=kwargs.get('description', ''),
-                price=kwargs.get('price', 0),
-                dimensions=kwargs.get('dimensions', 'Unknown'),
-                serial_number=kwargs.get('serial_number', 'Unknown'),
-                quantity=kwargs.get('quantity', 0),
-                weight=kwargs.get('weight', 0),
-                manufacturing_country=kwargs.get('manufacturing_country', 'Unknown'),
-                # Specific attributes for closet
-                has_drawers=kwargs.get('has_drawers', False),
-                how_many_doors=kwargs.get('how_many_doors', 'Unknown')
-            )
-        else:
-            raise ValueError(f"Unknown furniture type: {furniture_type}")
+    def apply_tax(self):
+        """
+        Apply tax to the price of the furniture.
+
+        Parameters:
+        tax_rate (float): The tax rate to apply (default is 10%).
+        """
+        self.price += self.price * 0.17
+
+
+class Chair(Furniture):
+    def __init__(
+            self,
+            name: str,
+            description: str,
+            price: float,
+            dimensions: str,
+            serial_number: str,
+            quantity: int,
+            weight: float,
+            manufacturing_country: str,
+            has_wheels: bool,
+            how_many_legs: int,
+            interested_clients: List[str] = None,
+    ):
+        super().__init__(
+            name,
+            description,
+            price,
+            dimensions,
+            serial_number,
+            quantity,
+            weight,
+            manufacturing_country,
+            interested_clients,
+        )
+        self.has_wheels = has_wheels
+        self.how_many_legs = how_many_legs
+
+
+class Sofa(Furniture):
+    def __init__(
+            self,
+            name: str,
+            description: str,
+            price: float,
+            dimensions: str,
+            serial_number: str,
+            quantity: int,
+            weight: float,
+            manufacturing_country: str,
+            how_many_seats: int,
+            can_turn_to_bed: bool,
+            interested_clients: List[str] = None,
+    ):
+        super().__init__(
+            name,
+            description,
+            price,
+            dimensions,
+            serial_number,
+            quantity,
+            weight,
+            manufacturing_country,
+            interested_clients,
+        )
+        self.how_many_seats = how_many_seats
+        self.can_turn_to_bed = can_turn_to_bed
+
+
+class Bed(Furniture):
+    def __init__(
+            self,
+            name: str,
+            description: str,
+            price: float,
+            dimensions: str,
+            serial_number: str,
+            quantity: int,
+            weight: float,
+            manufacturing_country: str,
+            has_storage: bool,
+            has_back: bool,
+            interested_clients: List[str] = None,
+    ):
+        super().__init__(
+            name,
+            description,
+            price,
+            dimensions,
+            serial_number,
+            quantity,
+            weight,
+            manufacturing_country,
+            interested_clients,
+        )
+        self.has_storage = has_storage
+        self.has_back = has_back
+
+
+class Table(Furniture):
+    def __init__(
+            self,
+            name: str,
+            description: str,
+            price: float,
+            dimensions: str,
+            serial_number: str,
+            quantity: int,
+            weight: float,
+            manufacturing_country: str,
+            expandable: bool,
+            how_many_seats: int,
+            interested_clients: List[str] = None,
+    ):
+        super().__init__(
+            name,
+            description,
+            price,
+            dimensions,
+            serial_number,
+            quantity,
+            weight,
+            manufacturing_country,
+            interested_clients,
+        )
+        self.expandable = expandable
+        self.how_many_seats = how_many_seats
+
+
+class Closet(Furniture):
+    def __init__(
+            self,
+            name: str,
+            description: str,
+            price: float,
+            dimensions: str,
+            serial_number: str,
+            quantity: int,
+            weight: float,
+            manufacturing_country: str,
+            how_many_doors: int,
+            has_drawers: bool,
+            interested_clients: List[str] = None,
+    ):
+        super().__init__(
+            name,
+            description,
+            price,
+            dimensions,
+            serial_number,
+            quantity,
+            weight,
+            manufacturing_country,
+            interested_clients,
+        )
+        self.how_many_doors = how_many_doors
+        self.has_drawers = has_drawers
