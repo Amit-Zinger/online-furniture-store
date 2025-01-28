@@ -84,7 +84,7 @@ mypy-extensions==1.0.0
     #   mypy
 nbclient==0.10.2
     # via nbconvert
-nbconvert==7.16.5
+nbconvert==7.16.6
     # via pipreqs
 nbformat==5.10.4
     # via
