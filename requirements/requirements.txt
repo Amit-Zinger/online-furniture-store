@@ -131,7 +131,7 @@ python-dateutil==2.9.0.post0
     #   -r requirements.in
     #   jupyter-client
     #   pandas
-pytz==2024.2
+pytz==2025.1
     # via pandas
 pywin32==308
     # via jupyter-core
