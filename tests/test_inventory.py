@@ -1,6 +1,9 @@
 import pytest
+from models.inventory import Inventory
+import sys
 import os
-from inventory_class import Inventory
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "models")))
+
 
 @pytest.fixture
 def setup_inventory():
@@ -18,7 +21,7 @@ def setup_inventory():
         Parameters:
         file_path: Path to the pickle file where inventory data is stored.
         """
-        inventory = Inventory(file_path)
+        inventory_testing = Inventory(file_path)
 
         furniture_types = ["Chair", "Sofa", "Table", "Bed", "Closet"]
 
@@ -63,15 +66,16 @@ def setup_inventory():
                         "how_many_doors": 2 + i
                     })
 
-                inventory.add_item(furniture_desc)
+                inventory_testing.add_item(furniture_desc)
 
-        inventory.update_data()
+        inventory_testing.update_data()
         print("Inventory populated with furniture items successfully.")
 
     create_inventory_with_furniture(test_file)  # Populate inventory
     inventory = Inventory(test_file)
 
     return inventory, test_file
+
 
 def test_add_item(setup_inventory):
     inventory, _ = setup_inventory
@@ -94,6 +98,7 @@ def test_add_item(setup_inventory):
     assert inventory.add_item(furniture_desc) is True
     assert len(inventory.data["Chair"][0]) == initial_count + 1
 
+
 def test_remove_item(setup_inventory):
     inventory, _ = setup_inventory
     chair_obj = inventory.data["Chair"][0][0]
@@ -101,12 +106,14 @@ def test_remove_item(setup_inventory):
     assert inventory.remove_item(chair_obj) is True
     assert chair_obj not in inventory.data["Chair"][0]
 
+
 def test_update_quantity(setup_inventory):
     inventory, _ = setup_inventory
     chair_obj = inventory.data["Chair"][0][0]
 
     assert inventory.update_quantity(chair_obj, 99) is True
     assert chair_obj.quantity == 99
+
 
 def test_search_by_name(setup_inventory):
     inventory, _ = setup_inventory
@@ -117,12 +124,14 @@ def test_search_by_name(setup_inventory):
     assert len(results) > 0
     assert all(obj.name == first_chair_name for obj in results)
 
+
 def test_search_by_category(setup_inventory):
     inventory, _ = setup_inventory
     results = inventory.search_by(category="Sofa")
 
     assert len(results) == 5  # Expecting 5 sofas in the inventory
     assert all(type(obj).__name__ == "Sofa" for obj in results)
+
 
 def test_search_by_price_range(setup_inventory):
     inventory, _ = setup_inventory
@@ -133,6 +142,7 @@ def test_search_by_price_range(setup_inventory):
     assert len(results) == expected_count
     assert all(100 <= obj.price <= 300 for obj in results)
 
+
 def test_search_by_name_and_price(setup_inventory):
     inventory, _ = setup_inventory
     chair_name = inventory.data["Chair"][0][1].name  # Selecting second chair
@@ -141,6 +151,7 @@ def test_search_by_name_and_price(setup_inventory):
 
     assert len(results) > 0
     assert all(obj.name == chair_name and 100 <= obj.price <= 200 for obj in results)
+
 
 def test_search_by_category_and_price(setup_inventory):
     inventory, _ = setup_inventory
@@ -151,6 +162,7 @@ def test_search_by_category_and_price(setup_inventory):
     assert len(results) == expected_count
     assert all(type(obj).__name__ == "Table" and 100 <= obj.price <= 250 for obj in results)
 
+
 def test_search_by_name_category_and_price(setup_inventory):
     inventory, _ = setup_inventory
     sofa_name = inventory.data["Sofa"][0][2].name  # Selecting third sofa
@@ -159,6 +171,7 @@ def test_search_by_name_category_and_price(setup_inventory):
 
     assert len(results) == 1  # Expecting only one exact match
     assert all(obj.name == sofa_name and type(obj).__name__ == "Sofa" and 100 <= obj.price <= 300 for obj in results)
+
 
 def test_update_data(setup_inventory):
     inventory, test_file = setup_inventory
