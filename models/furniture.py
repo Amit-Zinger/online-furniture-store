@@ -52,17 +52,6 @@ class Furniture(ABC):
         for observer in self._observers:
             observer(self, message)
 
-    def update_quantity(self, new_quantity: int):
-        """
-        Update the quantity of the furniture and notify observers if it changes.
-        """
-        if new_quantity != self.quantity:
-            old_quantity = self.quantity
-            self.quantity = new_quantity
-            self.notify_observers(
-                f"Quantity of {self.name} updated from {old_quantity} to {new_quantity}."
-            )
-
     def apply_discount(self, discount_percentage: float):
         """
         Apply a discount to the price of the furniture.

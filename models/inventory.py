@@ -3,7 +3,6 @@ import os
 from factory import FurnitureFactory
 
 
-
 class Inventory:
     """
     Class Inventory to manage available furniture items.

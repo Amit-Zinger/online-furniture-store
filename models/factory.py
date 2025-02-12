@@ -1,5 +1,6 @@
 from furniture import Chair, Sofa, Table, Bed, Closet
 
+
 class FurnitureFactory:
     @staticmethod
     def create_furniture(furniture_desc):

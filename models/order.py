@@ -1,4 +1,4 @@
-from ShoppingCart import ShoppingCart
+from cart import ShoppingCart
 import pandas as pd
 from typing import Optional, List, Dict
 
