@@ -19,7 +19,7 @@ class TestFurnitureFactory(unittest.TestCase):
             "weight": 18.0,
             "manufacturing_country": "USA",
             "has_wheels": True,
-            "how_many_legs": 5
+            "how_many_legs": 5,
         }
 
         self.sofa_desc = {
@@ -33,7 +33,7 @@ class TestFurnitureFactory(unittest.TestCase):
             "weight": 55.0,
             "manufacturing_country": "Spain",
             "how_many_seats": 4,
-            "can_turn_to_bed": False
+            "can_turn_to_bed": False,
         }
 
     def test_create_furniture_chair(self):
@@ -64,6 +64,7 @@ class TestFurnitureFactory(unittest.TestCase):
 
     def test_register_new_furniture_type(self):
         """Test registering a new furniture type dynamically."""
+
         class CustomFurniture:
             def __init__(self, **kwargs):
                 self.custom_attribute = kwargs.get("custom_attribute", "Default")
@@ -77,5 +78,5 @@ class TestFurnitureFactory(unittest.TestCase):
         self.assertEqual(custom_obj.custom_attribute, "Special Feature")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

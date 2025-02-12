@@ -21,8 +21,9 @@ orders = []
 
 # ---------------------- Helper Functions ----------------------
 
+
 def get_all_users():
-    """ Load all users from JSON file. """
+    """Load all users from JSON file."""
     try:
         with open(USER_FILE, "r") as file:
             return json.load(file)
@@ -31,13 +32,13 @@ def get_all_users():
 
 
 def save_users(users):
-    """ Save updated user list to JSON file. """
+    """Save updated user list to JSON file."""
     with open(USER_FILE, "w") as file:
         json.dump(users, file, indent=4)
 
 
 def authenticate(token):
-    """ Authenticate a user via JWT token. """
+    """Authenticate a user via JWT token."""
     try:
         return jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
     except jwt.ExpiredSignatureError:
@@ -48,9 +49,10 @@ def authenticate(token):
 
 # ---------------------- User Management ----------------------
 
+
 @app.route("/register", methods=["POST"])
 def register():
-    """ Register a new user (Client or Manager). """
+    """Register a new user (Client or Manager)."""
     data = request.json
     users = get_all_users()
 
@@ -61,14 +63,18 @@ def register():
         "id": len(users) + 1,
         "username": data["username"],
         "email": data["email"],
-        "password": bcrypt.hashpw(data["password"].encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
+        "password": bcrypt.hashpw(
+            data["password"].encode("utf-8"), bcrypt.gensalt()
+        ).decode("utf-8"),
         "address": data["address"],
         "role": data.get("role", "client"),
     }
     if new_user["role"] == "client":
         new_user.update({"shop_cart": [], "liked_list": []})
     elif new_user["role"] == "manager":
-        new_user.update({"worker_ID": len([u for u in users if u.get("worker_ID")]) + 1})
+        new_user.update(
+            {"worker_ID": len([u for u in users if u.get("worker_ID")]) + 1}
+        )
 
     users.append(new_user)
     save_users(users)
@@ -77,29 +83,39 @@ def register():
 
 @app.route("/login", methods=["POST"])
 def login():
-    """ User login. """
+    """User login."""
     data = request.json
     users = get_all_users()
     user = next((u for u in users if u["username"] == data["username"]), None)
 
-    if user and bcrypt.checkpw(data["password"].encode('utf-8'), user["password"].encode('utf-8')):
-        token = jwt.encode({"user_id": user["id"], "role": user["role"], "exp": datetime.utcnow() + timedelta(hours=2)},
-                           JWT_SECRET, algorithm="HS256")
+    if user and bcrypt.checkpw(
+        data["password"].encode("utf-8"), user["password"].encode("utf-8")
+    ):
+        token = jwt.encode(
+            {
+                "user_id": user["id"],
+                "role": user["role"],
+                "exp": datetime.utcnow() + timedelta(hours=2),
+            },
+            JWT_SECRET,
+            algorithm="HS256",
+        )
         return jsonify({"message": "Login successful!", "token": token}), 200
     return jsonify({"error": "Invalid credentials"}), 401
 
 
 # ---------------------- Inventory Management ----------------------
 
+
 @app.route("/inventory", methods=["GET"])
 def get_inventory():
-    """ Get all available furniture in inventory. """
+    """Get all available furniture in inventory."""
     return jsonify(inventory.data.to_dict()), 200
 
 
 @app.route("/inventory/add", methods=["POST"])
 def add_inventory_item():
-    """ Add a new furniture item to inventory (Admin only). """
+    """Add a new furniture item to inventory (Admin only)."""
     token = request.headers.get("Authorization")
     user_data = authenticate(token)
 
@@ -114,7 +130,7 @@ def add_inventory_item():
 
 @app.route("/inventory/remove", methods=["DELETE"])
 def remove_inventory_item():
-    """ Remove furniture item from inventory (Admin only). """
+    """Remove furniture item from inventory (Admin only)."""
     token = request.headers.get("Authorization")
     user_data = authenticate(token)
 
@@ -130,9 +146,10 @@ def remove_inventory_item():
 
 # ---------------------- Shopping Cart ----------------------
 
+
 @app.route("/cart", methods=["GET"])
 def view_cart():
-    """ View shopping cart contents. """
+    """View shopping cart contents."""
     token = request.headers.get("Authorization")
     user_data = authenticate(token)
 
@@ -149,7 +166,7 @@ def view_cart():
 
 @app.route("/cart/add", methods=["POST"])
 def add_to_cart():
-    """ Add furniture to shopping cart. """
+    """Add furniture to shopping cart."""
     token = request.headers.get("Authorization")
     user_data = authenticate(token)
 
@@ -169,9 +186,10 @@ def add_to_cart():
 
 # ---------------------- Checkout Process ----------------------
 
+
 @app.route("/checkout", methods=["POST"])
 def checkout():
-    """ Process user checkout and finalize the order. """
+    """Process user checkout and finalize the order."""
     token = request.headers.get("Authorization")
     user_data = authenticate(token)
 

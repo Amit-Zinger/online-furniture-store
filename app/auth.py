@@ -18,4 +18,3 @@ def load_user_data():
 def save_user_data(data):
     """Save user data to a JSON file."""
     save_data(data)
-

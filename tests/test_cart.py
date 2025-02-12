@@ -8,16 +8,36 @@ class TestShoppingCart(unittest.TestCase):
     def setUp(self):
         """Set up a shopping cart instance before each test."""
         self.cart = ShoppingCart("user123")
-        self.item1 = Chair(name="Office Chair", description="Ergonomic chair", price=150.0, dimensions="50x50x100cm",
-                           serial_number="CH001", quantity=10, weight=10, manufacturing_country="Germany", has_wheels=True, how_many_legs=5)
-        self.item2 = Chair(name="Gaming Chair", description="Comfortable gaming chair", price=200.0, dimensions="55x55x110cm",
-                           serial_number="CH002", quantity=5, weight=12, manufacturing_country="USA", has_wheels=True, how_many_legs=5)
+        self.item1 = Chair(
+            name="Office Chair",
+            description="Ergonomic chair",
+            price=150.0,
+            dimensions="50x50x100cm",
+            serial_number="CH001",
+            quantity=10,
+            weight=10,
+            manufacturing_country="Germany",
+            has_wheels=True,
+            how_many_legs=5,
+        )
+        self.item2 = Chair(
+            name="Gaming Chair",
+            description="Comfortable gaming chair",
+            price=200.0,
+            dimensions="55x55x110cm",
+            serial_number="CH002",
+            quantity=5,
+            weight=12,
+            manufacturing_country="USA",
+            has_wheels=True,
+            how_many_legs=5,
+        )
 
     def test_add_item(self):
         """Test adding items to the cart."""
         self.cart.add_item(self.item1, 2)
         self.assertEqual(len(self.cart.get_cart()), 1)
-        self.assertEqual(self.cart.get_cart()[0]['quantity'], 2)
+        self.assertEqual(self.cart.get_cart()[0]["quantity"], 2)
 
     def test_remove_item(self):
         """Test removing an item from the cart."""
@@ -58,5 +78,6 @@ class TestShoppingCart(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.cart.purchase(payment_gateway)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

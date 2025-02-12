@@ -8,7 +8,7 @@ class OrderManager:
     Manages orders in the system, including creation, updates, cancellations, and retrieval.
 
     Attributes:
-        orders (pd.DataFrame): A DataFrame to store order information with columns for 
+        orders (pd.DataFrame): A DataFrame to store order information with columns for
         order_id, client_id, items, total_price, payment_info, status, and order_date.
     """
 
@@ -16,12 +16,21 @@ class OrderManager:
         """
         Initializes the OrderManager with an empty DataFrame to manage orders.
         """
-        self.orders = pd.DataFrame(columns=[
-            'order_id', 'client_id', 'items', 'total_price',
-            'payment_info', 'status', 'order_date'
-        ])
+        self.orders = pd.DataFrame(
+            columns=[
+                "order_id",
+                "client_id",
+                "items",
+                "total_price",
+                "payment_info",
+                "status",
+                "order_date",
+            ]
+        )
 
-    def create_order(self, cart: ShoppingCart, payment_info: str, total_price: float) -> None:
+    def create_order(
+        self, cart: ShoppingCart, payment_info: str, total_price: float
+    ) -> None:
         """
         Creates a new order and appends it to the DataFrame.
 
@@ -36,13 +45,13 @@ class OrderManager:
         order_id = str(uuid.uuid4())  # Generate a unique order ID
         order_date = datetime.now()
         order_data = {
-            'order_id': order_id,
-            'client_id': cart.client_id,
-            'items': cart.cart,  # Includes item IDs and quantities
-            'total_price': total_price,
-            'payment_info': payment_info,
-            'status': 'Processing',  # Initial status
-            'order_date': order_date
+            "order_id": order_id,
+            "client_id": cart.client_id,
+            "items": cart.cart,  # Includes item IDs and quantities
+            "total_price": total_price,
+            "payment_info": payment_info,
+            "status": "Processing",  # Initial status
+            "order_date": order_date,
         }
         self.orders = self.orders.append(order_data, ignore_index=True)
         print(f"Order {order_id} created successfully.")
@@ -59,11 +68,11 @@ class OrderManager:
             Optional[Dict]: A dictionary containing the order details if found, else None.
         """
         order = self.orders[
-            (self.orders['order_id'] == order_id) &
-            (self.orders['client_id'] == client_id)
+            (self.orders["order_id"] == order_id)
+            & (self.orders["client_id"] == client_id)
         ]
         if not order.empty:
-            return order.to_dict(orient='records')[0]
+            return order.to_dict(orient="records")[0]
         print(f"No order found with ID {order_id} for client {client_id}.")
         return None
 
@@ -75,8 +84,8 @@ class OrderManager:
             order_id (str): The unique ID of the order.
             status (str): The new status of the order (e.g., 'Shipped', 'Cancelled').
         """
-        if order_id in self.orders['order_id'].values:
-            self.orders.loc[self.orders['order_id'] == order_id, 'status'] = status
+        if order_id in self.orders["order_id"].values:
+            self.orders.loc[self.orders["order_id"] == order_id, "status"] = status
             print(f"Order {order_id} status updated to {status}.")
         else:
             print(f"No order found with ID {order_id}.")
@@ -88,8 +97,8 @@ class OrderManager:
         Args:
             order_id (str): The unique ID of the order.
         """
-        if order_id in self.orders['order_id'].values:
-            self.orders.loc[self.orders['order_id'] == order_id, 'status'] = 'Cancelled'
+        if order_id in self.orders["order_id"].values:
+            self.orders.loc[self.orders["order_id"] == order_id, "status"] = "Cancelled"
             print(f"Order {order_id} has been cancelled.")
         else:
             print(f"No order found with ID {order_id}.")
@@ -104,11 +113,11 @@ class OrderManager:
         Returns:
             List[Dict]: A list of dictionaries containing the client's order history.
         """
-        history = self.orders[self.orders['client_id'] == client_id]
+        history = self.orders[self.orders["client_id"] == client_id]
         if history.empty:
             print(f"No order history found for client {client_id}.")
             return []
-        return history.to_dict(orient='records')
+        return history.to_dict(orient="records")
 
     def update_observer(self, order_id: str) -> None:
         """
@@ -117,9 +126,13 @@ class OrderManager:
         Args:
             order_id (str): The unique ID of the order.
         """
-        if order_id in self.orders['order_id'].values:
-            order_status = self.orders.loc[self.orders['order_id'] == order_id, 'status'].values[0]
-            print(f"Order {order_id} status is now {order_status}. Notifying observers...")
+        if order_id in self.orders["order_id"].values:
+            order_status = self.orders.loc[
+                self.orders["order_id"] == order_id, "status"
+            ].values[0]
+            print(
+                f"Order {order_id} status is now {order_status}. Notifying observers..."
+            )
             # Assuming Email_Notification class exists and is used here
         else:
             print(f"No order found with ID {order_id}.")

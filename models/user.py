@@ -12,10 +12,10 @@ class User(ABC):
         self.address = address
 
     def hash_password(self, password):
-        return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
     def verify_password(self, password):
-        return bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8'))
+        return bcrypt.checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
 
     @abstractmethod
     def get_user_type(self):
@@ -41,9 +41,18 @@ class User(ABC):
             return None
 
         if user_type == "Client":
-            new_user = Client(username, email, password, address, kwargs.get("client_id"))
+            new_user = Client(
+                username, email, password, address, kwargs.get("client_id")
+            )
         elif user_type == "Management":
-            new_user = Management(username, email, password, address, kwargs.get("worker_id"), kwargs.get("role"))
+            new_user = Management(
+                username,
+                email,
+                password,
+                address,
+                kwargs.get("worker_id"),
+                kwargs.get("role"),
+            )
         else:
             print("Invalid user type")
             return None
@@ -74,7 +83,7 @@ class Client(User):
             "username": self.username,
             "email": self.email,
             "address": self.address,
-            "client_id": self.client_id
+            "client_id": self.client_id,
         }
 
     def edit_client_info(self, new_username=None, new_email=None, new_address=None):

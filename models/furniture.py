@@ -9,16 +9,16 @@ class Furniture(ABC):
     """
 
     def __init__(
-            self,
-            name: str,
-            description: str,
-            price: float,
-            dimensions: str,
-            serial_number: str,
-            quantity: int,
-            weight: float,
-            manufacturing_country: str,
-            interested_clients: List[str] = None,
+        self,
+        name: str,
+        description: str,
+        price: float,
+        dimensions: str,
+        serial_number: str,
+        quantity: int,
+        weight: float,
+        manufacturing_country: str,
+        interested_clients: List[str] = None,
     ):
         if price <= 0:
             raise ValueError("Price must be a positive value.")
@@ -88,22 +88,29 @@ class Furniture(ABC):
 
 class Chair(Furniture):
     def __init__(
-            self,
-            name: str,
-            description: str,
-            price: float,
-            dimensions: str,
-            serial_number: str,
-            quantity: int,
-            weight: float,
-            manufacturing_country: str,
-            has_wheels: bool,
-            how_many_legs: int,
-            interested_clients: List[str] = None,
+        self,
+        name: str,
+        description: str,
+        price: float,
+        dimensions: str,
+        serial_number: str,
+        quantity: int,
+        weight: float,
+        manufacturing_country: str,
+        has_wheels: bool,
+        how_many_legs: int,
+        interested_clients: List[str] = None,
     ):
         super().__init__(
-            name, description, price, dimensions, serial_number,
-            quantity, weight, manufacturing_country, interested_clients,
+            name,
+            description,
+            price,
+            dimensions,
+            serial_number,
+            quantity,
+            weight,
+            manufacturing_country,
+            interested_clients,
         )
         self.has_wheels = has_wheels
         self.how_many_legs = how_many_legs
@@ -111,22 +118,29 @@ class Chair(Furniture):
 
 class Sofa(Furniture):
     def __init__(
-            self,
-            name: str,
-            description: str,
-            price: float,
-            dimensions: str,
-            serial_number: str,
-            quantity: int,
-            weight: float,
-            manufacturing_country: str,
-            how_many_seats: int,
-            can_turn_to_bed: bool,
-            interested_clients: List[str] = None,
+        self,
+        name: str,
+        description: str,
+        price: float,
+        dimensions: str,
+        serial_number: str,
+        quantity: int,
+        weight: float,
+        manufacturing_country: str,
+        how_many_seats: int,
+        can_turn_to_bed: bool,
+        interested_clients: List[str] = None,
     ):
         super().__init__(
-            name, description, price, dimensions, serial_number,
-            quantity, weight, manufacturing_country, interested_clients,
+            name,
+            description,
+            price,
+            dimensions,
+            serial_number,
+            quantity,
+            weight,
+            manufacturing_country,
+            interested_clients,
         )
         self.how_many_seats = how_many_seats
         self.can_turn_to_bed = can_turn_to_bed
@@ -134,22 +148,29 @@ class Sofa(Furniture):
 
 class Bed(Furniture):
     def __init__(
-            self,
-            name: str,
-            description: str,
-            price: float,
-            dimensions: str,
-            serial_number: str,
-            quantity: int,
-            weight: float,
-            manufacturing_country: str,
-            has_storage: bool,
-            has_back: bool,
-            interested_clients: List[str] = None,
+        self,
+        name: str,
+        description: str,
+        price: float,
+        dimensions: str,
+        serial_number: str,
+        quantity: int,
+        weight: float,
+        manufacturing_country: str,
+        has_storage: bool,
+        has_back: bool,
+        interested_clients: List[str] = None,
     ):
         super().__init__(
-            name, description, price, dimensions, serial_number,
-            quantity, weight, manufacturing_country, interested_clients,
+            name,
+            description,
+            price,
+            dimensions,
+            serial_number,
+            quantity,
+            weight,
+            manufacturing_country,
+            interested_clients,
         )
         self.has_storage = has_storage
         self.has_back = has_back
@@ -157,23 +178,30 @@ class Bed(Furniture):
 
 class Table(Furniture):
     def __init__(
-            self,
-            name: str,
-            description: str,
-            price: float,
-            dimensions: str,
-            serial_number: str,
-            quantity: int,
-            weight: float,
-            manufacturing_country: str,
-            expandable: bool,
-            how_many_seats: int,
-            is_foldable: bool,
-            interested_clients: List[str] = None,
+        self,
+        name: str,
+        description: str,
+        price: float,
+        dimensions: str,
+        serial_number: str,
+        quantity: int,
+        weight: float,
+        manufacturing_country: str,
+        expandable: bool,
+        how_many_seats: int,
+        is_foldable: bool,
+        interested_clients: List[str] = None,
     ):
         super().__init__(
-            name, description, price, dimensions, serial_number,
-            quantity, weight, manufacturing_country, interested_clients,
+            name,
+            description,
+            price,
+            dimensions,
+            serial_number,
+            quantity,
+            weight,
+            manufacturing_country,
+            interested_clients,
         )
         self.expandable = expandable
         self.how_many_seats = how_many_seats
@@ -182,26 +210,31 @@ class Table(Furniture):
 
 class Closet(Furniture):
     def __init__(
-            self,
-            name: str,
-            description: str,
-            price: float,
-            dimensions: str,
-            serial_number: str,
-            quantity: int,
-            weight: float,
-            manufacturing_country: str,
-            has_mirrors: bool,
-            number_of_shelves: int,
-            how_many_doors: int,
-            interested_clients: List[str] = None
-
+        self,
+        name: str,
+        description: str,
+        price: float,
+        dimensions: str,
+        serial_number: str,
+        quantity: int,
+        weight: float,
+        manufacturing_country: str,
+        has_mirrors: bool,
+        number_of_shelves: int,
+        how_many_doors: int,
+        interested_clients: List[str] = None,
     ):
         super().__init__(
-            name, description, price, dimensions, serial_number,
-            quantity, weight, manufacturing_country, interested_clients,
+            name,
+            description,
+            price,
+            dimensions,
+            serial_number,
+            quantity,
+            weight,
+            manufacturing_country,
+            interested_clients,
         )
         self.has_mirrors = has_mirrors
         self.number_of_shelves = number_of_shelves
         self.how_many_doors = how_many_doors
-

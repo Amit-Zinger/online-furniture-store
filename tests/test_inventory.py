@@ -39,33 +39,27 @@ def setup_inventory():
 
                 # Add specific attributes for each furniture type
                 if furniture_type == "Chair":
-                    furniture_desc.update({
-                        "has_wheels": i % 2 == 0,
-                        "how_many_legs": 4
-                    })
+                    furniture_desc.update(
+                        {"has_wheels": i % 2 == 0, "how_many_legs": 4}
+                    )
                 elif furniture_type == "Sofa":
-                    furniture_desc.update({
-                        "can_turn_to_bed": i % 2 == 0,
-                        "how_many_seats": 3 + i
-                    })
+                    furniture_desc.update(
+                        {"can_turn_to_bed": i % 2 == 0, "how_many_seats": 3 + i}
+                    )
                 elif furniture_type == "Table":
-                    furniture_desc.update({
-                        "expandable": i % 2 == 0,
-                        "how_many_seats": 4 + i
-
-                    })
+                    furniture_desc.update(
+                        {"expandable": i % 2 == 0, "how_many_seats": 4 + i}
+                    )
                 elif furniture_type == "Bed":
-                    furniture_desc.update({
-                        "has_storage": i % 2 == 0,
-                        "has_back": True
-                    })
+                    furniture_desc.update({"has_storage": i % 2 == 0, "has_back": True})
                 elif furniture_type == "Closet":
-                    furniture_desc.update({
-                        "how_many_doors": 2 + i,
-                        "has_mirrors": True,
-                        "number_of_shelves": i
-
-                    })
+                    furniture_desc.update(
+                        {
+                            "how_many_doors": 2 + i,
+                            "has_mirrors": True,
+                            "number_of_shelves": i,
+                        }
+                    )
 
                 inventory_testing.add_item(furniture_desc)
 
@@ -93,7 +87,7 @@ def test_add_item(setup_inventory):
         "weight": 20,
         "manufacturing_country": "Germany",
         "has_wheels": False,
-        "how_many_legs": 4
+        "how_many_legs": 4,
     }
 
     assert inventory.add_item(furniture_desc) is True
@@ -161,17 +155,26 @@ def test_search_by_category_and_price(setup_inventory):
     # Should find tables with prices 100, 150, 200, and 250
     expected_count = 4  # Since one price (300) is out of range
     assert len(results) == expected_count
-    assert all(type(obj).__name__ == "Table" and 100 <= obj.price <= 250 for obj in results)
+    assert all(
+        type(obj).__name__ == "Table" and 100 <= obj.price <= 250 for obj in results
+    )
 
 
 def test_search_by_name_category_and_price(setup_inventory):
     inventory, _ = setup_inventory
     sofa_name = inventory.data["Sofa"][0][2].name  # Selecting third sofa
 
-    results = inventory.search_by(name=sofa_name, category="Sofa", price_range=(100, 300))
+    results = inventory.search_by(
+        name=sofa_name, category="Sofa", price_range=(100, 300)
+    )
 
     assert len(results) == 1  # Expecting only one exact match
-    assert all(obj.name == sofa_name and type(obj).__name__ == "Sofa" and 100 <= obj.price <= 300 for obj in results)
+    assert all(
+        obj.name == sofa_name
+        and type(obj).__name__ == "Sofa"
+        and 100 <= obj.price <= 300
+        for obj in results
+    )
 
 
 def test_update_data(setup_inventory):

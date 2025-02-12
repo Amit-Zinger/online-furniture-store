@@ -17,7 +17,7 @@ class TestFurniture(unittest.TestCase):
             weight=15.5,
             manufacturing_country="Germany",
             has_wheels=True,
-            how_many_legs=5
+            how_many_legs=5,
         )
 
         self.sofa = Sofa(
@@ -30,7 +30,7 @@ class TestFurniture(unittest.TestCase):
             weight=40.0,
             manufacturing_country="Italy",
             how_many_seats=3,
-            can_turn_to_bed=True
+            can_turn_to_bed=True,
         )
 
         self.table = Table(
@@ -44,7 +44,7 @@ class TestFurniture(unittest.TestCase):
             manufacturing_country="Sweden",
             expandable=True,
             how_many_seats=6,
-            is_foldable=False
+            is_foldable=False,
         )
 
         self.bed = Bed(
@@ -57,7 +57,7 @@ class TestFurniture(unittest.TestCase):
             weight=80.0,
             manufacturing_country="France",
             has_storage=True,
-            has_back=True
+            has_back=True,
         )
 
         self.closet = Closet(
@@ -71,8 +71,7 @@ class TestFurniture(unittest.TestCase):
             manufacturing_country="USA",
             has_mirrors=True,
             number_of_shelves=5,
-            how_many_doors=3
-
+            how_many_doors=3,
         )
 
     def test_apply_discount(self):
@@ -103,5 +102,6 @@ class TestFurniture(unittest.TestCase):
         self.assertTrue(self.bed.has_storage)
         self.assertEqual(self.closet.number_of_shelves, 5)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

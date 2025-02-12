@@ -2,6 +2,7 @@ import requests
 
 BASE_URL = "http://127.0.0.1:5000"
 
+
 def test_order_process():
     """Regression Test - Ensures order affects all components correctly."""
     # 1️⃣ Create user & login
@@ -12,7 +13,11 @@ def test_order_process():
 
     # 2️⃣ Add item to cart
     headers = {"Authorization": token}
-    requests.post(f"{BASE_URL}/cart/add", json={"item": {"name": "Chair", "quantity": 1}}, headers=headers)
+    requests.post(
+        f"{BASE_URL}/cart/add",
+        json={"item": {"name": "Chair", "quantity": 1}},
+        headers=headers,
+    )
 
     # 3️⃣ Checkout
     checkout_res = requests.post(f"{BASE_URL}/checkout", headers=headers)

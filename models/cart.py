@@ -45,7 +45,7 @@ class ShoppingCart:
 
     def calculate_total(self):
         """חישוב הסכום הכולל של הפריטים בעגלה."""
-        return sum(item['item'].price * item['quantity'] for item in self.items)
+        return sum(item["item"].price * item["quantity"] for item in self.items)
 
     def apply_discount(self, discount_percentage):
         """החלת הנחה כללית על העגלה."""
@@ -60,7 +60,7 @@ class ShoppingCart:
 
         if payment_gateway.process_payment(total):
             for item in self.items:
-                item['item'].deduct_from_inventory(item['quantity'])
+                item["item"].deduct_from_inventory(item["quantity"])
             self.clear_cart()
             print("Purchase successful!")
             return True

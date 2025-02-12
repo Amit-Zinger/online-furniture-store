@@ -11,6 +11,7 @@ class Inventory:
     - Add, remove, and update the quantity of furniture items.
     - Search for furniture items by attributes such as name, category, and price range.
     """
+
     def __init__(self, file_path):
         """
         Initialize the Inventory class with the given file path.
@@ -27,14 +28,16 @@ class Inventory:
                     "Sofa": [[]],
                     "Table": [[]],
                     "Bed": [[]],
-                    "Closet": [[]]
+                    "Closet": [[]],
                 }
                 self.data = pd.DataFrame(data)
                 self.update_data()
                 return
             self._load_data()
         except Exception as e:
-            raise Exception(f"Failed to create Inventory object.\nChenk path to data file.")
+            raise Exception(
+                f"Failed to create Inventory object.\nChenk path to data file."
+            )
 
     def _load_data(self):
         """
@@ -44,11 +47,11 @@ class Inventory:
         True if data uploaded and False if not.
         """
         try:
-             self.data = pd.read_pickle(self.file_path)
-             return True
+            self.data = pd.read_pickle(self.file_path)
+            return True
         except:
-             print("Failed to upload data to pickle file, check file path")
-             return False
+            print("Failed to upload data to pickle file, check file path")
+            return False
 
     def update_data(self):
         """
@@ -57,7 +60,7 @@ class Inventory:
         return:
         True if data updated and False if not.
         """
-        try :
+        try:
             self.data.to_pickle(self.file_path)
             return True
         except:
@@ -75,20 +78,20 @@ class Inventory:
         True if item added and False if not.
         """
         # Creates furniture attribute
-        if ('type' in furniture_desc.keys()):
-            furniture_type = furniture_desc['type']
+        if "type" in furniture_desc.keys():
+            furniture_type = furniture_desc["type"]
             furniture_instance = FurnitureFactory.create_furniture(furniture_desc)
-            if (furniture_instance and self.data is not None):
+            if furniture_instance and self.data is not None:
                 self.data.at[0, furniture_type].append(furniture_instance)
-            else :
-                print ("Failed to create Furniture object.")
+            else:
+                print("Failed to create Furniture object.")
                 return False
         else:
             print("Basic attributes missing fail to create furniture object.")
             return False
         return True
 
-    def remove_item(self, furniture_atr=None , furniture_desc= None):
+    def remove_item(self, furniture_atr=None, furniture_desc=None):
         """
         Remove a furniture item from the inventory.
 
@@ -99,26 +102,24 @@ class Inventory:
         return:
         True if item removed and False if not.
         """
-        if (furniture_desc and furniture_atr is None):
-            if ('type' in furniture_desc.keys()):
+        if furniture_desc and furniture_atr is None:
+            if "type" in furniture_desc.keys():
                 furniture_atr = FurnitureFactory.create_furniture(furniture_desc)
-            else :
+            else:
                 print("Basic attributes missing fail to create furniture object.")
                 return False
-        if (furniture_atr):
-            class_name = (type(furniture_atr).__name__)
+        if furniture_atr:
+            class_name = type(furniture_atr).__name__
             pd_spec_class = self.data[class_name][0]
             try:
                 pd_spec_class.remove(furniture_atr)
-            except ValueError :
+            except ValueError:
                 return False
-            self.data.loc[0,class_name] = pd_spec_class
+            self.data.loc[0, class_name] = pd_spec_class
             return True
 
         print("No furniture object or furniture data delivered.")
         return False
-
-
 
     def update_quantity(self, furniture_atr, new_q):
         """
@@ -132,11 +133,11 @@ class Inventory:
         True if quantity updated and False if not.
         """
         # Find the furniture_atr in the data frame
-        if (furniture_atr):
-            class_name = (type(furniture_atr).__name__)
+        if furniture_atr:
+            class_name = type(furniture_atr).__name__
             pd_spec_class = self.data[class_name][0]
             item_id = furniture_atr.serial_number
-            flag= False
+            flag = False
             for obj in pd_spec_class:
                 if obj.serial_number == item_id:
                     obj.quantity = new_q
@@ -147,8 +148,7 @@ class Inventory:
             self.data.loc[0, class_name] = pd_spec_class
             return True
 
-
-    def search_by(self,name=None,category=None,price_range=None,**filters):
+    def search_by(self, name=None, category=None, price_range=None, **filters):
         """
         Search for furniture items based on attributes.
 
@@ -161,6 +161,7 @@ class Inventory:
         Outputs:
         List of furniture items that match the search criteria.
         """
+
         # Additional option to check according to other attributes of furniture obj- Disabled
         def matches_filters(item):
             """
@@ -185,7 +186,7 @@ class Inventory:
             Outputs:
             True if the price is within range, otherwise False.
             """
-            if not hasattr(item, 'price'):
+            if not hasattr(item, "price"):
                 return False
             min_price, max_price = price_range
             return min_price <= item.price <= max_price
@@ -200,37 +201,31 @@ class Inventory:
             Outputs:
             True if the name match, otherwise False.
             """
-            if not hasattr(item, 'name') or getattr(item,'name') != name:
+            if not hasattr(item, "name") or getattr(item, "name") != name:
                 return False
             return True
 
-        furniture_classes = [
-            "Chair",
-            "Sofa",
-            "Table",
-            "Bed",
-            "Closet"
-        ]
+        furniture_classes = ["Chair", "Sofa", "Table", "Bed", "Closet"]
         result = None
         # Handling specific category of furniture
-        if (category):
+        if category:
             result = pd.DataFrame()
-            result= pd.DataFrame({"object": self.data[category][0]})
+            result = pd.DataFrame({"object": self.data[category][0]})
         # Handling specific name of furniture
-        if (name):
-            if (result is None):
+        if name:
+            if result is None:
                 result = pd.DataFrame()
-                for fc in furniture_classes :
+                for fc in furniture_classes:
                     temp_df = pd.DataFrame({"object": self.data[fc][0]})
                     filtered_data = temp_df["object"].apply(match_name)
                     temp_df = temp_df[filtered_data]
-                    result = pd.concat([result,temp_df], ignore_index=True)
-            else :
+                    result = pd.concat([result, temp_df], ignore_index=True)
+            else:
                 filtered_data = result["object"].apply(match_name)
-                result= result[filtered_data]
+                result = result[filtered_data]
         # Handling price range of furniture
-        if (price_range):
-            if (result is None):
+        if price_range:
+            if result is None:
                 result = pd.DataFrame()
                 for fc in furniture_classes:
                     temp_df = pd.DataFrame({"object": self.data[fc][0]})
@@ -246,7 +241,7 @@ class Inventory:
         #     filtered_data = result.apply(match_price_range)
         #     result = result[filtered_data]
 
-        if result is None or result.empty :
+        if result is None or result.empty:
             return []
 
         return result["object"].tolist()
@@ -279,34 +274,27 @@ def create_inventory_with_furniture(file_path):
 
             # Add specific attributes for each furniture type
             if furniture_type == "Chair":
-                furniture_desc.update({
-                    "has_wheels": i % 2 == 0,
-                    "how_many_legs": 4
-                })
+                furniture_desc.update({"has_wheels": i % 2 == 0, "how_many_legs": 4})
             elif furniture_type == "Sofa":
-                furniture_desc.update({
-                    "can_turn_to_bed": i % 2 == 0,
-                    "how_many_seats": 3 + i
-                })
+                furniture_desc.update(
+                    {"can_turn_to_bed": i % 2 == 0, "how_many_seats": 3 + i}
+                )
             elif furniture_type == "Table":
-                furniture_desc.update({
-                    "expandable": i % 2 == 0,
-                    "how_many_seats": 4 + i,
-                    "is_foldable": False
-                })
+                furniture_desc.update(
+                    {
+                        "expandable": i % 2 == 0,
+                        "how_many_seats": 4 + i,
+                        "is_foldable": False,
+                    }
+                )
             elif furniture_type == "Bed":
-                furniture_desc.update({
-                    "has_storage": i % 2 == 0,
-                    "has_back": True
-                })
+                furniture_desc.update({"has_storage": i % 2 == 0, "has_back": True})
             elif furniture_type == "Closet":
-                furniture_desc.update({
-                    "has_drawers": i % 2 == 0,
-                    "how_many_doors": 2 + i
-                })
+                furniture_desc.update(
+                    {"has_drawers": i % 2 == 0, "how_many_doors": 2 + i}
+                )
 
             inventory.add_item(furniture_desc)
 
     inventory.update_data()
     print("Inventory populated with furniture items successfully.")
-

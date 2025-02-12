@@ -5,7 +5,7 @@ furniture_classes = {
     "Sofa": Sofa,
     "Table": Table,
     "Bed": Bed,
-    "Closet": Closet
+    "Closet": Closet,
 }
 
 
@@ -33,30 +33,31 @@ class FurnitureFactory:
         :return: An instance of the specified furniture class.
         :raises ValueError: If furniture type is missing or unknown.
         """
-        furniture_type = furniture_desc.get('type')
+        furniture_type = furniture_desc.get("type")
         if furniture_type not in furniture_classes:
             raise ValueError(f"Unknown furniture type: {furniture_type}")
 
-        furniture_desc.pop('type')  # Remove 'type' after validation
+        furniture_desc.pop("type")  # Remove 'type' after validation
 
         # Add custom handling for specific attributes
-        if furniture_type == 'Sofa':
-            if 'how_many_seats' not in furniture_desc:
+        if furniture_type == "Sofa":
+            if "how_many_seats" not in furniture_desc:
                 raise ValueError("Sofa requires 'how_many_seats'")
-            if 'can_turn_to_bed' not in furniture_desc:
+            if "can_turn_to_bed" not in furniture_desc:
                 raise ValueError("Sofa requires 'can_turn_to_bed'")
 
-        if furniture_type == 'Table':
-            if 'is_foldable' not in furniture_desc:
-                print("Warning: 'is_foldable' not found in Table, setting default to False")
-                furniture_desc['is_foldable'] = False
+        if furniture_type == "Table":
+            if "is_foldable" not in furniture_desc:
+                print(
+                    "Warning: 'is_foldable' not found in Table, setting default to False"
+                )
+                furniture_desc["is_foldable"] = False
 
-        if furniture_type == 'Closet':
-            if 'has_mirrors' not in furniture_desc:
+        if furniture_type == "Closet":
+            if "has_mirrors" not in furniture_desc:
                 raise ValueError("Closet requires 'has_mirrors'")
-            if 'number_of_shelves' not in furniture_desc:
+            if "number_of_shelves" not in furniture_desc:
                 raise ValueError("Closet requires 'number_of_shelves'")
-
 
         try:
             return furniture_classes[furniture_type](**furniture_desc)
