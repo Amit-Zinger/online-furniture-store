@@ -1,8 +1,6 @@
 import pytest
 from models.inventory import Inventory
-import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "models")))
 
 
 @pytest.fixture
