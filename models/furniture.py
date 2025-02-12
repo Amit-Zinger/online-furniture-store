@@ -168,7 +168,7 @@ class Table(Furniture):
             manufacturing_country: str,
             expandable: bool,
             how_many_seats: int,
-            is_foldable: bool,  # Only Table has is_foldable
+            is_foldable: bool,
             interested_clients: List[str] = None,
     ):
         super().__init__(

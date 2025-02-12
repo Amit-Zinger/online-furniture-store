@@ -3,13 +3,12 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, cur
 import json
 import os
 
-###################################################### app
 
+###################################################### app
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
-
 ###################################################### data
 
 data_file = 'data.json'
