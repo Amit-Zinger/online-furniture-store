@@ -12,6 +12,7 @@ login_manager.login_view = "login"
 
 USER_FILE = "users.json"
 
+
 class User(UserMixin, ABC):
     def __init__(self, id, username, email, password, address, role="user"):
         self.id = id

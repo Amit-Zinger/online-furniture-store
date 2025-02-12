@@ -64,7 +64,6 @@ class Inventory:
             print("Failed to update data to pickle file, check file path")
             return False
 
-
     def add_item(self, furniture_desc):
         """
         Add a new furniture item to the inventory.
@@ -175,6 +174,7 @@ class Inventory:
                 if not hasattr(item, attr) or getattr(item, attr) != value:
                     return False
             return True
+
         def match_price_range(item):
             """
             Check if the item's price is within the specified range.

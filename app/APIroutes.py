@@ -1,166 +1,118 @@
 from flask import Flask, request, jsonify
-from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user
+import jwt
+from datetime import datetime, timedelta
+import bcrypt
 import json
 import os
+from models.user import Client, Management
+from models.cart import ShoppingCart
+from models.inventory import Inventory
 
-
-###################################################### app
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
-login_manager = LoginManager()
-login_manager.init_app(app)
-###################################################### data
-
-data_file = 'data.json'
-if not os.path.exists(data_file):
-    with open(data_file, 'w') as f:
-        json.dump({"users": {}, "furniture": []}, f)
+app.secret_key = "your_secret_key"
+JWT_SECRET = "super_secret_jwt_key"
+USER_FILE = "data/users.json"
 
 
-def load_data():
-    pass
+# Helper functions
+def get_all_users():
+    try:
+        with open(USER_FILE, "r") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return []
 
 
-def save_data(data):
-    pass
+def save_users(users):
+    with open(USER_FILE, "w") as file:
+        json.dump(users, file, indent=4)
 
 
-###################################################### classes
-
-class Furniture:
-    def __init__(self, name, price):
-        self.name = name
-        self.price = price
-
-    def remove(self):
-        pass
-
-    def deduct_from_invetory(self, quantity):
-        pass
-
-    def to_dict(self):
-        pass
+def authenticate(token):
+    try:
+        return jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
 
 
-class ShoppingCart:
-    def __init__(self, user_id):
-        self.user_id = user_id
-        self.items = []
-
-    def get_cart(self):
-        pass
-
-    def add_item(self, item, quantity):
-        pass
-
-    def clear_cart(self):
-        pass
-
-    def calculate_total(self):
-        pass
-
-    def purchase(self, payment_gateway):
-        for item in self.items:
-            if item.quantity > item.inventory:
-                raise ValueError
-            item.deduct_from_invetory(item.quanity)
-
-
-class PaymentGateway:
-    @staticmethod
-    def process_payment(amount):
-        pass
-
-
-class User(UserMixin):
-    def __init__(self, username):
-        self.id = username
-        self.cart = ShoppingCart(username)
-
-
-###################################################### routes
-
-@login_manager.user_loader
-def load_user(user_id):
-    data = load_data()
-    users = data["users"]
-    if user_id in users:
-        return User(user_id)
-    return None
-
-
-@app.route('/register', methods=['POST'])
+# Routes
+@app.route("/register", methods=["POST"])
 def register():
-    username = request.json.get('username')
-    if not username:
-        return jsonify({"error": "Username is required"}), 400
+    data = request.json
+    users = get_all_users()
+    if any(user["username"] == data["username"] for user in users):
+        return jsonify({"error": "Username already exists"}), 400
 
-    data = load_data()
-    if username in data["users"]:
-        return jsonify({"error": "User already exists"}), 400
+    new_user = {
+        "id": len(users) + 1,
+        "username": data["username"],
+        "email": data["email"],
+        "password": bcrypt.hashpw(data["password"].encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
+        "address": data["address"],
+        "role": data.get("role", "client"),
+    }
+    if new_user["role"] == "client":
+        new_user.update({"shop_cart": [], "liked_list": []})
+    elif new_user["role"] == "manager":
+        new_user.update({"worker_ID": len([u for u in users if u.get("worker_ID")]) + 1})
 
-    data["users"][username] = {"shopping_cart": []}
-    save_data(data)
-    return jsonify({"message": f"User {username} registered successfully"})
+    users.append(new_user)
+    save_users(users)
+    return jsonify({"message": "Registration successful!"}), 201
 
 
-@app.route('/login', methods=['POST'])
+@app.route("/login", methods=["POST"])
 def login():
-    username = request.json.get('username')
-    if not username:
-        return
+    data = request.json
+    users = get_all_users()
+    user = next((u for u in users if u["username"] == data["username"]), None)
 
-    data = load_data()
-    if username not in data["users"]:
-        return
-
-    user = User(username)
-    login_user(user)
-
-
-@app.route('/logout', methods=['POST'])
-@login_required
-def logout():
-    logout_user()
+    if user and bcrypt.checkpw(data["password"].encode('utf-8'), user["password"].encode('utf-8')):
+        token = jwt.encode({"user_id": user["id"], "role": user["role"], "exp": datetime.utcnow() + timedelta(hours=2)},
+                           JWT_SECRET, algorithm="HS256")
+        return jsonify({"message": "Login successful!", "token": token}), 200
+    return jsonify({"error": "Invalid credentials"}), 401
 
 
-@app.route('/add_to_cart', methods=['POST'])
-@login_required
+@app.route("/add_to_cart", methods=["POST"])
 def add_to_cart():
-    item_name = request.json.get('name')
-    item_quantity = request.json.get('quantity')
+    token = request.headers.get("Authorization")
+    user_data = authenticate(token)
+    if not user_data:
+        return jsonify({"error": "Unauthorized"}), 401
 
-    if not item_name:
-        return
+    data = request.json
+    users = get_all_users()
+    user = next((u for u in users if u["id"] == user_data["user_id"]), None)
 
-    ## simulates finding the item in the db
-    item_params = load_data(furniture=item_name)
-
-    item = Furniture(**item_params)
-
-    current_user.cart.add_item(item, item_quantity)
-
-
-@app.route('/purchase', methods=['POST'])
-@login_required
-def purchase():
-    total_price = current_user.cart.calculate_total()
-    if total_price == 0:
-        return
-
-    payment_gateway = PaymentGateway()
-
-    if current_user.cart.purchase(payment_gateway):
-        current_user.cart.clear_cart()
+    if user:
+        user["shop_cart"].append(data["item"])
+        save_users(users)
+        return jsonify({"message": "Item added to cart"}), 200
+    return jsonify({"error": "User not found"}), 404
 
 
-@app.route('/cart', methods=['GET'])
-@login_required
-def view_cart():
-    cart = current_user.cart.get_cart()
-    total_price = current_user.cart.calculate_total()
-    return jsonify({"items": cart, "total_price": total_price})
+@app.route("/checkout", methods=["POST"])
+def checkout():
+    token = request.headers.get("Authorization")
+    user_data = authenticate(token)
+    if not user_data:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    users = get_all_users()
+    user = next((u for u in users if u["id"] == user_data["user_id"]), None)
+
+    if user:
+        if not user["shop_cart"]:
+            return jsonify({"error": "Cart is empty"}), 400
+
+        user["shop_cart"] = []
+        save_users(users)
+        return jsonify({"message": "Purchase completed!"}), 200
+    return jsonify({"error": "User not found"}), 404
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)
