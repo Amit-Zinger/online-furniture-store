@@ -48,7 +48,15 @@ class FurnitureFactory:
 
         if furniture_type == 'Table':
             if 'is_foldable' not in furniture_desc:
-                raise ValueError("Table requires 'is_foldable'")
+                print("Warning: 'is_foldable' not found in Table, setting default to False")
+                furniture_desc['is_foldable'] = False
+
+        if furniture_type == 'Closet':
+            if 'has_mirrors' not in furniture_desc:
+                raise ValueError("Closet requires 'has_mirrors'")
+            if 'number_of_shelves' not in furniture_desc:
+                raise ValueError("Closet requires 'number_of_shelves'")
+
 
         try:
             return furniture_classes[furniture_type](**furniture_desc)

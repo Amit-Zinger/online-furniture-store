@@ -70,7 +70,9 @@ class TestFurniture(unittest.TestCase):
             weight=100.0,
             manufacturing_country="USA",
             has_mirrors=True,
-            number_of_shelves=5
+            number_of_shelves=5,
+            how_many_doors=3
+
         )
 
     def test_apply_discount(self):

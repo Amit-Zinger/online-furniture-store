@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from factory import FurnitureFactory
+from models.factory import FurnitureFactory
 
 
 class Inventory:
@@ -291,7 +291,8 @@ def create_inventory_with_furniture(file_path):
             elif furniture_type == "Table":
                 furniture_desc.update({
                     "expandable": i % 2 == 0,
-                    "how_many_seats": 4 + i
+                    "how_many_seats": 4 + i,
+                    "is_foldable": False
                 })
             elif furniture_type == "Bed":
                 furniture_desc.update({

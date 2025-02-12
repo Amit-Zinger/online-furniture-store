@@ -52,6 +52,7 @@ def setup_inventory():
                     furniture_desc.update({
                         "expandable": i % 2 == 0,
                         "how_many_seats": 4 + i
+
                     })
                 elif furniture_type == "Bed":
                     furniture_desc.update({
@@ -60,8 +61,10 @@ def setup_inventory():
                     })
                 elif furniture_type == "Closet":
                     furniture_desc.update({
-                        "has_drawers": i % 2 == 0,
-                        "how_many_doors": 2 + i
+                        "how_many_doors": 2 + i,
+                        "has_mirrors": True,
+                        "number_of_shelves": i
+
                     })
 
                 inventory_testing.add_item(furniture_desc)

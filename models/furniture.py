@@ -193,7 +193,9 @@ class Closet(Furniture):
             manufacturing_country: str,
             has_mirrors: bool,
             number_of_shelves: int,
-            interested_clients: List[str] = None,
+            how_many_doors: int,
+            interested_clients: List[str] = None
+
     ):
         super().__init__(
             name, description, price, dimensions, serial_number,
@@ -201,3 +203,5 @@ class Closet(Furniture):
         )
         self.has_mirrors = has_mirrors
         self.number_of_shelves = number_of_shelves
+        self.how_many_doors = how_many_doors
+
