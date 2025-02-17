@@ -51,7 +51,8 @@ def setup_inventory():
                         {"expandable": i % 2 == 0, "how_many_seats": 4 + i}
                     )
                 elif furniture_type == "Bed":
-                    furniture_desc.update({"has_storage": i % 2 == 0, "has_back": True})
+                    furniture_desc.update(
+                        {"has_storage": i % 2 == 0, "has_back": True})
                 elif furniture_type == "Closet":
                     furniture_desc.update(
                         {
@@ -146,7 +147,8 @@ def test_search_by_name_and_price(setup_inventory):
     results = inventory.search_by(name=chair_name, price_range=(100, 200))
 
     assert len(results) > 0
-    assert all(obj.name == chair_name and 100 <= obj.price <= 200 for obj in results)
+    assert all(obj.name == chair_name and 100 <=
+               obj.price <= 200 for obj in results)
 
 
 def test_search_by_category_and_price(setup_inventory):

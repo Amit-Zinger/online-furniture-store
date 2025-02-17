@@ -35,7 +35,8 @@ def test_manager():
 @pytest.fixture
 def auth_token(test_user):
     """מבצע התחברות ומחזיר טוקן"""
-    login_data = {"username": test_user["username"], "password": test_user["password"]}
+    login_data = {
+        "username": test_user["username"], "password": test_user["password"]}
     response = requests.post(f"{BASE_URL}/login", json=login_data)
     return response.json().get("token")
 
@@ -97,7 +98,8 @@ def test_add_to_cart(auth_token):
     """בדיקת הוספת פריט לעגלת הקניות"""
     headers = {"Authorization": auth_token}
     cart_item = {"item": {"name": "Office Chair", "quantity": 1}}
-    response = requests.post(f"{BASE_URL}/cart/add", json=cart_item, headers=headers)
+    response = requests.post(f"{BASE_URL}/cart/add",
+                             json=cart_item, headers=headers)
     assert response.status_code == 200
     assert "Item added to cart" in response.json()["message"]
 

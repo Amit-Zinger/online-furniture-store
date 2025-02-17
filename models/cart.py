@@ -35,7 +35,8 @@ class ShoppingCart:
 
     def remove_item(self, item_name):
         """מסיר פריט לפי שם מהעגלה."""
-        self.items = [item for item in self.items if item["item"].name != item_name]
+        self.items = [
+            item for item in self.items if item["item"].name != item_name]
         print(f"Removed {item_name} from cart.")
 
     def clear_cart(self):
