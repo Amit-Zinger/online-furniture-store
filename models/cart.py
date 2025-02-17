@@ -1,5 +1,4 @@
 from app.utils import calc_discount
-from app.utils import calc_discount
 
 
 class PaymentGateway:
