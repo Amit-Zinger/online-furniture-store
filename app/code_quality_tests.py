@@ -24,7 +24,7 @@ def run_flake8():
         text=True,
     )
     if result.returncode == 0:
-        print("✔ Flake8 Passed: No style errors found.")
+        print(" Flake8 Passed: No style errors found.")
     else:
         print(" Flake8 Errors:")
         print(result.stdout)
@@ -38,7 +38,7 @@ def run_black_check():
         text=True,
     )
     if result.returncode == 0:
-        print("✔ Black Passed: Code formatting is correct.")
+        print(" Black Passed: Code formatting is correct.")
     else:
         print(" Black Formatting Issues:")
         print(result.stdout)
@@ -50,7 +50,7 @@ def run_black_fix():
         [sys.executable, "-m", "black", "."], capture_output=True, text=True
     )
     print(result.stdout)
-    print("✔ Black Formatting Applied.")
+    print(" Black Formatting Applied.")
 
 def run_autopep8_fix():
     """Run autopep8 to fix minor style issues."""
@@ -61,7 +61,7 @@ def run_autopep8_fix():
         text=True,
     )
     print(result.stdout)
-    print("✔ autopep8 Formatting Applied.")
+    print(" autopep8 Formatting Applied.")
 
 if __name__ == "__main__":
     run_flake8()
