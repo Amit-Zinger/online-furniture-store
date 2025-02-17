@@ -30,7 +30,7 @@ jobs:
         run: pytest --cov=app tests/
 
   lint:
-    name: Run Code Linting
+    name: Run Code Quality Checks
     runs-on: ubuntu-latest
 
     steps:
@@ -42,10 +42,8 @@ jobs:
         with:
           python-version: "3.8"
 
-      - name: Install linters
-        run: pip install flake8 black
+      - name: Install linters and formatters
+        run: pip install flake8 black autopep8
 
-      - name: Run Linting
-        run: |
-          black --check .
-          flake8 .
+      - name: Run Code Quality Tests
+        run: python code_quality_tests.py --fix
