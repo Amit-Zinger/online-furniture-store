@@ -1,12 +1,11 @@
 import pytest
 import requests
 
-BASE_URL = "http://127.0.0.1:5000"  # URL של ה- Flask API
-
+BASE_URL = "http://127.0.0.1:5000"  # Flask API URL
 
 @pytest.fixture
 def test_user():
-    """רושם משתמש חדש לבדיקה"""
+    """Registers a new user for testing."""
     user_data = {
         "username": "test_user",
         "email": "test_user@example.com",
@@ -15,12 +14,11 @@ def test_user():
         "role": "client",
     }
     response = requests.post(f"{BASE_URL}/register", json=user_data)
-    return user_data  # מחזיר את הנתונים שנשלחו
-
+    return user_data  # Returns the sent data
 
 @pytest.fixture
 def test_manager():
-    """רושם משתמש מנהל לבדיקה"""
+    """Registers a new manager user for testing."""
     manager_data = {
         "username": "test_manager",
         "email": "manager@example.com",
@@ -29,21 +27,19 @@ def test_manager():
         "role": "manager",
     }
     response = requests.post(f"{BASE_URL}/register", json=manager_data)
-    return manager_data  # מחזיר את הנתונים שנשלחו
-
+    return manager_data  # Returns the sent data
 
 @pytest.fixture
 def auth_token(test_user):
-    """מבצע התחברות ומחזיר טוקן"""
+    """Logs in a user and returns the authentication token."""
     login_data = {
         "username": test_user["username"], "password": test_user["password"]}
     response = requests.post(f"{BASE_URL}/login", json=login_data)
     return response.json().get("token")
 
-
 @pytest.fixture
 def manager_token(test_manager):
-    """מבצע התחברות ומחזיר טוקן של מנהל"""
+    """Logs in a manager and returns the authentication token."""
     login_data = {
         "username": test_manager["username"],
         "password": test_manager["password"],
@@ -51,9 +47,8 @@ def manager_token(test_manager):
     response = requests.post(f"{BASE_URL}/login", json=login_data)
     return response.json().get("token")
 
-
 def test_register_user():
-    """בדיקת רישום משתמש חדש"""
+    """Test new user registration."""
     user_data = {
         "username": "new_user",
         "email": "new_user@example.com",
@@ -65,14 +60,12 @@ def test_register_user():
     assert response.status_code == 201
     assert "Registration successful!" in response.json()["message"]
 
-
 def test_login(auth_token):
-    """בדיקת התחברות תקינה"""
+    """Test valid user login."""
     assert auth_token is not None
 
-
 def test_add_inventory_item(manager_token):
-    """בדיקת הוספת פריט למלאי (דורש הרשאת מנהל)"""
+    """Test adding an item to inventory (requires manager role)."""
     headers = {"Authorization": manager_token}
     item_data = {
         "type": "Chair",
@@ -87,25 +80,20 @@ def test_add_inventory_item(manager_token):
         "has_wheels": True,
         "how_many_legs": 5,
     }
-    response = requests.post(
-        f"{BASE_URL}/inventory/add", json=item_data, headers=headers
-    )
+    response = requests.post(f"{BASE_URL}/inventory/add", json=item_data, headers=headers)
     assert response.status_code == 201
     assert "Item added successfully!" in response.json()["message"]
 
-
 def test_add_to_cart(auth_token):
-    """בדיקת הוספת פריט לעגלת הקניות"""
+    """Test adding an item to the shopping cart."""
     headers = {"Authorization": auth_token}
     cart_item = {"item": {"name": "Office Chair", "quantity": 1}}
-    response = requests.post(f"{BASE_URL}/cart/add",
-                             json=cart_item, headers=headers)
+    response = requests.post(f"{BASE_URL}/cart/add", json=cart_item, headers=headers)
     assert response.status_code == 200
     assert "Item added to cart" in response.json()["message"]
 
-
 def test_checkout(auth_token):
-    """בדיקת תהליך קנייה"""
+    """Test user checkout process."""
     headers = {"Authorization": auth_token}
     response = requests.post(f"{BASE_URL}/checkout", headers=headers)
     assert response.status_code == 200

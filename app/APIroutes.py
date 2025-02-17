@@ -15,12 +15,11 @@ JWT_SECRET = "super_secret_jwt_key"
 USER_FILE = "data/users.json"
 
 # Initialize inventory and orders
-inventory = Inventory("data/inventory.pkl")
+inventory = Inventory("data/inventory.pkl")  # Using pickle for inventory
 orders = []
 
 
 # ---------------------- Helper Functions ----------------------
-
 
 def get_all_users():
     """Load all users from JSON file."""
@@ -48,7 +47,6 @@ def authenticate(token):
 
 
 # ---------------------- User Management ----------------------
-
 
 @app.route("/register", methods=["POST"])
 def register():
@@ -106,7 +104,6 @@ def login():
 
 # ---------------------- Inventory Management ----------------------
 
-
 @app.route("/inventory", methods=["GET"])
 def get_inventory():
     """Get all available furniture in inventory."""
@@ -120,32 +117,30 @@ def add_inventory_item():
     user_data = authenticate(token)
 
     if not user_data or user_data["role"] != "manager":
-        return jsonify({"error": "Unauthorized"}), 401
+        return jsonify({"error": "Unauthorized"}), 403
 
     data = request.json
-    inventory.add_item(data)
-    inventory.update_data()
-    return jsonify({"message": "Item added successfully!"}), 201
+    if inventory.add_item(data):
+        return jsonify({"message": "Item added successfully!"}), 201
+    return jsonify({"error": "Failed to add item"}), 400
 
 
 @app.route("/inventory/remove", methods=["DELETE"])
 def remove_inventory_item():
-    """Remove furniture item from inventory (Admin only)."""
+    """Remove a furniture item from inventory (Admin only)."""
     token = request.headers.get("Authorization")
     user_data = authenticate(token)
 
     if not user_data or user_data["role"] != "manager":
-        return jsonify({"error": "Unauthorized"}), 401
+        return jsonify({"error": "Unauthorized"}), 403
 
     data = request.json
-    if inventory.remove_item(furniture_desc=data):
-        inventory.update_data()
+    if inventory.remove_item(data["serial_number"]):
         return jsonify({"message": "Item removed successfully!"}), 200
     return jsonify({"error": "Item not found"}), 404
 
 
 # ---------------------- Shopping Cart ----------------------
-
 
 @app.route("/cart", methods=["GET"])
 def view_cart():
@@ -185,7 +180,6 @@ def add_to_cart():
 
 
 # ---------------------- Checkout Process ----------------------
-
 
 @app.route("/checkout", methods=["POST"])
 def checkout():
