@@ -24,10 +24,21 @@ jobs:
 
       - name: Install dependencies
         run: |
+          pip install pip-tools
+          pip-compile requirements/requirements.in
           pip install -r requirements/requirements.txt
 
       - name: Run Tests
         run: pytest --cov=app tests/
+
+      - name: Start Flask Server
+        run: |
+          python main.py &  # Runs Flask in the background
+          sleep 5  # Waits 5 seconds for the server to start
+
+      - name: Run API Tests
+        run: pytest tests/
+
 
   lint:
     name: Run Code Quality Checks

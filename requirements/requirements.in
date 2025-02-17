@@ -1,0 +1,6 @@
+Flask
+pytest
+bcrypt
+PyJWT
+requests
+
