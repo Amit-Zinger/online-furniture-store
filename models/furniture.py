@@ -64,18 +64,34 @@ class Furniture(ABC):
         Apply a discount to the price of the furniture.
 
         :param discount_percentage: The percentage discount to apply.
+        :raises ValueError: If discount is not between 0 and 100.
         """
-        new_price = calc_discount(self.price, discount_percentage)
-        if new_price > 0:
-            self.price = new_price
+        if not (0 <= discount_percentage <= 100):
+            raise ValueError("Discount percentage must be between 0 and 100.")
 
-    def apply_tax(self, tax_rate=0.17):
+        new_price = calc_discount(self.price, discount_percentage)
+        self.price = new_price
+
+    def apply_tax(self, tax_rate: float = 0.17):
         """
         Apply tax to the price of the furniture.
 
-        param tax_rate: The tax rate to apply (default is 17%).
+        :param tax_rate: The tax rate to apply (default is 17%).
+        :raises ValueError: If tax rate is negative.
         """
-        self.price += self.price * tax_rate
+        if tax_rate < 0:
+            raise ValueError("Tax rate cannot be negative.")
+
+        self.price = self._calculate_price_with_tax(tax_rate)
+
+    def _calculate_price_with_tax(self, tax_rate: float) -> float:
+        """
+        Internal helper function to calculate price with tax.
+
+        :param tax_rate: The tax rate to apply.
+        :return: Price after tax.
+        """
+        return round(self.price * (1 + tax_rate), 2)
 
     def is_valid_price(self) -> bool:
         """Validate if the price is a positive number."""
