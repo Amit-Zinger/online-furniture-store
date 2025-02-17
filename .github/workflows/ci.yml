@@ -46,4 +46,4 @@ jobs:
         run: pip install flake8 black autopep8
 
       - name: Run Code Quality Tests
-        run: python code_quality_tests.py --fix
+        run: python tests/code_quality_tests.py --fix
