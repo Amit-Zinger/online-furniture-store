@@ -1,7 +1,6 @@
 import unittest
 from models.factory import FurnitureFactory
-from models.furniture import Chair, Sofa
-
+from models.furniture import Chair, Sofa, Table, Bed, Closet
 
 class TestFurnitureFactory(unittest.TestCase):
     """Unit test class for testing the FurnitureFactory."""
@@ -36,6 +35,50 @@ class TestFurnitureFactory(unittest.TestCase):
             "can_turn_to_bed": False,
         }
 
+        self.table_desc = {
+            "type": "Table",
+            "name": "Wooden Table",
+            "description": "Sturdy wooden table",
+            "price": 300.0,
+            "dimensions": "150x90x75 cm",
+            "serial_number": "TB001",
+            "quantity": 5,
+            "weight": 30.0,
+            "manufacturing_country": "Germany",
+            "expandable": True,
+            "how_many_seats": 6,
+            "is_foldable": False,
+        }
+
+        self.bed_desc = {
+            "type": "Bed",
+            "name": "Queen Bed",
+            "description": "Comfortable queen-sized bed",
+            "price": 900.0,
+            "dimensions": "200x150x60 cm",
+            "serial_number": "BD001",
+            "quantity": 2,
+            "weight": 70.0,
+            "manufacturing_country": "France",
+            "has_storage": True,
+            "has_back": True,
+        }
+
+        self.closet_desc = {
+            "type": "Closet",
+            "name": "Modern Closet",
+            "description": "Large closet with sliding doors",
+            "price": 700.0,
+            "dimensions": "250x60x200 cm",
+            "serial_number": "CL001",
+            "quantity": 3,
+            "weight": 90.0,
+            "manufacturing_country": "Italy",
+            "has_mirrors": True,
+            "number_of_shelves": 5,
+            "how_many_doors": 3,
+        }
+
     def test_create_furniture_chair(self):
         """Test the creation of a chair using the factory."""
         chair = FurnitureFactory.create_furniture(self.chair_desc)
@@ -48,6 +91,24 @@ class TestFurnitureFactory(unittest.TestCase):
         sofa = FurnitureFactory.create_furniture(self.sofa_desc)
         self.assertIsInstance(sofa, Sofa)
         self.assertEqual(sofa.how_many_seats, 4)
+
+    def test_create_furniture_table(self):
+        """Test the creation of a table using the factory."""
+        table = FurnitureFactory.create_furniture(self.table_desc)
+        self.assertIsInstance(table, Table)
+        self.assertTrue(table.expandable)
+
+    def test_create_furniture_bed(self):
+        """Test the creation of a bed using the factory."""
+        bed = FurnitureFactory.create_furniture(self.bed_desc)
+        self.assertIsInstance(bed, Bed)
+        self.assertTrue(bed.has_storage)
+
+    def test_create_furniture_closet(self):
+        """Test the creation of a closet using the factory."""
+        closet = FurnitureFactory.create_furniture(self.closet_desc)
+        self.assertIsInstance(closet, Closet)
+        self.assertTrue(closet.has_mirrors)
 
     def test_invalid_furniture_type(self):
         """Test error handling for unknown furniture type."""
@@ -67,13 +128,11 @@ class TestFurnitureFactory(unittest.TestCase):
 
         class CustomFurniture:
             def __init__(self, **kwargs):
-                self.custom_attribute = kwargs.get(
-                    "custom_attribute", "Default")
+                self.custom_attribute = kwargs.get("custom_attribute", "Default")
 
         FurnitureFactory.register_furniture("CustomFurniture", CustomFurniture)
 
-        custom_desc = {"type": "CustomFurniture",
-                       "custom_attribute": "Special Feature"}
+        custom_desc = {"type": "CustomFurniture", "custom_attribute": "Special Feature"}
         custom_obj = FurnitureFactory.create_furniture(custom_desc)
 
         self.assertIsInstance(custom_obj, CustomFurniture)

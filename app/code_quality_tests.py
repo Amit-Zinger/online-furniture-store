@@ -26,7 +26,7 @@ def run_flake8():
     if result.returncode == 0:
         print("✔ Flake8 Passed: No style errors found.")
     else:
-        print("❌ Flake8 Errors:")
+        print(" Flake8 Errors:")
         print(result.stdout)
 
 def run_black_check():
@@ -40,7 +40,7 @@ def run_black_check():
     if result.returncode == 0:
         print("✔ Black Passed: Code formatting is correct.")
     else:
-        print("❌ Black Formatting Issues:")
+        print(" Black Formatting Issues:")
         print(result.stdout)
 
 def run_black_fix():
@@ -66,7 +66,7 @@ def run_autopep8_fix():
 if __name__ == "__main__":
     run_flake8()
     run_black_check()
-    print("ℹ Use 'python code_quality_tests.py --fix' to auto-fix formatting errors.")
+    print(" Use 'python code_quality_tests.py --fix' to auto-fix formatting errors.")
     if "--fix" in sys.argv:
         run_black_fix()
         run_autopep8_fix()

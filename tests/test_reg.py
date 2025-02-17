@@ -1,5 +1,6 @@
 import pytest
 import requests
+import json
 from unittest.mock import patch
 
 BASE_URL = "http://127.0.0.1:5000"
@@ -9,7 +10,7 @@ BASE_URL = "http://127.0.0.1:5000"
 def mock_requests():
     """Mock all requests to the API to prevent real HTTP calls."""
     with patch("requests.post") as mock_post, patch("requests.get") as mock_get:
-        mock_post.side_effect = lambda url, json, headers=None: \
+        mock_post.side_effect = lambda url, json=None, headers=None: \
             mock_response(201, {"message": "Registration successful!"}) if "/register" in url else \
                 mock_response(200, {"message": "Login successful!", "token": "mock_token"}) if "/login" in url else \
                     mock_response(200, {"message": "Item added to cart"}) if "/cart/add" in url else \

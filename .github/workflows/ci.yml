@@ -35,3 +35,6 @@ jobs:
 
       - name: Stop Flask Server
         run: pkill -f app/APIroutes.py || true
+
+      - name: Run Code Quality Checks
+        run: python app/code_quality_tests.py
