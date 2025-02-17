@@ -25,4 +25,5 @@ def test_order_process():
 
     # 4️⃣ Check inventory is updated
     inventory_res = requests.get(f"{BASE_URL}/inventory")
-    assert "Chair" not in inventory_res.json()  # Ensure item was removed from inventory
+    # Ensure item was removed from inventory
+    assert "Chair" not in inventory_res.json()

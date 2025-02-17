@@ -35,7 +35,8 @@ class ShoppingCart:
 
     def remove_item(self, item_name):
         """מסיר פריט לפי שם מהעגלה."""
-        self.items = [item for item in self.items if item["item"].name != item_name]
+        self.items = [
+            item for item in self.items if item["item"].name != item_name]
         print(f"Removed {item_name} from cart.")
 
     def clear_cart(self):
@@ -45,7 +46,8 @@ class ShoppingCart:
 
     def calculate_total(self):
         """חישוב הסכום הכולל של הפריטים בעגלה."""
-        return sum(item["item"].price * item["quantity"] for item in self.items)
+        return sum(item["item"].price * item["quantity"]
+                   for item in self.items)
 
     def apply_discount(self, discount_percentage):
         """החלת הנחה כללית על העגלה."""

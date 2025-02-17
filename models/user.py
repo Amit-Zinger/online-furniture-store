@@ -12,10 +12,14 @@ class User(ABC):
         self.address = address
 
     def hash_password(self, password):
-        return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        return bcrypt.hashpw(
+            password.encode("utf-8"),
+            bcrypt.gensalt()).decode("utf-8")
 
     def verify_password(self, password):
-        return bcrypt.checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
+        return bcrypt.checkpw(
+            password.encode("utf-8"),
+            self.password.encode("utf-8"))
 
     @abstractmethod
     def get_user_type(self):
@@ -86,7 +90,11 @@ class Client(User):
             "client_id": self.client_id,
         }
 
-    def edit_client_info(self, new_username=None, new_email=None, new_address=None):
+    def edit_client_info(
+            self,
+            new_username=None,
+            new_email=None,
+            new_address=None):
         if new_username:
             self.username = new_username
         if new_email:
