@@ -85,8 +85,7 @@ class OrderManager:
             status (str): The new status of the order (e.g., 'Shipped', 'Cancelled').
         """
         if order_id in self.orders["order_id"].values:
-            self.orders.loc[self.orders["order_id"]
-                            == order_id, "status"] = status
+            self.orders.loc[self.orders["order_id"] == order_id, "status"] = status
             print(f"Order {order_id} status updated to {status}.")
         else:
             print(f"No order found with ID {order_id}.")
@@ -99,8 +98,7 @@ class OrderManager:
             order_id (str): The unique ID of the order.
         """
         if order_id in self.orders["order_id"].values:
-            self.orders.loc[self.orders["order_id"]
-                            == order_id, "status"] = "Cancelled"
+            self.orders.loc[self.orders["order_id"] == order_id, "status"] = "Cancelled"
             print(f"Order {order_id} has been cancelled.")
         else:
             print(f"No order found with ID {order_id}.")

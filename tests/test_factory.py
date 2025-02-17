@@ -67,14 +67,11 @@ class TestFurnitureFactory(unittest.TestCase):
 
         class CustomFurniture:
             def __init__(self, **kwargs):
-                self.custom_attribute = kwargs.get(
-                    "custom_attribute", "Default")
+                self.custom_attribute = kwargs.get("custom_attribute", "Default")
 
         FurnitureFactory.register_furniture("CustomFurniture", CustomFurniture)
 
-        custom_desc = {
-            "type": "CustomFurniture",
-            "custom_attribute": "Special Feature"}
+        custom_desc = {"type": "CustomFurniture", "custom_attribute": "Special Feature"}
         custom_obj = FurnitureFactory.create_furniture(custom_desc)
 
         self.assertIsInstance(custom_obj, CustomFurniture)

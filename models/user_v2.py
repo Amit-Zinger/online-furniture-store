@@ -39,14 +39,8 @@ class User(UserMixin, ABC):
 
 class Client(User):
     def __init__(
-            self,
-            id,
-            username,
-            email,
-            password,
-            address,
-            shop_cart=None,
-            liked_list=None):
+        self, id, username, email, password, address, shop_cart=None, liked_list=None
+    ):
         super().__init__(id, username, email, password, address, role="client")
         self.shop_cart = shop_cart if shop_cart else []
         self.liked_list = liked_list if liked_list else []

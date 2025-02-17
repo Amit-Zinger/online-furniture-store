@@ -80,8 +80,7 @@ class Inventory:
         # Creates furniture attribute
         if "type" in furniture_desc.keys():
             furniture_type = furniture_desc["type"]
-            furniture_instance = FurnitureFactory.create_furniture(
-                furniture_desc)
+            furniture_instance = FurnitureFactory.create_furniture(furniture_desc)
             if furniture_instance and self.data is not None:
                 self.data.at[0, furniture_type].append(furniture_instance)
             else:
@@ -105,8 +104,7 @@ class Inventory:
         """
         if furniture_desc and furniture_atr is None:
             if "type" in furniture_desc.keys():
-                furniture_atr = FurnitureFactory.create_furniture(
-                    furniture_desc)
+                furniture_atr = FurnitureFactory.create_furniture(furniture_desc)
             else:
                 print("Basic attributes missing fail to create furniture object.")
                 return False
@@ -277,8 +275,7 @@ def create_inventory_with_furniture(file_path):
 
             # Add specific attributes for each furniture type
             if furniture_type == "Chair":
-                furniture_desc.update(
-                    {"has_wheels": i % 2 == 0, "how_many_legs": 4})
+                furniture_desc.update({"has_wheels": i % 2 == 0, "how_many_legs": 4})
             elif furniture_type == "Sofa":
                 furniture_desc.update(
                     {"can_turn_to_bed": i % 2 == 0, "how_many_seats": 3 + i}
@@ -292,8 +289,7 @@ def create_inventory_with_furniture(file_path):
                     }
                 )
             elif furniture_type == "Bed":
-                furniture_desc.update(
-                    {"has_storage": i % 2 == 0, "has_back": True})
+                furniture_desc.update({"has_storage": i % 2 == 0, "has_back": True})
             elif furniture_type == "Closet":
                 furniture_desc.update(
                     {"has_drawers": i % 2 == 0, "how_many_doors": 2 + i}
