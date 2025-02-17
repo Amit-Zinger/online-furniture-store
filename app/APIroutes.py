@@ -15,7 +15,7 @@ JWT_SECRET = "super_secret_jwt_key"
 USER_FILE = "data/users.json"
 
 # Initialize inventory and orders
-inventory = Inventory("data/inventory.pickle")
+inventory = Inventory("data/inventory.pkl")
 orders = []
 
 
