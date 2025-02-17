@@ -18,7 +18,6 @@ USER_FILE = "data/users.json"
 inventory = Inventory("data/inventory.pkl")  # Using pickle for inventory
 orders = []
 
-
 # ---------------------- Helper Functions ----------------------
 
 def get_all_users():
@@ -29,12 +28,10 @@ def get_all_users():
     except FileNotFoundError:
         return []
 
-
 def save_users(users):
     """Save updated user list to JSON file."""
     with open(USER_FILE, "w") as file:
         json.dump(users, file, indent=4)
-
 
 def authenticate(token):
     """Authenticate a user via JWT token."""
@@ -44,7 +41,6 @@ def authenticate(token):
         return None
     except jwt.InvalidTokenError:
         return None
-
 
 # ---------------------- User Management ----------------------
 
@@ -78,7 +74,6 @@ def register():
     save_users(users)
     return jsonify({"message": "Registration successful!"}), 201
 
-
 @app.route("/login", methods=["POST"])
 def login():
     """User login."""
@@ -101,105 +96,6 @@ def login():
         return jsonify({"message": "Login successful!", "token": token}), 200
     return jsonify({"error": "Invalid credentials"}), 401
 
-
-# ---------------------- Inventory Management ----------------------
-
-@app.route("/inventory", methods=["GET"])
-def get_inventory():
-    """Get all available furniture in inventory."""
-    return jsonify(inventory.data.to_dict()), 200
-
-
-@app.route("/inventory/add", methods=["POST"])
-def add_inventory_item():
-    """Add a new furniture item to inventory (Admin only)."""
-    token = request.headers.get("Authorization")
-    user_data = authenticate(token)
-
-    if not user_data or user_data["role"] != "manager":
-        return jsonify({"error": "Unauthorized"}), 403
-
-    data = request.json
-    if inventory.add_item(data):
-        return jsonify({"message": "Item added successfully!"}), 201
-    return jsonify({"error": "Failed to add item"}), 400
-
-
-@app.route("/inventory/remove", methods=["DELETE"])
-def remove_inventory_item():
-    """Remove a furniture item from inventory (Admin only)."""
-    token = request.headers.get("Authorization")
-    user_data = authenticate(token)
-
-    if not user_data or user_data["role"] != "manager":
-        return jsonify({"error": "Unauthorized"}), 403
-
-    data = request.json
-    if inventory.remove_item(data["serial_number"]):
-        return jsonify({"message": "Item removed successfully!"}), 200
-    return jsonify({"error": "Item not found"}), 404
-
-
-# ---------------------- Shopping Cart ----------------------
-
-@app.route("/cart", methods=["GET"])
-def view_cart():
-    """View shopping cart contents."""
-    token = request.headers.get("Authorization")
-    user_data = authenticate(token)
-
-    if not user_data:
-        return jsonify({"error": "Unauthorized"}), 401
-
-    users = get_all_users()
-    user = next((u for u in users if u["id"] == user_data["user_id"]), None)
-
-    if user:
-        return jsonify({"cart": user["shop_cart"]}), 200
-    return jsonify({"error": "User not found"}), 404
-
-
-@app.route("/cart/add", methods=["POST"])
-def add_to_cart():
-    """Add furniture to shopping cart."""
-    token = request.headers.get("Authorization")
-    user_data = authenticate(token)
-
-    if not user_data:
-        return jsonify({"error": "Unauthorized"}), 401
-
-    data = request.json
-    users = get_all_users()
-    user = next((u for u in users if u["id"] == user_data["user_id"]), None)
-
-    if user:
-        user["shop_cart"].append(data["item"])
-        save_users(users)
-        return jsonify({"message": "Item added to cart"}), 200
-    return jsonify({"error": "User not found"}), 404
-
-
-# ---------------------- Checkout Process ----------------------
-
-@app.route("/checkout", methods=["POST"])
-def checkout():
-    """Process user checkout and finalize the order."""
-    token = request.headers.get("Authorization")
-    user_data = authenticate(token)
-
-    if not user_data:
-        return jsonify({"error": "Unauthorized"}), 401
-
-    users = get_all_users()
-    user = next((u for u in users if u["id"] == user_data["user_id"]), None)
-
-    if user and user["shop_cart"]:
-        orders.append(OrderManager())
-        user["shop_cart"] = []
-        save_users(users)
-        return jsonify({"message": "Order placed successfully!"}), 200
-    return jsonify({"error": "Cart is empty or user not found"}), 400
-
-
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
