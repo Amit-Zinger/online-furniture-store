@@ -117,34 +117,11 @@ class ShoppingCart:
         print("Validating cart with inventory system...")
         return True  # Needs actual implementation
 
+
+
     def purchase(self, payment_gateway: PaymentGateway) -> bool:
         """
-        Completes the purchase process after successful payment.
-
-        Args:
-            payment_gateway (PaymentGateway): The payment processor instance.
-
-        Returns:
-            bool: True if purchase is successful, False otherwise.
-
-        Raises:
-            ValueError: If the cart is empty.
-        """
-        total = self.calculate_total()
-        if total == 0:
-            raise ValueError("Cart is empty")
-
-        if payment_gateway.process_payment(total):
-            for item in self.items:
-                item["item"].deduct_from_inventory(item["quantity"])  # Assuming method exists in item class
-            self.clear_cart()
-            print("Purchase successful!")
-            return True
-        return False
-
-    def checkout(self, payment_info: str) -> bool:
-        """
-        Initiates the checkout process, validates cart, processes payment, and creates an order.
+        Initiates the checkout - purchase process, validates cart, processes payment, and creates an order.
 
         Args:
             payment_info (str): Payment details used for processing.
@@ -159,8 +136,13 @@ class ShoppingCart:
             return False
 
         total_price = self.calculate_total()
+        if total == 0:
+            raise ValueError("Cart is empty")
+ 
 
-        if not self.process_payment(payment_info, total_price):
+        if payment_gateway.process_payment(total):
+          
+        if not payment_gatewsay.process_payment(payment_info, total_price):
             print("Checkout failed: Payment processing error.")
             return False
 
