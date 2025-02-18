@@ -1,13 +1,22 @@
 from app.utils import calc_discount
 
-
 class PaymentGateway:
     """
-    מחלקה המדמה תהליך תשלום, ניתן לשלב בה API אמיתי בעתיד.
+    Simulates a payment processing system. 
+    Can be integrated with a real API in the future.
     """
 
     @staticmethod
-    def process_payment(amount):
+    def process_payment(amount: float) -> bool:
+        """
+        Processes a payment.
+
+        Args:
+            amount (float): The total amount to be charged.
+
+        Returns:
+            bool: True if payment is successful, raises ValueError if the amount is invalid.
+        """
         if amount <= 0:
             raise ValueError("Invalid payment amount")
         print(f"Processing payment of ${amount}")
@@ -16,80 +25,176 @@ class PaymentGateway:
 
 class ShoppingCart:
     """
-    עגלת קניות למשתמש, ניהול הוספה, הסרה, והנחות.
+    Manages a user's shopping cart, including item addition, removal, and discount applications.
+
+    Attributes:
+        user_id (str): Unique identifier for the user.
+        items (List[Dict]): List of items in the cart, each containing item details and quantity.
     """
 
-    def __init__(self, user_id):
-        self.user_id = user_id
-        self.items = []
+    def __init__(self, user_id: str):
+        """
+        Initializes a shopping cart for a user.
 
-    def get_cart(self):
+        Args:
+            user_id (str): The unique identifier of the user.
+        """
+        self.user_id = user_id
+        self.items: List[Dict] = []
+
+    def get_cart(self) -> List[Dict]:
+        """
+        Retrieves the contents of the shopping cart.
+
+        Returns:
+            List[Dict]: A list containing items and their quantities.
+        """
         return self.items
 
-    def add_item(self, item, quantity):
+    def add_item(self, item, quantity: int) -> None:
+        """
+        Adds an item to the shopping cart.
+
+        Args:
+            item: The item object to be added.
+            quantity (int): The number of items to add.
+
+        Raises:
+            ValueError: If the quantity is less than or equal to 0.
+        """
         if quantity <= 0:
             raise ValueError("Quantity must be greater than 0")
         self.items.append({"item": item, "quantity": quantity})
         print(f"Added {quantity} of {item.name} to cart.")
 
-    def remove_item(self, item_name):
-        """מסיר פריט לפי שם מהעגלה."""
-        self.items = [
-            item for item in self.items if item["item"].name != item_name]
+    def remove_item(self, item_name: str) -> None:
+        """
+        Removes an item from the cart by name.
+
+        Args:
+            item_name (str): The name of the item to remove.
+        """
+        self.items = [item for item in self.items if item["item"].name != item_name]
         print(f"Removed {item_name} from cart.")
 
-    def clear_cart(self):
-        """מאפס את העגלה לחלוטין."""
+    def clear_cart(self) -> None:
+        """
+        Clears all items from the shopping cart.
+        """
         self.items = []
         print("Cart has been cleared.")
 
-    def calculate_total(self):
-        """חישוב הסכום הכולל של הפריטים בעגלה."""
+    def calculate_total(self) -> float:
+        """
+        Calculates the total cost of items in the cart.
+
+        Returns:
+            float: The total price of all items in the cart.
+        """
         return sum(item["item"].price * item["quantity"] for item in self.items)
 
-    def apply_discount(self, discount_percentage):
-        """החלת הנחה כללית על העגלה."""
+    def apply_discount(self, discount_percentage: float) -> float:
+        """
+        Applies a discount to the total cart value.
+
+        Args:
+            discount_percentage (float): The discount percentage to be applied.
+
+        Returns:
+            float: The total price after applying the discount.
+        """
         total = self.calculate_total()
         return calc_discount(total, discount_percentage)
-    def validate_cart(self):
-        return #we need to implement this in invertory - get a cart anc check the invertory
-    def purchase(self, payment_gateway):
-        """סיום הקנייה וניקוי העגלה לאחר תשלום מוצלח."""
+
+    def validate_cart(self) -> bool:
+        """
+        Validates cart items against inventory availability.
+
+        Returns:
+            bool: True if all items are available in inventory, otherwise False.
+        """
+        # Placeholder implementation - should interact with inventory class
+        print("Validating cart with inventory system...")
+        return True  # Needs actual implementation
+
+    def purchase(self, payment_gateway: PaymentGateway) -> bool:
+        """
+        Completes the purchase process after successful payment.
+
+        Args:
+            payment_gateway (PaymentGateway): The payment processor instance.
+
+        Returns:
+            bool: True if purchase is successful, False otherwise.
+
+        Raises:
+            ValueError: If the cart is empty.
+        """
         total = self.calculate_total()
         if total == 0:
             raise ValueError("Cart is empty")
 
         if payment_gateway.process_payment(total):
             for item in self.items:
-                item["item"].deduct_from_inventory(item["quantity"])
+                item["item"].deduct_from_inventory(item["quantity"])  # Assuming method exists in item class
             self.clear_cart()
             print("Purchase successful!")
             return True
         return False
-    def checkout(self, payment_info):
+
+    def checkout(self, payment_info: str) -> bool:
+        """
+        Initiates the checkout process, validates cart, processes payment, and creates an order.
+
+        Args:
+            payment_info (str): Payment details used for processing.
+
+        Returns:
+            bool: True if checkout is successful, False otherwise.
+        """
         print("Starting checkout process...")
+
         if not self.validate_cart():
             print("Checkout failed: Some items are unavailable.")
             return False
 
-        total_price = calcualte_total(self)
-         
+        total_price = self.calculate_total()
+
         if not self.process_payment(payment_info, total_price):
             print("Checkout failed: Payment processing error.")
             return False
 
         print("Payment successful. Creating order...")
+        from order_manager import OrderManager  # Importing here to avoid circular dependencies
         order_manager = OrderManager()
         order_manager.create_order(self, payment_info, total_price)
 
         print("Updating inventory...")
-        self.inventory.update_inventory(self.cart) # We need to add in invertory a function that gets a cart and can update it at once instead of updating 1 item quantity
+        self.update_inventory()  # Needs implementation in inventory system
 
         self.clear_cart()
         print("Checkout process completed successfully.")
         return True
 
-    def process_payment(self, payment_info, total_price):
-        print(f"Processing payment of {total_price} for client {self.client_id}...")
-        return True  # Mock success
-        
+    def process_payment(self, payment_info: str, total_price: float) -> bool:
+        """
+        Processes payment for the order.
+
+        Args:
+            payment_info (str): Payment details.
+            total_price (float): The total price of the order.
+
+        Returns:
+            bool: True if payment is successful, False otherwise.
+        """
+        print(f"Processing payment of {total_price} for client {self.user_id}...")
+        return True  # Mock payment success
+
+    def update_inventory(self) -> None:
+        """
+        Updates inventory after checkout.
+
+        Note: This function needs to be implemented in the inventory system.
+        """
+        print("Updating inventory based on cart items...")
+        # Placeholder: Needs interaction with the Inventory class
