@@ -96,6 +96,66 @@ def login():
         return jsonify({"message": "Login successful!", "token": token}), 200
     return jsonify({"error": "Invalid credentials"}), 401
 
+
+app = Flask(__name__)
+
+# ---------------------- Define API Functions ----------------------
+
+def create_inventory_routes(app, inventory):
+    """Attach API routes that interact with the given inventory instance."""
+
+    @app.route("/inventory/search", methods=["GET"])
+    def search_inventory():
+        """
+        Search for furniture items based on optional query parameters:
+        - name: Search by furniture name
+        - category: Search by furniture category (e.g., "Chair", "Table")
+        - price_min & price_max: Search by price range
+        """
+        name = request.args.get("name")
+        category = request.args.get("category")
+        price_min = request.args.get("price_min", type=float)
+        price_max = request.args.get("price_max", type=float)
+
+        # Prepare the price range tuple if both min and max are provided
+        price_range = (price_min, price_max) if price_min is not None and price_max is not None else None
+
+        # Perform search in inventory
+        results = inventory.search_by(name=name, category=category, price_range=price_range)
+
+        if results:
+            # Convert objects to dictionaries for JSON serialization
+            results_data = [obj.__dict__ for obj in results]
+            return jsonify({"results": results_data}), 200
+        else:
+            return jsonify({"message": "No matching items found"}), 404
+
+    @app.route("/api/inventory", methods=["POST"])
+    def add_inventory_item():
+        """Add a new furniture item."""
+        data = request.json
+        if "type" not in data:
+            return jsonify({"error": "Furniture type is required"}), 400
+
+        success = inventory.add_item(data)
+        if success:
+            inventory.update_data()
+            return jsonify({"message": "Item added successfully!"}), 201
+        return jsonify({"error": "Failed to add item"}), 400
+
+    @app.route("/api/inventory/update", methods=["PUT"])
+    def update_inventory():
+        """Update the quantity of an item."""
+        data = request.json
+        item = inventory.search_by(name=data["name"], category=data.get("type"))
+        if not item:
+            return jsonify({"error": "Item not found"}), 404
+
+        inventory.update_quantity(item[0], data["quantity"])
+        inventory.update_data()
+        return jsonify({"message": "Quantity updated successfully!"}), 200
+
+
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
 
