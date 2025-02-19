@@ -1,128 +1,129 @@
+import json
+import os
 from abc import ABC, abstractmethod
 import bcrypt
 
+USER_FILE = "users.json"  # JSON file as a database
+
 
 class User(ABC):
-    users_list = []
+    users_list = {}  # Dictionary {id: user_object}
 
-    def __init__(self, username, email, password, address):
+    def __init__(self, id, username, email, password, address, role="user"):
+        self.id = id
         self.username = username
         self.email = email
-        self.password = self.hash_password(password)
+        self.password = self.hash_password(password) if not password.startswith("$2b$") else password
         self.address = address
+        self.role = role
+        User.users_list[self.id] = self  # Add to users dictionary
+        save_users()  # Save to file
 
     def hash_password(self, password):
+        """Hashes the password using bcrypt."""
         return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
     def verify_password(self, password):
+        """Verifies a hashed password."""
         return bcrypt.checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
+
+    def get_id(self):
+        return str(self.id)
+
+    @abstractmethod
+    def get_role_specific_info(self):
+        pass
 
     @abstractmethod
     def get_user_type(self):
         pass
-
-    @abstractmethod
-    def notify_email(self):
-        pass
-
-    @classmethod
-    def login(cls, username, password):
-        for user in cls.users_list:
-            if user.username == username and user.verify_password(password):
-                print(f"Login successful for {username}")
-                return True
-        print("Login failed: Invalid username or password")
-        return False
-
-    @classmethod
-    def register(cls, username, email, password, address, user_type, **kwargs):
-        if any(user.username == username for user in cls.users_list):
-            print("Registration failed: Username already exists")
-            return None
-
-        if user_type == "Client":
-            new_user = Client(
-                username, email, password, address, kwargs.get("client_id")
-            )
-        elif user_type == "Management":
-            new_user = Management(
-                username,
-                email,
-                password,
-                address,
-                kwargs.get("worker_id"),
-                kwargs.get("role"),
-            )
-        else:
-            print("Invalid user type")
-            return None
-
-        cls.users_list.append(new_user)
-        print(f"User {username} registered successfully with email {email}")
-        return new_user
 
 
 class Client(User):
-    def __init__(self, username, email, password, address, client_id):
-        super().__init__(username, email, password, address)
-        self.client_id = client_id
-        self.shop_cart = []
-        self.liked_list = []
-
-    def get_user_type(self):
-        return "Client"
-
-    def notify_email(self):
-        print(f"Notification sent to {self.email}")
-
-    def get_order_history(self):
-        print("Order history retrieved.")
-
-    def get_client_info(self):
-        return {
-            "username": self.username,
-            "email": self.email,
-            "address": self.address,
-            "client_id": self.client_id,
-        }
-
-    def edit_client_info(self, new_username=None, new_email=None, new_address=None):
-        if new_username:
-            self.username = new_username
-        if new_email:
-            self.email = new_email
-        if new_address:
-            self.address = new_address
-        print("Client info updated successfully.")
+    def __init__(self, id, username, email, password, address, shop_cart=None, liked_list=None):
+        super().__init__(id, username, email, password, address, role="client")
+        self.shop_cart = shop_cart if shop_cart else []
+        self.liked_list = liked_list if liked_list else []
+        self.order_history = []
 
     def add_cart(self, item):
         self.shop_cart.append(item)
-        print(f"{item} added to cart.")
+        save_users()
 
     def like_product(self, product):
-        self.liked_list.append(product)
-        print(f"{product} liked.")
+        if product not in self.liked_list:
+            self.liked_list.append(product)
+            save_users()
 
     def dislike_product(self, product):
         if product in self.liked_list:
             self.liked_list.remove(product)
-            print(f"{product} removed from liked list.")
+            save_users()
+
+    def edit_info(self, username=None, email=None, address=None):
+        if username:
+            self.username = username
+        if email:
+            self.email = email
+        if address:
+            self.address = address
+
+        # Update user dictionary and save
+        User.users_list[self.id] = self
+        save_users()
+
+    def get_role_specific_info(self):
+        return {
+            "shop_cart": self.shop_cart,
+            "liked_list": self.liked_list,
+            "order_history": self.order_history,
+        }
+
+    def get_user_type(self):
+        return "Client"
 
 
 class Management(User):
-    def __init__(self, username, email, password, address, worker_id, role):
-        super().__init__(username, email, password, address)
-        self.worker_id = worker_id
-        self.role = role
+    def __init__(self, id, username, email, password, address):
+        super().__init__(id, username, email, password, address, role="manager")
+
+    def check_inventory(self):
+        return "Checking inventory..."
+
+    def check_low_inventory(self):
+        return "Checking low inventory..."
+
+    def get_role_specific_info(self):
+        return {}  # No additional fields for management
 
     def get_user_type(self):
         return "Management"
 
-    def notify_email(self):
-        print(f"Notification sent to management email {self.email}")
 
-    def check_inventory(self):
-        print("Inventory checked.")
+# -------- JSON File Handling -------- #
+def get_all_users():
+    """Loads all users from the JSON file into the users_list dictionary."""
+    if not os.path.exists(USER_FILE):
+        with open(USER_FILE, "w") as file:
+            json.dump({}, file, indent=4)  # Create an empty JSON object
 
-    def check_low_inventory(self):
-        print("Low inventory items retrieved.")
+    with open(USER_FILE, "r") as file:
+        data = json.load(file)
+
+    User.users_list = {
+        int(id): (Client(**user) if user["role"] == "client" else Management(**user))
+        for id, user in data.items()
+    }
+    return User.users_list
+
+
+def save_users():
+    """Saves all users from the dictionary to the JSON file."""
+    with open(USER_FILE, "w") as file:
+        json.dump(
+            {id: user.__dict__ for id, user in User.users_list.items()}, file, indent=4
+        )
+
+
+# Load users when script starts
+get_all_users()
