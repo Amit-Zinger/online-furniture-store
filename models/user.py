@@ -61,15 +61,6 @@ class User(ABC):
         """
         return bcrypt.checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
 
-    @abstractmethod
-    def get_user_type(self):
-        """
-        Abstract method to return the type of user.
-
-        return:
-            str: The type of user.
-        """
-        pass
 
 
 class Client(User):
@@ -112,14 +103,6 @@ class Client(User):
         if address:
             self.address = address
 
-    def get_user_type(self):
-        """
-        Get the type of user.
-
-        return:
-            str: "Client"
-        """
-        return "Client"
 
 
 class Management(User):
@@ -168,14 +151,6 @@ class Management(User):
 
         return low_furniture_list
 
-    def get_user_type(self):
-        """
-        Get the type of user.
-
-        return:
-            str: "Management"
-        """
-        return "Management"
 
     def edit_info(self, username=None, email=None, address=None, rule=None):
         """
