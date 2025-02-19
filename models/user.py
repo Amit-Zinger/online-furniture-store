@@ -76,14 +76,26 @@ class Management(User):
     def __init__(self, id, username, email, password, address):
         super().__init__(id, username, email, password, address, role="manager")
 
-    def check_inventory(self):
-        return "Checking inventory..."
+    def check_low_inventory(self, inventory):
 
-    def check_low_inventory(self):
-        return "Checking low inventory..."
+        low_furniture_list = []
+        category_types_list = [
+            "Chair",
+            "Sofa",
+            "Table",
+            "Bed",
+            "Closet"]
 
-    def get_role_specific_info(self):
-        return {}  # No additional fields for management
+        for catagory in category_types_list:
+            # Reciving all furniture object for specific catagory from inventory database
+            atr_list = inventory.search_by(catagory=catagory)
+            # Search for furniture with quantity 0
+            for atr in atr_list:
+                if (atr.quantity == 0):
+                    low_furniture_list.append(atr)
+
+        return low_furniture_list
+
 
     def get_user_type(self):
         return "Management"
