@@ -2,6 +2,8 @@ import json
 import os
 from abc import ABC, abstractmethod
 import bcrypt
+from models.cart import ShoppingCart
+
 
 USER_FILE = "users.json"  # JSON file as a database
 
@@ -40,25 +42,13 @@ class User(ABC):
 
 
 class Client(User):
-    def __init__(self, id, username, email, password, address, shop_cart=None, liked_list=None):
+    def __init__(self, id, username, email, password, address):
         super().__init__(id, username, email, password, address, role="client")
-        self.shop_cart = shop_cart if shop_cart else []
-        self.liked_list = liked_list if liked_list else []
+        self.shopping_cart = ShoppingCart(id)
+        self.liked_list = []
         self.order_history = []
 
-    def add_cart(self, item):
-        self.shop_cart.append(item)
-        save_users()
 
-    def like_product(self, product):
-        if product not in self.liked_list:
-            self.liked_list.append(product)
-            save_users()
-
-    def dislike_product(self, product):
-        if product in self.liked_list:
-            self.liked_list.remove(product)
-            save_users()
 
     def edit_info(self, username=None, email=None, address=None):
         if username:
@@ -74,8 +64,7 @@ class Client(User):
 
     def get_role_specific_info(self):
         return {
-            "shop_cart": self.shop_cart,
-            "liked_list": self.liked_list,
+            "shop_cart": self.shopping_cart,
             "order_history": self.order_history,
         }
 
