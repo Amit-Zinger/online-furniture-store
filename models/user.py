@@ -3,7 +3,7 @@ import os
 from abc import ABC, abstractmethod
 import bcrypt
 from models.cart import ShoppingCart
-
+from models.order import OrderManager
 
 USER_FILE = "users.json"  # JSON file as a database
 
@@ -46,7 +46,7 @@ class Client(User):
         super().__init__(id, username, email, password, address, role="client")
         self.shopping_cart = ShoppingCart(id)
         self.liked_list = []
-        self.order_history = []
+        self.order_history = OrderManager.get_order_history(id)
 
 
 
@@ -70,6 +70,8 @@ class Client(User):
 
     def get_user_type(self):
         return "Client"
+
+
 
 
 class Management(User):
