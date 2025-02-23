@@ -172,11 +172,38 @@ class ShoppingCart:
         print(f"Processing payment of {total_price} for client {self.user_id}...")
         return True  # Mock payment success
 
-    def update_inventory(self) -> None:
+    def update_inventory(self, inventory ) -> None:
         """
         Updates inventory after checkout.
-
-        Note: This function needs to be implemented in the inventory system.
         """
-        print("Updating inventory based on cart items...")
-        # Placeholder: Needs interaction with the Inventory class
+        items_in_cart = self.items
+        # Update each furniture object quantity in cart
+        for item_dic in items_in_cart:
+            item_atr = item_dic["item"]
+            req_quan = item_dic["quantity"]
+            # Updating quantity of item in inventory database
+            new_qua =  item_atr.quantity - req_quan
+            inventory.update_quantity(item_atr,new_qua)
+            
+    def validate_cart(self, inventory) -> bool:
+        """
+        Validates cart items against inventory availability.
+
+        Returns:
+            bool: True if all items are available in inventory, otherwise False.
+        """
+        items_in_cart = self.items
+        # Check each furniture object in cart 
+        for item_dic in items_in_cart:
+            quantity = item_dic["quantity"]
+            # Validate item in front of inventory database
+            item_atr = inventory.search_by(item_dic["item"].name)
+            if not item_atr:
+                name = item_dic["item"].name
+                print(f"item : {name} isn't available. validation failed ")
+                return False
+            # Validate quantity requested by client in front of inventory updated quantity
+            if (item_atr.quantity < quantity):
+                print(f"item : {item_atr.name} quantity is :{item_atr.quantity}, validation failed.")
+                return False
+        return True
