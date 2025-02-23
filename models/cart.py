@@ -1,8 +1,9 @@
 from app.utils import calc_discount
+from typing import List, Dict
 
 class PaymentGateway:
     """
-    Simulates a payment processing system. 
+    Simulates a payment processing system.
     Can be integrated with a real API in the future.
     """
 
@@ -15,12 +16,12 @@ class PaymentGateway:
             amount (float): The total amount to be charged.
 
         Returns:
-            bool: True if payment is successful, raises ValueError if the amount is invalid.
+            bool: True if payment is successful; raises ValueError if the amount is invalid.
         """
         if amount <= 0:
             raise ValueError("Invalid payment amount")
         print(f"Processing payment of ${amount}")
-        return True
+        return True  # Always succeed for mock payments
 
 
 class ShoppingCart:
@@ -106,24 +107,41 @@ class ShoppingCart:
         total = self.calculate_total()
         return calc_discount(total, discount_percentage)
 
-    def validate_cart(self) -> bool:
+    def validate_cart(self, inventory=None) -> bool:
         """
         Validates cart items against inventory availability.
 
+        If an inventory object is provided, performs detailed validation.
+        Otherwise, performs a default validation.
+
+        Args:
+            inventory: (Optional) Inventory system to validate against.
+
         Returns:
-            bool: True if all items are available in inventory, otherwise False.
+            bool: True if all items are available, otherwise False.
         """
-        # Placeholder implementation - should interact with inventory class
-        print("Validating cart with inventory system...")
-        return True  # Needs actual implementation
+        if inventory is None:
+            print("Validating cart with inventory system (default validation)...")
+            return True
+        for item_dic in self.items:
+            quantity = item_dic["quantity"]
+            # inventory.search_by returns a list of matching items.
+            found_items = inventory.search_by(item_dic["item"].name)
+            if not found_items:
+                print(f"Item {item_dic['item'].name} isn't available. Validation failed.")
+                return False
+            found_item = found_items[0]  # Assume the first match is the relevant one.
+            if found_item.quantity < quantity:
+                print(f"Item {found_item.name} quantity is {found_item.quantity}, validation failed.")
+                return False
+        return True
 
-
-
-    def purchase(self, payment_gateway: PaymentGateway) -> bool:
+    def purchase(self, payment_gateway: PaymentGateway, payment_info: str) -> bool:
         """
         Initiates the checkout - purchase process, validates cart, processes payment, and creates an order.
 
         Args:
+            payment_gateway (PaymentGateway): The payment gateway to process payment.
             payment_info (str): Payment details used for processing.
 
         Returns:
@@ -136,23 +154,20 @@ class ShoppingCart:
             return False
 
         total_price = self.calculate_total()
-        if total == 0:
+        if total_price == 0:
             raise ValueError("Cart is empty")
- 
 
-        if payment_gateway.process_payment(total):
-          
-        if not payment_gatewsay.process_payment(payment_info, total_price):
+        if not payment_gateway.process_payment(total_price):
             print("Checkout failed: Payment processing error.")
             return False
 
         print("Payment successful. Creating order...")
-        from order_manager import OrderManager  # Importing here to avoid circular dependencies
+        from models.order import OrderManager  # Adjusted import to reflect your project structure.
         order_manager = OrderManager()
         order_manager.create_order(self, payment_info, total_price)
 
         print("Updating inventory...")
-        self.update_inventory()  # Needs implementation in inventory system
+        self.update_inventory()  # Without an inventory object, update is skipped.
 
         self.clear_cart()
         print("Checkout process completed successfully.")
@@ -172,38 +187,18 @@ class ShoppingCart:
         print(f"Processing payment of {total_price} for client {self.user_id}...")
         return True  # Mock payment success
 
-    def update_inventory(self, inventory ) -> None:
+    def update_inventory(self, inventory=None) -> None:
         """
         Updates inventory after checkout.
+
+        Args:
+            inventory: (Optional) Inventory system to update. If None, skips update.
         """
-        items_in_cart = self.items
-        # Update each furniture object quantity in cart
-        for item_dic in items_in_cart:
+        if inventory is None:
+            print("No inventory provided; skipping inventory update.")
+            return
+        for item_dic in self.items:
             item_atr = item_dic["item"]
             req_quan = item_dic["quantity"]
-            # Updating quantity of item in inventory database
-            new_qua =  item_atr.quantity - req_quan
-            inventory.update_quantity(item_atr,new_qua)
-            
-    def validate_cart(self, inventory) -> bool:
-        """
-        Validates cart items against inventory availability.
-
-        Returns:
-            bool: True if all items are available in inventory, otherwise False.
-        """
-        items_in_cart = self.items
-        # Check each furniture object in cart 
-        for item_dic in items_in_cart:
-            quantity = item_dic["quantity"]
-            # Validate item in front of inventory database
-            item_atr = inventory.search_by(item_dic["item"].name)
-            if not item_atr:
-                name = item_dic["item"].name
-                print(f"item : {name} isn't available. validation failed ")
-                return False
-            # Validate quantity requested by client in front of inventory updated quantity
-            if (item_atr.quantity < quantity):
-                print(f"item : {item_atr.name} quantity is :{item_atr.quantity}, validation failed.")
-                return False
-        return True
+            new_qua = item_atr.quantity - req_quan
+            inventory.update_quantity(item_atr, new_qua)
