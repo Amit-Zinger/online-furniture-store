@@ -1,9 +1,17 @@
 import sys
 import os
 from models.furniture import Chair, Sofa, Table, Bed, Closet
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-furniture_classes = dict(Chair=Chair, Sofa=Sofa, Table=Table, Bed=Bed, Closet=Closet)
+# all of the created furniture
+furniture_classes = {
+    "Chair": Chair,
+    "Sofa": Sofa,
+    "Table": Table,
+    "Bed": Bed,
+    "Closet": Closet,
+}
 
 
 class FurnitureFactory:
@@ -18,7 +26,12 @@ class FurnitureFactory:
 
         :param name: The name of the new furniture type.
         :param cls: The class representing the new furniture type.
+        :raises ValueError: If the name is empty or the class is invalid.
         """
+        if not name or not isinstance(name, str):
+            raise ValueError("Furniture type name must be a non-empty string.")
+        if not callable(cls):
+            raise ValueError("The provided class must be callable.")
         furniture_classes[name] = cls
 
     @staticmethod
@@ -30,33 +43,54 @@ class FurnitureFactory:
         :return: An instance of the specified furniture class.
         :raises ValueError: If furniture type is missing or unknown.
         """
+
+        # furniture type
         furniture_type = furniture_desc.get("type")
+        if not furniture_type:
+            raise ValueError("Furniture type is required.")
+
+        # if we already created the type
         if furniture_type not in furniture_classes:
             raise ValueError(f"Unknown furniture type: {furniture_type}")
 
-        furniture_desc.pop("type")  # Remove 'type' after validation
+        furniture_desc.pop("type")
 
-        # Add custom handling for specific attributes
-        if furniture_type == "Sofa":
-            if "how_many_seats" not in furniture_desc:
-                raise ValueError("Sofa requires 'how_many_seats'")
-            if "can_turn_to_bed" not in furniture_desc:
-                raise ValueError("Sofa requires 'can_turn_to_bed'")
+        required_attributes = [
+            "name", "description", "price", "dimensions",
+            "serial_number", "quantity", "weight", "manufacturing_country"
+        ]
+        missing_attributes = [attr for attr in required_attributes if attr not in furniture_desc]
+        if missing_attributes:
+            raise ValueError(f"Missing required attributes: {', '.join(missing_attributes)}")
 
-        if furniture_type == "Table":
-            if "is_foldable" not in furniture_desc:
-                print(
-                    "Warning: 'is_foldable' not found in Table, setting default to False"
-                )
-                furniture_desc["is_foldable"] = False
-
-        if furniture_type == "Closet":
-            if "has_mirrors" not in furniture_desc:
-                raise ValueError("Closet requires 'has_mirrors'")
-            if "number_of_shelves" not in furniture_desc:
-                raise ValueError("Closet requires 'number_of_shelves'")
+        # TypeError for a specific type
+        FurnitureFactory._validate_furniture_specifics(furniture_type, furniture_desc)
 
         try:
             return furniture_classes[furniture_type](**furniture_desc)
         except TypeError as e:
-            raise TypeError(f"Failed to create furniture: {e}")
+            raise TypeError(f"Failed to create furniture '{furniture_type}': {e}")
+
+    @staticmethod
+    def _validate_furniture_specifics(furniture_type, furniture_desc):
+        """
+        Ensures furniture-specific required attributes exist.
+
+        :param furniture_type: The type of furniture.
+        :param furniture_desc: The dictionary containing furniture attributes.
+        :raises ValueError: If required attributes for a specific furniture type are missing.
+        """
+        required_specifics = {
+            "Sofa": ["how_many_seats", "can_turn_to_bed"],
+            "Table": ["expandable", "how_many_seats", "is_foldable"],
+            "Closet": ["has_mirrors", "number_of_shelves", "how_many_doors"],
+            "Chair": ["has_wheels", "how_many_legs"],
+            "Bed": ["has_storage", "has_back"]
+        }
+
+        missing_specifics = [
+            attr for attr in required_specifics.get(furniture_type, []) if attr not in furniture_desc
+        ]
+
+        if missing_specifics:
+            raise ValueError(f"{furniture_type} requires additional attributes: {', '.join(missing_specifics)}")

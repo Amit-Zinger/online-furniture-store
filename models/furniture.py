@@ -20,12 +20,9 @@ class Furniture(ABC):
         manufacturing_country: str,
         interested_clients: List[str] = None,
     ):
-        if price <= 0:
-            raise ValueError("Price must be a positive value.")
-        if weight <= 0:
-            raise ValueError("Weight must be a positive value.")
-        if quantity <= 0:
-            raise ValueError("Quantity must be a positive value.")
+        self._validate_positive_value(price, "Price")
+        self._validate_positive_value(weight, "Weight")
+        self._validate_positive_value(quantity, "Quantity")
 
         self.name = name
         self.description = description
@@ -36,9 +33,10 @@ class Furniture(ABC):
         self.weight = weight
         self.manufacturing_country = manufacturing_country
         self.interested_clients = interested_clients if interested_clients else []
+        self.tax_rate = 0.17  # Default tax rate
 
     def __str__(self):
-        return f"{self.name} - {self.description} | Price: ${self.price} | Stock: {self.quantity}"
+        return f"{self.name} - {self.description} | Price: ${self.get_final_price()} | Stock: {self.quantity}"
 
     def deduct_from_inventory(self, quantity):
         """
@@ -69,188 +67,80 @@ class Furniture(ABC):
         if not (0 <= discount_percentage <= 100):
             raise ValueError("Discount percentage must be between 0 and 100.")
 
-        new_price = calc_discount(self.price, discount_percentage)
-        self.price = new_price
+        self.price = self._calculate_discounted_price(discount_percentage)
 
-    def apply_tax(self, tax_rate: float = 0.17):
+    def apply_tax(self, tax_rate: float = None):
         """
         Apply tax to the price of the furniture.
 
         :param tax_rate: The tax rate to apply (default is 17%).
         :raises ValueError: If tax rate is negative.
         """
-        if tax_rate < 0:
-            raise ValueError("Tax rate cannot be negative.")
+        if tax_rate is not None:
+            self._validate_positive_value(tax_rate, "Tax rate")
+            self.tax_rate = tax_rate
 
-        self.price = self._calculate_price_with_tax(tax_rate)
-
-    def _calculate_price_with_tax(self, tax_rate: float) -> float:
+    def get_final_price(self) -> float:
         """
-        Internal helper function to calculate price with tax.
+        Calculate the final price of the furniture after tax.
 
-        :param tax_rate: The tax rate to apply.
         :return: Price after tax.
         """
-        return round(self.price * (1 + tax_rate), 2)
+        return round(self.price * (1 + self.tax_rate), 2)
 
-    def is_valid_price(self) -> bool:
-        """Validate if the price is a positive number."""
-        return self.price > 0
+    def _calculate_discounted_price(self, discount_percentage: float) -> float:
+        """
+        Internal helper function to calculate price after discount.
 
-    def get_description(self) -> str:
-        """Returns a description of the furniture."""
-        return self.description
+        :param discount_percentage: The discount percentage to apply.
+        :return: Discounted price.
+        """
+        return calc_discount(self.price, discount_percentage)
+
+    def _validate_positive_value(self, value, field_name):
+        """
+        Helper function to validate that a value is positive.
+
+        :param value: The value to check.
+        :param field_name: The name of the field being validated.
+        :raises ValueError: If value is not positive.
+        """
+        if value <= 0:
+            raise ValueError(f"{field_name} must be a positive value.")
 
 
 class Chair(Furniture):
-    def __init__(
-        self,
-        name: str,
-        description: str,
-        price: float,
-        dimensions: str,
-        serial_number: str,
-        quantity: int,
-        weight: float,
-        manufacturing_country: str,
-        has_wheels: bool,
-        how_many_legs: int,
-        interested_clients: List[str] = None,
-    ):
-        super().__init__(
-            name,
-            description,
-            price,
-            dimensions,
-            serial_number,
-            quantity,
-            weight,
-            manufacturing_country,
-            interested_clients,
-        )
+    def __init__(self, has_wheels: bool, how_many_legs: int, **kwargs):
+        super().__init__(**kwargs)
         self.has_wheels = has_wheels
         self.how_many_legs = how_many_legs
 
 
 class Sofa(Furniture):
-    def __init__(
-        self,
-        name: str,
-        description: str,
-        price: float,
-        dimensions: str,
-        serial_number: str,
-        quantity: int,
-        weight: float,
-        manufacturing_country: str,
-        how_many_seats: int,
-        can_turn_to_bed: bool,
-        interested_clients: List[str] = None,
-    ):
-        super().__init__(
-            name,
-            description,
-            price,
-            dimensions,
-            serial_number,
-            quantity,
-            weight,
-            manufacturing_country,
-            interested_clients,
-        )
+    def __init__(self, how_many_seats: int, can_turn_to_bed: bool, **kwargs):
+        super().__init__(**kwargs)
         self.how_many_seats = how_many_seats
         self.can_turn_to_bed = can_turn_to_bed
 
 
 class Bed(Furniture):
-    def __init__(
-        self,
-        name: str,
-        description: str,
-        price: float,
-        dimensions: str,
-        serial_number: str,
-        quantity: int,
-        weight: float,
-        manufacturing_country: str,
-        has_storage: bool,
-        has_back: bool,
-        interested_clients: List[str] = None,
-    ):
-        super().__init__(
-            name,
-            description,
-            price,
-            dimensions,
-            serial_number,
-            quantity,
-            weight,
-            manufacturing_country,
-            interested_clients,
-        )
+    def __init__(self, has_storage: bool, has_back: bool, **kwargs):
+        super().__init__(**kwargs)
         self.has_storage = has_storage
         self.has_back = has_back
 
 
 class Table(Furniture):
-    def __init__(
-        self,
-        name: str,
-        description: str,
-        price: float,
-        dimensions: str,
-        serial_number: str,
-        quantity: int,
-        weight: float,
-        manufacturing_country: str,
-        expandable: bool,
-        how_many_seats: int,
-        is_foldable: bool,
-        interested_clients: List[str] = None,
-    ):
-        super().__init__(
-            name,
-            description,
-            price,
-            dimensions,
-            serial_number,
-            quantity,
-            weight,
-            manufacturing_country,
-            interested_clients,
-        )
+    def __init__(self, expandable: bool, how_many_seats: int, is_foldable: bool, **kwargs):
+        super().__init__(**kwargs)
         self.expandable = expandable
         self.how_many_seats = how_many_seats
         self.is_foldable = is_foldable
 
 
 class Closet(Furniture):
-    def __init__(
-        self,
-        name: str,
-        description: str,
-        price: float,
-        dimensions: str,
-        serial_number: str,
-        quantity: int,
-        weight: float,
-        manufacturing_country: str,
-        has_mirrors: bool,
-        number_of_shelves: int,
-        how_many_doors: int,
-        interested_clients: List[str] = None,
-    ):
-        super().__init__(
-            name,
-            description,
-            price,
-            dimensions,
-            serial_number,
-            quantity,
-            weight,
-            manufacturing_country,
-            interested_clients,
-        )
+    def __init__(self, has_mirrors: bool, number_of_shelves: int, how_many_doors: int, **kwargs):
+        super().__init__(**kwargs)
         self.has_mirrors = has_mirrors
         self.number_of_shelves = number_of_shelves
         self.how_many_doors = how_many_doors
