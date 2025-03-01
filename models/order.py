@@ -1,7 +1,6 @@
-from cart import ShoppingCart
+from models.cart import ShoppingCart
 import pandas as pd
 from typing import Optional, List, Dict
-
 
 class OrderManager:
     """
@@ -46,14 +45,16 @@ class OrderManager:
         order_date = datetime.now()
         order_data = {
             "order_id": order_id,
-            "client_id": cart.client_id,
-            "items": cart.cart,  # Includes item IDs and quantities
+            "client_id": cart.user_id,  # using cart.user_id as per our update
+            "items": cart.items,        # using cart.items
             "total_price": total_price,
             "payment_info": payment_info,
             "status": "Processing",  # Initial status
             "order_date": order_date,
         }
-        self.orders = self.orders.append(order_data, ignore_index=True)
+        # Instead of using deprecated append(), we use pd.concat()
+        new_order_df = pd.DataFrame([order_data])
+        self.orders = pd.concat([self.orders, new_order_df], ignore_index=True)
         print(f"Order {order_id} created successfully.")
 
     def get_order(self, order_id: str, client_id: str) -> Optional[Dict]:
@@ -85,8 +86,7 @@ class OrderManager:
             status (str): The new status of the order (e.g., 'Shipped', 'Cancelled').
         """
         if order_id in self.orders["order_id"].values:
-            self.orders.loc[self.orders["order_id"]
-                            == order_id, "status"] = status
+            self.orders.loc[self.orders["order_id"] == order_id, "status"] = status
             print(f"Order {order_id} status updated to {status}.")
         else:
             print(f"No order found with ID {order_id}.")
@@ -99,8 +99,7 @@ class OrderManager:
             order_id (str): The unique ID of the order.
         """
         if order_id in self.orders["order_id"].values:
-            self.orders.loc[self.orders["order_id"]
-                            == order_id, "status"] = "Cancelled"
+            self.orders.loc[self.orders["order_id"] == order_id, "status"] = "Cancelled"
             print(f"Order {order_id} has been cancelled.")
         else:
             print(f"No order found with ID {order_id}.")
