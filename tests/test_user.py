@@ -28,8 +28,8 @@ def test_user_creation(setup_user_db):
     client = db.get_user(1)
     manager = db.get_user(2)
 
-    assert client.get_user_type() == "Client"
-    assert manager.get_user_type() == "Management"
+    assert client.type == "Client"
+    assert manager.type == "Management"
     assert client.verify_password("password123")
     assert manager.verify_password("password123")
 
