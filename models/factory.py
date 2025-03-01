@@ -1,15 +1,9 @@
 import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from models.furniture import Chair, Sofa, Table, Bed, Closet
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-furniture_classes = {
-    "Chair": Chair,
-    "Sofa": Sofa,
-    "Table": Table,
-    "Bed": Bed,
-    "Closet": Closet,
-}
+furniture_classes = dict(Chair=Chair, Sofa=Sofa, Table=Table, Bed=Bed, Closet=Closet)
 
 
 class FurnitureFactory:

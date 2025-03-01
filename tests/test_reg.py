@@ -23,7 +23,6 @@ def mock_requests():
 
         yield  # Provide the mock context
 
-
 def mock_response(status_code, json_data):
     """Helper function to create a mock response object."""
     response = requests.models.Response()
