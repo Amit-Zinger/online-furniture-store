@@ -97,6 +97,7 @@ class Furniture(ABC):
         """
         return calc_discount(self.price, discount_percentage)
 
+
     def _validate_positive_value(self, value, field_name):
         """
         Helper function to validate that a value is positive.

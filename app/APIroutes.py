@@ -1,11 +1,13 @@
-from flask import Flask, request, jsonify
-import jwt
-from datetime import datetime, timedelta
-import bcrypt
 import json
-import os
-from models.user import Client, Management
+from datetime import datetime, timedelta
+
+import bcrypt
+import jwt
+from flask import Flask, request, jsonify
+
 from models.cart import ShoppingCart, PaymentGateway
+from models.factory import FurnitureFactory
+from models.furniture import Furniture
 from models.inventory import Inventory
 from models.order import OrderManager
 
@@ -20,6 +22,7 @@ order_manager = OrderManager()  # Singleton OrderManager instance
 
 # ---------------------- Helper Functions ----------------------
 
+
 def get_all_users():
     """Load all users from JSON file."""
     try:
@@ -28,10 +31,12 @@ def get_all_users():
     except FileNotFoundError:
         return []
 
+
 def save_users(users):
     """Save updated user list to JSON file."""
     with open(USER_FILE, "w") as file:
         json.dump(users, file, indent=4)
+
 
 def authenticate(token):
     """Authenticate a user via JWT token."""
@@ -43,6 +48,7 @@ def authenticate(token):
         return None
 
 # ---------------------- User Management ----------------------
+
 
 @app.route("/register", methods=["POST"])
 def register():
@@ -74,6 +80,7 @@ def register():
     save_users(users)
     return jsonify({"message": "Registration successful!"}), 201
 
+
 @app.route("/login", methods=["POST"])
 def login():
     """User login."""
@@ -97,6 +104,7 @@ def login():
     return jsonify({"error": "Invalid credentials"}), 401
 
 # ---------------------- Inventory Endpoints ----------------------
+
 
 @app.route("/inventory/search", methods=["GET"])
 def search_inventory():
@@ -124,6 +132,7 @@ def search_inventory():
     else:
         return jsonify({"message": "No matching items found"}), 404
 
+
 @app.route("/api/inventory", methods=["POST"])
 def add_inventory_item():
     """Add a new furniture item."""
@@ -136,6 +145,7 @@ def add_inventory_item():
         inventory.update_data()
         return jsonify({"message": "Item added successfully!"}), 201
     return jsonify({"error": "Failed to add item"}), 400
+
 
 @app.route("/api/inventory/update", methods=["PUT"])
 def update_inventory_route():
@@ -151,13 +161,16 @@ def update_inventory_route():
 
 # ---------------------- Cart Endpoints ----------------------
 
+
 # In-memory storage for active carts keyed by user_id.
 active_carts = {}
+
 
 def get_or_create_cart(user_id):
     if user_id not in active_carts:
         active_carts[user_id] = ShoppingCart(user_id)
     return active_carts[user_id]
+
 
 @app.route('/cart/<user_id>', methods=['GET'])
 def view_cart(user_id):
@@ -173,6 +186,7 @@ def view_cart(user_id):
         item_data["quantity_in_cart"] = entry["quantity"]
         items.append(item_data)
     return jsonify({"cart": items}), 200
+
 
 @app.route('/cart/<user_id>/add', methods=['POST'])
 def add_to_cart(user_id):
@@ -206,6 +220,7 @@ def add_to_cart(user_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
+
 @app.route('/cart/<user_id>/remove', methods=['DELETE'])
 def remove_from_cart(user_id):
     """
@@ -217,6 +232,7 @@ def remove_from_cart(user_id):
     cart.remove_item(data["name"])
     return jsonify({"message": "Item removed from cart"}), 200
 
+
 @app.route('/cart/<user_id>/clear', methods=['POST'])
 def clear_cart(user_id):
     """
@@ -225,6 +241,7 @@ def clear_cart(user_id):
     cart = get_or_create_cart(user_id)
     cart.clear_cart()
     return jsonify({"message": "Cart cleared"}), 200
+
 
 @app.route('/cart/<user_id>/checkout', methods=['POST'])
 def checkout(user_id):
@@ -244,6 +261,7 @@ def checkout(user_id):
 
 # ---------------------- Order Endpoints ----------------------
 
+
 @app.route('/orders/<user_id>', methods=['GET'])
 def order_history(user_id):
     """
@@ -251,6 +269,7 @@ def order_history(user_id):
     """
     history = order_manager.get_order_history(user_id)
     return jsonify({"orders": history}), 200
+
 
 @app.route('/order/<order_id>', methods=['GET'])
 def get_order(order_id):
@@ -265,6 +284,7 @@ def get_order(order_id):
     else:
         return jsonify({"error": "Order not found"}), 404
 
+
 @app.route('/order/<order_id>/cancel', methods=['PUT'])
 def cancel_order(order_id):
     """
@@ -272,6 +292,7 @@ def cancel_order(order_id):
     """
     order_manager.cancel_order(order_id)
     return jsonify({"message": "Order cancelled"}), 200
+
 
 @app.route('/order/<order_id>/status', methods=['PUT'])
 def update_order_status(order_id):
@@ -284,7 +305,30 @@ def update_order_status(order_id):
     order_manager.update_order_status(order_id, new_status)
     return jsonify({"message": "Order status updated"}), 200
 
+
+# ---------------------- Add new furniture type ----------------------
+
+
+@app.route("/api/furniture/register", methods=["POST"])
+def register_furniture():
+    """Dynamically register a new type of furniture."""
+    data = request.json
+    name = data.get("name")
+    attributes = data.get("attributes", {})
+
+    if not name or not attributes:
+        return jsonify({"error": "Missing furniture name or attributes"}), 400
+
+    class CustomFurniture(Furniture):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+
+    FurnitureFactory.register_furniture(name, CustomFurniture)
+    return jsonify({"message": f"{name} registered successfully!"}), 200
+
+
 # ---------------------- Run the API ----------------------
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

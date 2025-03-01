@@ -2,6 +2,7 @@ from models.cart import ShoppingCart
 import pandas as pd
 from typing import Optional, List, Dict
 
+
 class OrderManager:
     """
     Manages orders in the system, including creation, updates, cancellations, and retrieval.
