@@ -1,7 +1,7 @@
 import json
 import os
 import bcrypt
-from abc import ABC, abstractmethod
+from abc import ABC
 from models.cart import ShoppingCart
 
 USER_FILE = "users.json"  # JSON file as a database
@@ -274,25 +274,30 @@ class UserDB:
         self.save_users()
 
     def get_user(self, user_id):
-        """
-        Retrieve a user by ID.
-
-        param:
-            user_id (int): The ID of the user.
-
-        return:
-            User: The user object if found, None otherwise.
-        """
-        return self.user_data.get(user_id)
+        """Retrieve a user by ID and return an instance of Client or Management."""
+        user_data = self.user_data.get(user_id)
+        if not user_data:
+            return None
+        if user_data["type"] == "Client":
+            return Client(**user_data)
+        elif user_data["type"] == "Management":
+            return Management(**user_data)
+        return None
 
     def get_all_users(self):
         """
-        Retrieve all users in the database.
+        Retrieve all users in the database and return them as instances of Client or Management.
 
         return:
-            dict: A dictionary of all user objects with user ID as the key.
+            list: A list of user objects (Client or Management).
         """
-        return self.user_data
+        users = []
+        for user in self.user_data.values():
+            if user["role"] == "client":
+                users.append(Client(**user))  # יוצר מופע Client
+            elif user["role"] == "manager":
+                users.append(Management(**user))  # יוצר מופע Management
+        return users
 
     def authenticate_user(self, email, password):
         """

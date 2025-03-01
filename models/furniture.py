@@ -9,16 +9,16 @@ class Furniture(ABC):
     """
 
     def __init__(
-        self,
-        name: str,
-        description: str,
-        price: float,
-        dimensions: str,
-        serial_number: str,
-        quantity: int,
-        weight: float,
-        manufacturing_country: str,
-        interested_clients: List[str] = None,
+            self,
+            name: str,
+            description: str,
+            price: float,
+            dimensions: str,
+            serial_number: str,
+            quantity: int,
+            weight: float,
+            manufacturing_country: str,
+            interested_clients: List[str] = None,
     ):
         self._validate_positive_value(price, "Price")
         self._validate_positive_value(weight, "Weight")
@@ -97,8 +97,8 @@ class Furniture(ABC):
         """
         return calc_discount(self.price, discount_percentage)
 
-
-    def _validate_positive_value(self, value, field_name):
+    @staticmethod
+    def _validate_positive_value(value, field_name):
         """
         Helper function to validate that a value is positive.
 
@@ -111,28 +111,28 @@ class Furniture(ABC):
 
 
 class Chair(Furniture):
-    def __init__(self, has_wheels: bool, how_many_legs: int, **kwargs):
+    def __init__(self, has_wheels: bool = False, how_many_legs: int = 4, **kwargs):
         super().__init__(**kwargs)
         self.has_wheels = has_wheels
         self.how_many_legs = how_many_legs
 
 
 class Sofa(Furniture):
-    def __init__(self, how_many_seats: int, can_turn_to_bed: bool, **kwargs):
+    def __init__(self, how_many_seats: int = 3, can_turn_to_bed: bool = False, **kwargs):
         super().__init__(**kwargs)
         self.how_many_seats = how_many_seats
         self.can_turn_to_bed = can_turn_to_bed
 
 
 class Bed(Furniture):
-    def __init__(self, has_storage: bool, has_back: bool, **kwargs):
+    def __init__(self, has_storage: bool = False, has_back: bool = False, **kwargs):
         super().__init__(**kwargs)
         self.has_storage = has_storage
         self.has_back = has_back
 
 
 class Table(Furniture):
-    def __init__(self, expandable: bool, how_many_seats: int, is_foldable: bool, **kwargs):
+    def __init__(self, expandable: bool = False, how_many_seats: int = 4, is_foldable: bool = False, **kwargs):
         super().__init__(**kwargs)
         self.expandable = expandable
         self.how_many_seats = how_many_seats
@@ -140,7 +140,7 @@ class Table(Furniture):
 
 
 class Closet(Furniture):
-    def __init__(self, has_mirrors: bool, number_of_shelves: int, how_many_doors: int, **kwargs):
+    def __init__(self, has_mirrors: bool = False, number_of_shelves: int = 3, how_many_doors: int = 2, **kwargs):
         super().__init__(**kwargs)
         self.has_mirrors = has_mirrors
         self.number_of_shelves = number_of_shelves
