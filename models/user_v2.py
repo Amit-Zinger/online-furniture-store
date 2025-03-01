@@ -106,33 +106,9 @@ def load_user(user_id):
     for user in users:
         if user["id"] == int(user_id):
             if user["role"] == "client":
-                return Client(
-                    user["id"],
-                    user["username"],
-                    user["email"],
-                    user["password"],
-                    user["address"],
-                    user.get("shop_cart"),
-                    user.get("liked_list"),
-                )
+                return Client(**user)
             elif user["role"] == "manager":
-                return Management(
-                    user["id"],
-                    user["username"],
-                    user["email"],
-                    user["password"],
-                    user["address"],
-                    user["worker_ID"],
-                )
-            else:
-                return User(
-                    user["id"],
-                    user["username"],
-                    user["email"],
-                    user["password"],
-                    user["address"],
-                    user["role"],
-                )
+                return Management(**user)
     return None
 
 

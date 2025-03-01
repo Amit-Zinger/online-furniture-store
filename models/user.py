@@ -1,128 +1,316 @@
-from abc import ABC, abstractmethod
+import json
+import os
 import bcrypt
+from abc import ABC
+from models.cart import ShoppingCart
+
+USER_FILE = "users.json"  # JSON file as a database
 
 
+# -------- USER CLASSES -------- #
 class User(ABC):
-    users_list = []
+    """
+    Abstract base class representing a user.
 
-    def __init__(self, username, email, password, address):
+    Attributes:
+        id (int): Unique identifier for the user.
+        username (str): The username of the user.
+        email (str): The user's email address.
+        password (str): The hashed password.
+        address (str): The user's address.
+    """
+
+    def __init__(self, id, username, email, password, address):
+        """
+        Initialize a User object.
+
+        param:
+            id (int): The unique ID of the user.
+            username (str): The username of the user.
+            email (str): The email address of the user.
+            password (str): The user's password (hashed if not already).
+            address (str): The user's address.
+        """
+        self.id = id
         self.username = username
         self.email = email
-        self.password = self.hash_password(password)
+        self.password = self.hash_password(password) if not password.startswith("$2b$") else password
         self.address = address
 
     def hash_password(self, password):
+        """
+        Hashes the password using bcrypt.
+
+        param:
+            password (str): The plain text password.
+
+        return:
+            str: The hashed password.
+        """
         return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
     def verify_password(self, password):
+        """
+        Verifies if the provided password matches the stored hashed password.
+
+        param:
+            password (str): The plain text password.
+
+        return:
+            bool: True if the password matches, False otherwise.
+        """
         return bcrypt.checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
 
-    @abstractmethod
-    def get_user_type(self):
-        pass
-
-    @abstractmethod
-    def notify_email(self):
-        pass
-
-    @classmethod
-    def login(cls, username, password):
-        for user in cls.users_list:
-            if user.username == username and user.verify_password(password):
-                print(f"Login successful for {username}")
-                return True
-        print("Login failed: Invalid username or password")
-        return False
-
-    @classmethod
-    def register(cls, username, email, password, address, user_type, **kwargs):
-        if any(user.username == username for user in cls.users_list):
-            print("Registration failed: Username already exists")
-            return None
-
-        if user_type == "Client":
-            new_user = Client(
-                username, email, password, address, kwargs.get("client_id")
-            )
-        elif user_type == "Management":
-            new_user = Management(
-                username,
-                email,
-                password,
-                address,
-                kwargs.get("worker_id"),
-                kwargs.get("role"),
-            )
-        else:
-            print("Invalid user type")
-            return None
-
-        cls.users_list.append(new_user)
-        print(f"User {username} registered successfully with email {email}")
-        return new_user
 
 
 class Client(User):
-    def __init__(self, username, email, password, address, client_id):
-        super().__init__(username, email, password, address)
-        self.client_id = client_id
-        self.shop_cart = []
-        self.liked_list = []
+    """
+    Represents a client user with a shopping cart.
 
-    def get_user_type(self):
-        return "Client"
+    Attributes:
+        shopping_cart (ShoppingCart): The client's shopping cart.
+        type (str): User type identifier ("Client").
+    """
 
-    def notify_email(self):
-        print(f"Notification sent to {self.email}")
+    def __init__(self, id, username, email, password, address):
+        """
+        Initialize a Client object.
 
-    def get_order_history(self):
-        print("Order history retrieved.")
+        param:
+            id (int): The unique ID of the client.
+            username (str): The username of the client.
+            email (str): The email address of the client.
+            password (str): The password of the client.
+            address (str): The client's address.
+        """
+        super().__init__(id, username, email, password, address)
+        self.shopping_cart = ShoppingCart(id)
+        self.type = "Client"
 
-    def get_client_info(self):
-        return {
-            "username": self.username,
-            "email": self.email,
-            "address": self.address,
-            "client_id": self.client_id,
-        }
+    def edit_info(self, username=None, email=None, address=None):
+        """
+        Update the client's information.
 
-    def edit_client_info(self, new_username=None, new_email=None, new_address=None):
-        if new_username:
-            self.username = new_username
-        if new_email:
-            self.email = new_email
-        if new_address:
-            self.address = new_address
-        print("Client info updated successfully.")
+        param:
+            username (str, optional): New username.
+            email (str, optional): New email address.
+            address (str, optional): New address.
+        """
+        if username:
+            self.username = username
+        if email:
+            self.email = email
+        if address:
+            self.address = address
 
-    def add_cart(self, item):
-        self.shop_cart.append(item)
-        print(f"{item} added to cart.")
-
-    def like_product(self, product):
-        self.liked_list.append(product)
-        print(f"{product} liked.")
-
-    def dislike_product(self, product):
-        if product in self.liked_list:
-            self.liked_list.remove(product)
-            print(f"{product} removed from liked list.")
 
 
 class Management(User):
-    def __init__(self, username, email, password, address, worker_id, role):
-        super().__init__(username, email, password, address)
-        self.worker_id = worker_id
-        self.role = role
+    """
+    Represents a management-level user.
 
-    def get_user_type(self):
-        return "Management"
+    Attributes:
+        rule (str): The management role.
+        type (str): User type identifier ("Management").
+    """
 
-    def notify_email(self):
-        print(f"Notification sent to management email {self.email}")
+    def __init__(self, id, username, email, password, address, rule):
+        """
+        Initialize a Management user.
 
-    def check_inventory(self):
-        print("Inventory checked.")
+        param:
+            id (int): The unique ID of the manager.
+            username (str): The username of the manager.
+            email (str): The email address of the manager.
+            password (str): The password of the manager.
+            address (str): The manager's address.
+            rule (str): The managerial role.
+        """
+        super().__init__(id, username, email, password, address)
+        self.rule = rule
+        self.type = "Management"
 
-    def check_low_inventory(self):
-        print("Low inventory items retrieved.")
+    def check_low_inventory(self, inventory):
+        """
+        Check for furniture items with zero quantity in stock.
+
+        param:
+            inventory (Inventory): The inventory object containing furniture items.
+
+        return:
+            list: A list of furniture objects with zero quantity.
+        """
+        low_furniture_list = []
+        category_types_list = ["Chair", "Sofa", "Table", "Bed", "Closet"]
+
+        for category in category_types_list:
+            atr_list = inventory.search_by(category=category)  # Fetch category-specific furniture
+            for atr in atr_list:
+                if atr.quantity == 0:
+                    low_furniture_list.append(atr)
+
+        return low_furniture_list
+
+
+    def edit_info(self, username=None, email=None, address=None, rule=None):
+        """
+        Update the management user's information.
+
+        param:
+            username (str, optional): New username.
+            email (str, optional): New email address.
+            address (str, optional): New address.
+            rule (str, optional): New managerial role.
+        """
+        if username:
+            self.username = username
+        if email:
+            self.email = email
+        if address:
+            self.address = address
+        if rule:
+            self.rule = rule
+
+
+# -------- USER DATABASE CLASS -------- #
+class UserDB:
+    """
+    Manages user data storage and retrieval using a JSON file.
+
+    Attributes:
+        file_path (str): Path to the user database file.
+        user_data (dict): Dictionary containing user objects.
+    """
+
+    def __init__(self, file_path=USER_FILE):
+        """
+        Initialize the UserDB and load users from the JSON file.
+
+        param:
+            file_path (str, optional): Path to the JSON file. Default is "users.json".
+        """
+        self.file_path = file_path
+        self.user_data = {}  # Store users in dictionary
+        self.load_users()
+
+    def load_users(self):
+        """
+        Load users from the JSON file and restore ShoppingCart for clients.
+
+        return:
+            None
+        """
+        if not os.path.exists(self.file_path):
+            with open(self.file_path, "w") as file:
+                json.dump({}, file, indent=4)
+            return
+
+        with open(self.file_path, "r") as file:
+            data = json.load(file)
+
+        if not data:
+            return
+
+        self.user_data = {}
+        for id, user in data.items():
+            type_user = user.pop("type")
+            shpcrt_user = user.pop("shopping_cart")
+            if type_user == "Client":
+                client = Client(**user)
+                client.shopping_cart = shpcrt_user
+                self.user_data[int(id)] = client
+            else:
+                self.user_data[int(id)] = Management(**user)
+
+    def save_users(self):
+        """
+        Save all users to the JSON file in a JSON-serializable format.
+
+        return:
+            None
+        """
+        with open(self.file_path, "w") as file:
+            json.dump(
+                {
+                    id: {
+                        **user.__dict__,
+                        "shopping_cart": vars(user.shopping_cart) if hasattr(user, "shopping_cart") else None
+                    }
+                    for id, user in self.user_data.items()
+                },
+                file, indent=4
+            )
+
+    def add_user(self, user):
+        """
+        Add a new user to the database.
+
+        param:
+            user (User): The user object to add.
+
+        return:
+            None
+        """
+        if user.id in self.user_data:
+            raise ValueError("User ID already exists!")
+        self.user_data[user.id] = user
+        self.save_users()
+
+    def edit_user(self, user_id, **kwargs):
+        """
+        Edit an existing user's details.
+
+        param:
+            user_id (int): The ID of the user to edit.
+            **kwargs: Fields to update (e.g., username, email).
+
+        return:
+            None
+        """
+        user = self.user_data.get(user_id)
+        if not user:
+            raise ValueError("User not found!")
+        user.edit_info(**kwargs)
+        self.save_users()
+
+    def get_user(self, user_id):
+        """Retrieve a user by ID and return an instance of Client or Management."""
+        user_data = self.user_data.get(user_id)
+        if not user_data:
+            return None
+        if user_data["type"] == "Client":
+            return Client(**user_data)
+        elif user_data["type"] == "Management":
+            return Management(**user_data)
+        return None
+
+    def get_all_users(self):
+        """
+        Retrieve all users in the database and return them as instances of Client or Management.
+
+        return:
+            list: A list of user objects (Client or Management).
+        """
+        users = []
+        for user in self.user_data.values():
+            if user["role"] == "client":
+                users.append(Client(**user))  # יוצר מופע Client
+            elif user["role"] == "manager":
+                users.append(Management(**user))  # יוצר מופע Management
+        return users
+
+    def authenticate_user(self, email, password):
+        """
+        Authenticate a user by checking email and password.
+
+        param:
+            email (str): The email of the user.
+            password (str): The password to verify.
+
+        return:
+            User: The authenticated user object if credentials are correct, otherwise None.
+        """
+        for user in self.user_data.values():
+            if user.email == email and user.verify_password(password):
+                return user
+        return None

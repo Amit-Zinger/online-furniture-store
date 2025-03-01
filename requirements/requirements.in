@@ -3,4 +3,4 @@ pytest
 bcrypt
 PyJWT
 requests
-
+bcrypt
