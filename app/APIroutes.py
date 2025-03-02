@@ -107,7 +107,6 @@ from flask import Flask, request, jsonify
 from models.inventory import Inventory
 from models.cart import ShoppingCart, PaymentGateway
 from models.order import OrderManager
-from auth import require_auth
 
 app = Flask(__name__)
 inventory = Inventory("data/inventory.pkl")
