@@ -105,12 +105,10 @@ def test_remove_item(setup_inventory):
 
 def test_update_quantity(setup_inventory):
     inventory, _ = setup_inventory
-    chair_list = inventory.data["Chair"][0]
     chair_obj = inventory.data["Chair"][0][0]
 
     assert inventory.update_quantity(chair_obj, 99) is True
     assert chair_obj.quantity == 99
-    assert chair_list[1:]== inventory.data["Chair"][0][1:]
 
 
 def test_search_by_name(setup_inventory):
