@@ -28,9 +28,7 @@ class OrderManager:
             ]
         )
 
-    def create_order(
-        self, cart: ShoppingCart, payment_info: str, total_price: float
-    ) -> None:
+    def create_order(self, cart: ShoppingCart, payment_info: str, total_price: float) -> None:
         """
         Creates a new order and appends it to the DataFrame.
 
@@ -41,22 +39,32 @@ class OrderManager:
         """
         import uuid
         from datetime import datetime
+        import json  # ✅ Ensure items are serializable
 
         order_id = str(uuid.uuid4())  # Generate a unique order ID
-        order_date = datetime.now()
+        order_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # ✅ Convert to string format
+
+        # ✅ Serialize items before storing them in the DataFrame
+        serialized_items = json.dumps(
+            [{"item": vars(i["item"]), "quantity": i["quantity"]} for i in cart.items],
+            default=str
+        )
+
         order_data = {
             "order_id": order_id,
-            "client_id": cart.user_id,  # using cart.user_id as per our update
-            "items": cart.items,        # using cart.items
+            "client_id": int(cart.user_id),
+            "items": serialized_items,  # ✅ Save as JSON
             "total_price": total_price,
             "payment_info": payment_info,
-            "status": "Processing",  # Initial status
+            "status": "Processing",
             "order_date": order_date,
         }
-        # Instead of using deprecated append(), we use pd.concat()
+
+        # ✅ Instead of `append()`, use `pd.concat()` for proper DataFrame handling
         new_order_df = pd.DataFrame([order_data])
         self.orders = pd.concat([self.orders, new_order_df], ignore_index=True)
-        print(f"Order {order_id} created successfully.")
+
+        print(f"✅ Order {order_id} created successfully!")
 
     def get_order(self, order_id: str, client_id: str) -> Optional[Dict]:
         """

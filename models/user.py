@@ -3,6 +3,8 @@ import os
 import bcrypt
 from abc import ABC, abstractmethod
 from models.cart import ShoppingCart
+from app.utils import serialize_furniture, deserialize_furniture
+
 
 USER_FILE = "users.json"  # JSON file as a database
 
@@ -194,12 +196,7 @@ class UserDB:
         self.load_users()
 
     def load_users(self):
-        """
-        Load users from the JSON file and restore ShoppingCart for clients.
-
-        return:
-            None
-        """
+        """Loads users from the JSON file and converts stored furniture dictionaries back into objects."""
         if not os.path.exists(self.file_path):
             with open(self.file_path, "w") as file:
                 json.dump({}, file, indent=4)
@@ -213,26 +210,30 @@ class UserDB:
 
         for id, user in data.items():
             type_user = user.pop("type")
-            shpcrt_user = user.pop("shopping_cart")
+            shopping_cart_items = user.pop("shopping_cart", [])
 
             if type_user == "Client":
                 client = Client(**user)
-                client.shopping_cart = ShoppingCart(str(client.id))  # ✅ Reinitialize ShoppingCart
-                client.shopping_cart.items = shpcrt_user.get("items", [])  # ✅ Restore cart items
+                client.shopping_cart.items = [
+                    {"item": deserialize_furniture(i["item"]), "quantity": i["quantity"]}
+                    for i in shopping_cart_items
+                ]
                 self.user_data[int(id)] = client
             else:
                 self.user_data[int(id)] = Management(**user)
 
     def save_users(self):
-        """
-        Save all users to the JSON file in a JSON-serializable format.
-        """
+        """Saves users to the JSON file, ensuring furniture objects are serializable."""
         with open(self.file_path, "w") as file:
             json.dump(
                 {
                     id: {
-                        **vars(user),  # ✅ Fix: Correctly convert user object to a dictionary
-                        "shopping_cart": vars(user.shopping_cart) if hasattr(user, "shopping_cart") else None
+                        **vars(user),
+                        "shopping_cart": [
+                            {"item": serialize_furniture(i["item"]), "quantity": i["quantity"]}
+                            for i in user.shopping_cart.items
+                        ]
+                        if hasattr(user, "shopping_cart") else None
                     }
                     for id, user in self.user_data.items()
                 },
