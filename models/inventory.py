@@ -165,66 +165,66 @@ class Inventory:
         """
 
         def match_price_range(item):
-            """
-            Check if the item's price is within the specified range.
-
-            Parameters:
-            item: Furniture object.
-
-            Outputs:
-            True if the price is within range, otherwise False.
-            """
+            """Check if the item's price is within the specified range."""
             if not hasattr(item, "price"):
                 return False
             min_price, max_price = price_range
             return min_price <= item.price <= max_price
 
         def match_name(item):
-            """
-            Check if the item's name match the name given.
-
-            Parameters:
-            item: Furniture object.
-
-            Outputs:
-            True if the name match, otherwise False.
-            """
+            """Check if the item's name matches the given name."""
             if not hasattr(item, "name") or getattr(item, "name") != name:
                 return False
             return True
 
         furniture_classes = ["Chair", "Sofa", "Table", "Bed", "Closet"]
         result = None
+
+        # Ensure `self.data` is properly initialized
+        if not hasattr(self, "data") or self.data.empty:
+            return []
+
         # Returning all furniture objects in list
         if not (price_range or name or category):
             result = pd.DataFrame()
             for fc in furniture_classes:
-                temp_df = pd.DataFrame({"object": self.data[fc][0]})
-                result = pd.concat([result, temp_df], ignore_index=True)
+                category_data = self.data.get(fc, pd.DataFrame())
+                if not category_data.empty:
+                    temp_df = pd.DataFrame({"object": category_data.iloc[0]})
+                    result = pd.concat([result, temp_df], ignore_index=True)
+
         # Handling specific category of furniture
         if category:
-            result = pd.DataFrame({"object": self.data[category][0]})
+            category_data = self.data.get(category, pd.DataFrame())
+            if not category_data.empty:
+                result = pd.DataFrame({"object": category_data.iloc[0]})
+
         # Handling specific name of furniture
         if name:
             if result is None:
                 result = pd.DataFrame()
                 for fc in furniture_classes:
-                    temp_df = pd.DataFrame({"object": self.data[fc][0]})
-                    filtered_data = temp_df["object"].apply(match_name)
-                    temp_df = temp_df[filtered_data]
-                    result = pd.concat([result, temp_df], ignore_index=True)
+                    category_data = self.data.get(fc, pd.DataFrame())
+                    if not category_data.empty:
+                        temp_df = pd.DataFrame({"object": category_data.iloc[0]})
+                        filtered_data = temp_df["object"].apply(match_name)
+                        temp_df = temp_df[filtered_data]
+                        result = pd.concat([result, temp_df], ignore_index=True)
             else:
                 filtered_data = result["object"].apply(match_name)
                 result = result[filtered_data]
+
         # Handling price range of furniture
         if price_range:
             if result is None:
                 result = pd.DataFrame()
                 for fc in furniture_classes:
-                    temp_df = pd.DataFrame({"object": self.data[fc][0]})
-                    filtered_data = temp_df["object"].apply(match_price_range)
-                    temp_df = temp_df[filtered_data]
-                    result = pd.concat([result, temp_df], ignore_index=True)
+                    category_data = self.data.get(fc, pd.DataFrame())
+                    if not category_data.empty:
+                        temp_df = pd.DataFrame({"object": category_data.iloc[0]})
+                        filtered_data = temp_df["object"].apply(match_price_range)
+                        temp_df = temp_df[filtered_data]
+                        result = pd.concat([result, temp_df], ignore_index=True)
             else:
                 filtered_data = result["object"].apply(match_price_range)
                 result = result[filtered_data]
@@ -233,4 +233,6 @@ class Inventory:
             return []
 
         return result["object"].tolist()
+
+
 
