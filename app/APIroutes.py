@@ -5,7 +5,9 @@ import jwt
 from flask import Flask, request, jsonify
 from models.inventory import Inventory
 from models.order import OrderManager
-from auth import login_manager
+from app.auth import require_auth,require_role
+from models.cart import ShoppingCart, PaymentGateway
+
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
@@ -16,41 +18,7 @@ USER_FILE = "data/users.json"
 inventory = Inventory("data/inventory.pkl")  # Using pickle for inventory
 order_manager = OrderManager()  # Singleton OrderManager instance
 
-# ---------------------- Helper Functions ----------------------
-
-
-def authenticate(token):
-    """Authenticate a user via JWT token."""
-    try:
-        return jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
-    except jwt.ExpiredSignatureError:
-        return None
-    except jwt.InvalidTokenError:
-        return None
-
-
-def require_auth(func):
-    """Decorator to ensure authentication via JWT."""
-    def wrapper(*args, **kwargs):
-        token = request.headers.get("Authorization")
-        user_data = authenticate(token)
-        if not user_data:
-            return jsonify({"error": "Authentication required"}), 401
-        return func(user_data, *args, **kwargs)
-    return wrapper
-
-
-def require_role(required_role):
-    """Decorator to enforce role-based access control."""
-    def decorator(func):
-        def wrapper(user_data, *args, **kwargs):
-            if user_data["role"] != required_role:
-                return jsonify({"error": "Unauthorized"}), 403
-            return func(user_data, *args, **kwargs)
-        return wrapper
-    return decorator
-
-# ---------------------- User Management ----------------------
+# ---------------------- User register ----------------------
 
 
 @app.route("/register", methods=["POST"])
@@ -71,6 +39,8 @@ def register():
     users.append(new_user)
     UserDB.save_users(users)
     return jsonify({"message": "Registration successful!"}), 201
+
+# ---------------------- User Login ----------------------
 
 
 @app.route("/login", methods=["POST"])
@@ -100,17 +70,7 @@ def update_inventory_route(user_data):
     inventory.update_data()
     return jsonify({"message": "Quantity updated successfully!"}), 200
 
-# ---------------------- Order Management ----------------------
-
-
-from flask import Flask, request, jsonify
-from models.inventory import Inventory
-from models.cart import ShoppingCart, PaymentGateway
-from models.order import OrderManager
-
-app = Flask(__name__)
-inventory = Inventory("data/inventory.pkl")
-order_manager = OrderManager()
+# ---------------------- add or remove from cart ----------------------
 
 
 @app.route("/cart/add", methods=["POST"])
@@ -146,6 +106,7 @@ def remove_from_cart(user_data):
     return jsonify({"message": "Item removed from cart"}), 200
 
 
+# ---------------------- checkout ----------------------
 @app.route("/cart/checkout", methods=["POST"])
 @require_auth
 def checkout(user_data):
@@ -180,9 +141,75 @@ def checkout(user_data):
     cart.clear_cart()
     return jsonify({"message": "Checkout successful"}), 200
 
+# ---------------------- search product ----------------------
 
-if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+
+@app.route("/api/inventory/search", methods=["GET"])
+def search_product():
+    """Search for products by name, category, or price range, returning all relevant attributes."""
+    name = request.args.get("name")
+    category = request.args.get("category")
+    min_price = request.args.get("min_price", type=float)
+    max_price = request.args.get("max_price", type=float)
+
+    # search by name category or price 
+    results = inventory.search_by(
+        name=name,
+        category=category,
+        price_range=(min_price, max_price) if min_price is not None and max_price is not None else None
+    )
+
+    # no match found
+    if not results:
+        return jsonify({"message": "No products found"}), 404
+
+    def serialize_item(item):
+        """Convert furniture object to JSON including type-specific attributes."""
+        item_data = {
+            "name": item.name,
+            "description": item.description,
+            "price": item.price,
+            "dimensions": item.dimensions,
+            "serial_number": item.serial_number,
+            "quantity": item.quantity,
+            "weight": item.weight,
+            "manufacturing_country": item.manufacturing_country
+        }
+
+        if isinstance(item, Chair):
+            item_data.update({
+                "has_wheels": item.has_wheels,
+                "how_many_legs": item.how_many_legs
+            })
+        elif isinstance(item, Sofa):
+            item_data.update({
+                "how_many_seats": item.how_many_seats,
+                "can_turn_to_bed": item.can_turn_to_bed
+            })
+        elif isinstance(item, Table):
+            item_data.update({
+                "expandable": item.expandable,
+                "how_many_seats": item.how_many_seats,
+                "is_foldable": item.is_foldable
+            })
+        elif isinstance(item, Bed):
+            item_data.update({
+                "has_storage": item.has_storage,
+                "has_back": item.has_back
+            })
+        elif isinstance(item, Closet):
+            item_data.update({
+                "has_mirrors": item.has_mirrors,
+                "number_of_shelves": item.number_of_shelves,
+                "how_many_doors": item.how_many_doors
+            })
+
+        return item_data
+
+    # יצירת תגובת JSON עם כל הנתונים הרלוונטיים
+    return jsonify([serialize_item(item) for item in results]), 200
+
+
 
 # ---------------------- Run the API ----------------------
 
