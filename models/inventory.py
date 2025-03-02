@@ -151,7 +151,7 @@ class Inventory:
             self.data.loc[0, class_name] = pd_spec_class
             return True
 
-    def search_by(self, name=None, category=None, price_range=None):
+    def search_by(self, name=None, category=None, price_range=None, **filters):
         """
         Search for furniture items based on attributes.
 
@@ -159,10 +159,26 @@ class Inventory:
         name: Name of the furniture item.
         category: Category of the furniture item.
         price_range: Tuple specifying min and max price range.
+        filters: Additional attribute filters as key-value pairs.
 
         Outputs:
         List of furniture items that match the search criteria.
         """
+
+        # Additional option to check according to other attributes of furniture
+        # obj- Disabled
+        def matches_filters(item):
+            """
+            Check if an item matches all provided filters.
+            Parameters:
+            item: Furniture object.
+            Outputs:
+            True if the item matches all filters, otherwise False.
+            """
+            for attr, value in filters.items():
+                if not hasattr(item, attr) or getattr(item, attr) != value:
+                    return False
+            return True
 
         def match_price_range(item):
             """
@@ -197,6 +213,7 @@ class Inventory:
         result = None
         # Handling specific category of furniture
         if category:
+            result = pd.DataFrame()
             result = pd.DataFrame({"object": self.data[category][0]})
         # Handling specific name of furniture
         if name:
@@ -223,8 +240,67 @@ class Inventory:
                 filtered_data = result["object"].apply(match_price_range)
                 result = result[filtered_data]
 
+        # Apply additional filters - Disabled
+        # if (filters):
+        #     filtered_data = result.apply(match_price_range)
+        #     result = result[filtered_data]
+
         if result is None or result.empty:
             return []
 
         return result["object"].tolist()
 
+
+def create_inventory_with_furniture(file_path):
+    """
+    Create an Inventory instance and populate it with five different objects from each furniture type.
+
+    Parameters:
+    file_path: Path to the pickle file where inventory data is stored.
+    """
+    inventory = Inventory(file_path)
+
+    furniture_types = ["Chair", "Sofa", "Table", "Bed", "Closet"]
+
+    for furniture_type in furniture_types:
+        for i in range(5):
+            furniture_desc = {
+                "type": furniture_type,
+                "name": f"{furniture_type} Model {i + 1}",
+                "description": f"A stylish {furniture_type} for home or office.",
+                "price": 100 + i * 50,
+                "dimensions": "100x50x75 cm",
+                "serial_number": f"SN{furniture_type}{i + 1}",
+                "quantity": 10 + i,
+                "weight": 20 + i * 5,
+                "manufacturing_country": "USA",
+            }
+
+            # Add specific attributes for each furniture type
+            if furniture_type == "Chair":
+                furniture_desc.update(
+                    {"has_wheels": i % 2 == 0, "how_many_legs": 4})
+            elif furniture_type == "Sofa":
+                furniture_desc.update(
+                    {"can_turn_to_bed": i % 2 == 0, "how_many_seats": 3 + i}
+                )
+            elif furniture_type == "Table":
+                furniture_desc.update(
+                    {
+                        "expandable": i % 2 == 0,
+                        "how_many_seats": 4 + i,
+                        "is_foldable": False,
+                    }
+                )
+            elif furniture_type == "Bed":
+                furniture_desc.update(
+                    {"has_storage": i % 2 == 0, "has_back": True})
+            elif furniture_type == "Closet":
+                furniture_desc.update(
+                    {"has_drawers": i % 2 == 0, "how_many_doors": 2 + i}
+                )
+
+            inventory.add_item(furniture_desc)
+
+    inventory.update_data()
+    print("Inventory populated with furniture items successfully.")
