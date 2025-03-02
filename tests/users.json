@@ -3,7 +3,7 @@
         "id": 1,
         "username": "test_client",
         "email": "client@test.com",
-        "password": "$2b$12$eJ8UIcTwMiKlAvJkmyHnmOMzurdAzOV44Nvdl8kQt.t7B./UdmWPK",
+        "password": "$2b$12$YWSxP.nEjmgShuC2.D.1ouoCK8Zy5M2WgFf7DxIHFg2AAnj2sCtAm",
         "address": "123 Street",
         "shopping_cart": {
             "user_id": "1",
@@ -15,7 +15,7 @@
         "id": 2,
         "username": "test_manager",
         "email": "manager@test.com",
-        "password": "$2b$12$Ci5OXBtbPqzM/32/qGJLUunhMjI83qk4xCiutHTDlxpadG1BvjhQm",
+        "password": "$2b$12$ing1ZMN8IPsiWQ8eTi.zwOukpcnit7ObeHblztIxNp.M82mxXbi8q",
         "address": "456 Avenue",
         "rule": "admin",
         "type": "Management",

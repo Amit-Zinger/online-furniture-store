@@ -19,13 +19,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: "3.8"
+          python-version: "3.9"
 
       - name: Install dependencies
         run: |
           pip install --upgrade pip
           pip install -r requirements/requirements.txt
-          pip install ruff  # Ensure ruff is installed
+          pip install pytest pytest-cov ruff  # Using only ruff for linting
 
       - name: Start Flask Server
         run: |
@@ -43,5 +43,6 @@ jobs:
       - name: Stop Flask Server
         run: pkill -f app/APIroutes.py || true
 
-      - name: Run Code Quality Checks
-        run: pytest tests/test_codequality.py
+      - name: Run Code Quality Checks (Ruff)
+        run: ruff check .
+

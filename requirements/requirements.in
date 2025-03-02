@@ -6,3 +6,5 @@ requests
 bcrypt
 cryptography
 ruff
+coverage
+pytest-cov

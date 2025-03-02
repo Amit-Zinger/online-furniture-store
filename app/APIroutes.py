@@ -2,22 +2,27 @@ from datetime import datetime, timedelta
 from models.user import UserDB
 import bcrypt
 import jwt
-from flask import Flask, request, jsonify
+from flask import Flask
+from flask import request, jsonify
 from models.inventory import Inventory
 from models.order import OrderManager
 from auth import login_manager
+from flask import Flask, request, jsonify
+from models.inventory import Inventory
+from models.cart import ShoppingCart, PaymentGateway
+from models.order import OrderManager
+
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 JWT_SECRET = "super_secret_jwt_key"
 USER_FILE = "data/users.json"
 
+app = Flask(__name__)
 # Initialize inventory and order manager
-inventory = Inventory("data/inventory.pkl")  # Using pickle for inventory
-order_manager = OrderManager()  # Singleton OrderManager instance
-
+inventory = Inventory("data/inventory.pkl")
+order_manager = OrderManager()
 # ---------------------- Helper Functions ----------------------
-
 
 def authenticate(token):
     """Authenticate a user via JWT token."""
@@ -103,16 +108,6 @@ def update_inventory_route(user_data):
 # ---------------------- Order Management ----------------------
 
 
-from flask import Flask, request, jsonify
-from models.inventory import Inventory
-from models.cart import ShoppingCart, PaymentGateway
-from models.order import OrderManager
-
-app = Flask(__name__)
-inventory = Inventory("data/inventory.pkl")
-order_manager = OrderManager()
-
-
 @app.route("/cart/add", methods=["POST"])
 @require_auth
 def add_to_cart(user_data):
@@ -180,9 +175,6 @@ def checkout(user_data):
     cart.clear_cart()
     return jsonify({"message": "Checkout successful"}), 200
 
-
-if __name__ == "__main__":
-    app.run(debug=True, port=5000)
 
 # ---------------------- Run the API ----------------------
 
