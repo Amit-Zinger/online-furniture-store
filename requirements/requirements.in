@@ -4,3 +4,5 @@ bcrypt
 PyJWT
 requests
 bcrypt
+cryptography
+ruff
