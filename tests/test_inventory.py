@@ -48,7 +48,11 @@ def setup_inventory():
                     )
                 elif furniture_type == "Table":
                     furniture_desc.update(
-                        {"expandable": i % 2 == 0, "how_many_seats": 4 + i}
+                        {
+                            "expandable": i % 2 == 0,
+                            "how_many_seats": 4 + i,
+                            "is_foldable": False
+                        }
                     )
                 elif furniture_type == "Bed":
                     furniture_desc.update(
@@ -105,10 +109,12 @@ def test_remove_item(setup_inventory):
 
 def test_update_quantity(setup_inventory):
     inventory, _ = setup_inventory
+    chair_list = inventory.data["Chair"][0]
     chair_obj = inventory.data["Chair"][0][0]
 
     assert inventory.update_quantity(chair_obj, 99) is True
     assert chair_obj.quantity == 99
+    assert chair_list[1:]== inventory.data["Chair"][0][1:]
 
 
 def test_search_by_name(setup_inventory):
@@ -190,3 +196,19 @@ def test_update_data(setup_inventory):
     new_inventory = Inventory(test_file)
     # Should still contain 5 chairs
     assert len(new_inventory.data["Chair"][0]) == 5
+
+def test_search_by_full_database(setup_inventory):
+    inventory, _ = setup_inventory
+
+    # Call search_by with no parameters
+    result = inventory.search_by()
+
+    # Extract expected results
+    expected_result = []
+    for category in ["Chair", "Sofa", "Table", "Bed", "Closet"]:
+        expected_result.extend(inventory.data[category][0])
+
+    # Assert that all objects are returned in a single list
+    assert sorted(result, key=lambda x: x.name) == sorted(expected_result, key=lambda
+        x: x.name), "search_by() did not return the full database correctly when no parameters were provided."
+
