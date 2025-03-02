@@ -1,7 +1,7 @@
 import json
 import os
 import bcrypt
-from abc import ABC
+from abc import ABC, abstractmethod
 from models.cart import ShoppingCart
 
 USER_FILE = "users.json"  # JSON file as a database
@@ -84,7 +84,7 @@ class Client(User):
             address (str): The client's address.
         """
         super().__init__(id, username, email, password, address)
-        self.shopping_cart = ShoppingCart(id)
+        self.shopping_cart = ShoppingCart(str(id))
         self.type = "Client"
 
     def edit_info(self, username=None, email=None, address=None):
@@ -211,13 +211,14 @@ class UserDB:
         if not data:
             return
 
-        self.user_data = {}
         for id, user in data.items():
             type_user = user.pop("type")
             shpcrt_user = user.pop("shopping_cart")
+
             if type_user == "Client":
                 client = Client(**user)
-                client.shopping_cart = shpcrt_user
+                client.shopping_cart = ShoppingCart(str(client.id))  # ✅ Reinitialize ShoppingCart
+                client.shopping_cart.items = shpcrt_user.get("items", [])  # ✅ Restore cart items
                 self.user_data[int(id)] = client
             else:
                 self.user_data[int(id)] = Management(**user)
@@ -225,15 +226,12 @@ class UserDB:
     def save_users(self):
         """
         Save all users to the JSON file in a JSON-serializable format.
-
-        return:
-            None
         """
         with open(self.file_path, "w") as file:
             json.dump(
                 {
                     id: {
-                        **user.__dict__,
+                        **vars(user),  # ✅ Fix: Correctly convert user object to a dictionary
                         "shopping_cart": vars(user.shopping_cart) if hasattr(user, "shopping_cart") else None
                     }
                     for id, user in self.user_data.items()
@@ -274,30 +272,25 @@ class UserDB:
         self.save_users()
 
     def get_user(self, user_id):
-        """Retrieve a user by ID and return an instance of Client or Management."""
-        user_data = self.user_data.get(user_id)
-        if not user_data:
-            return None
-        if user_data["type"] == "Client":
-            return Client(**user_data)
-        elif user_data["type"] == "Management":
-            return Management(**user_data)
-        return None
+        """
+        Retrieve a user by ID.
+
+        param:
+            user_id (int): The ID of the user.
+
+        return:
+            User: The user object if found, None otherwise.
+        """
+        return self.user_data.get(user_id)
 
     def get_all_users(self):
         """
-        Retrieve all users in the database and return them as instances of Client or Management.
+        Retrieve all users in the database.
 
         return:
-            list: A list of user objects (Client or Management).
+            dict: A dictionary of all user objects with user ID as the key.
         """
-        users = []
-        for user in self.user_data.values():
-            if user["role"] == "client":
-                users.append(Client(**user))  # יוצר מופע Client
-            elif user["role"] == "manager":
-                users.append(Management(**user))  # יוצר מופע Management
-        return users
+        return self.user_data
 
     def authenticate_user(self, email, password):
         """

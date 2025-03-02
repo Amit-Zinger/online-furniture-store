@@ -28,6 +28,9 @@ def test_user_creation(setup_user_db):
     client = db.get_user(1)
     manager = db.get_user(2)
 
+    assert client is not None
+    assert manager is not None
+
     assert client.type == "Client"
     assert manager.type == "Management"
     assert client.verify_password("password123")
@@ -39,6 +42,7 @@ def test_edit_client_info(setup_user_db):
     db.edit_user(1, username="new_client", email="new_client@test.com", address="789 Boulevard")
 
     client = db.get_user(1)
+    assert client is not None
     assert client.username == "new_client"
     assert client.email == "new_client@test.com"
     assert client.address == "789 Boulevard"
@@ -49,6 +53,7 @@ def test_edit_manager_info(setup_user_db):
     db.edit_user(2, username="new_manager", email="new_manager@test.com", address="999 Street", rule="superadmin")
 
     manager = db.get_user(2)
+    assert manager is not None
     assert manager.username == "new_manager"
     assert manager.email == "new_manager@test.com"
     assert manager.address == "999 Street"
@@ -59,6 +64,7 @@ def test_password_verification(setup_user_db):
     db = setup_user_db
     client = db.get_user(1)
 
+    assert client is not None
     assert client.verify_password("password123")
     assert not client.verify_password("wrongpassword")
 
@@ -67,6 +73,7 @@ def test_password_is_hashed(setup_user_db):
     db = setup_user_db
     client = db.get_user(1)
 
+    assert client is not None
     assert client.password.startswith("$2b$")  # bcrypt hashed passwords start with $2b$
     assert bcrypt.checkpw("password123".encode("utf-8"), client.password.encode("utf-8"))
 
@@ -79,6 +86,8 @@ def test_save_and_load_users(setup_user_db):
     client = db.get_user(1)
     manager = db.get_user(2)
 
+    assert client is not None
+    assert manager is not None
     assert client.username == "test_client"
     assert manager.username == "test_manager"
 
@@ -87,11 +96,9 @@ def test_client_shopping_cart_creation(setup_user_db):
     db = setup_user_db
     client = db.get_user(1)
 
+    assert client is not None
     assert isinstance(client.shopping_cart, ShoppingCart)
-    assert client.shopping_cart.user_id == client.id
-
-
-
+    assert client.shopping_cart.user_id == str(client.id)  # Ensure both are strings
 
 
 def test_authenticate_user(setup_user_db):
