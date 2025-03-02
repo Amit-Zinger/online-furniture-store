@@ -206,7 +206,7 @@ def search_product():
 
         return item_data
 
-    # יצירת תגובת JSON עם כל הנתונים הרלוונטיים
+
     return jsonify([serialize_item(item) for item in results]), 200
 
 
