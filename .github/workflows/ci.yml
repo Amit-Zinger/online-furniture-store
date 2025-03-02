@@ -1,10 +1,10 @@
-name: Run Tests
+name: Run Tests and Code Quality Checks
 
 on:
   push:
     branches:
       - main
-  pull_request_target:
+  pull_request:
     branches:
       - main
 
@@ -25,7 +25,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements/requirements.txt
-          pip install pytest pytest-cov ruff  # Using only ruff for linting
+          pip install pytest pytest-cov ruff
 
       - name: Start Flask Server
         run: |
@@ -33,16 +33,26 @@ jobs:
           sleep 5
 
       - name: Run Tests with Coverage
-        run: pytest --cov=app --cov-report=xml
+        run: pytest --cov=. --cov-report=xml --cov-report=html
+
+      - name: Check if coverage.xml exists
+        run: ls -l coverage.xml
+
+      - name: Ensure Coverage is at least 80%
+        run: |
+          coverage report --fail-under=80
 
       - name: Upload Coverage Report
-        uses: codecov/codecov-action@v3
+        uses: actions/upload-artifact@v3
         with:
-          file: ./coverage.xml
+          name: coverage-report
+          path: coverage.xml
+
+      - name: Run Regression Tests
+        run: pytest tests/test_reg.py --cov=. --cov-report=xml
 
       - name: Stop Flask Server
         run: pkill -f app/APIroutes.py || true
 
       - name: Run Code Quality Checks (Ruff)
         run: ruff check .
-

@@ -3,19 +3,16 @@
         "id": 1,
         "username": "test_client",
         "email": "client@test.com",
-        "password": "$2b$12$YWSxP.nEjmgShuC2.D.1ouoCK8Zy5M2WgFf7DxIHFg2AAnj2sCtAm",
+        "password": "$2b$12$8GP3mve.NBz4RAs7Z1pWX.augfza8UFGtdkyQjc.FYCeRPlLMoHPi",
         "address": "123 Street",
-        "shopping_cart": {
-            "user_id": "1",
-            "items": []
-        },
+        "shopping_cart": [],
         "type": "Client"
     },
     "2": {
         "id": 2,
         "username": "test_manager",
         "email": "manager@test.com",
-        "password": "$2b$12$ing1ZMN8IPsiWQ8eTi.zwOukpcnit7ObeHblztIxNp.M82mxXbi8q",
+        "password": "$2b$12$lbeAoqm1Bm2qus4usjzoCe1T4pKMAwr40Wg.B/Bkw7oN.7x3KeoXq",
         "address": "456 Avenue",
         "rule": "admin",
         "type": "Management",

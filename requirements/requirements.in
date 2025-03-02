@@ -8,3 +8,4 @@ cryptography
 ruff
 coverage
 pytest-cov
+cffi
