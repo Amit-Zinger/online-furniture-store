@@ -1,5 +1,4 @@
 from flask import Flask
-from flask_login import LoginManager, UserMixin, login_user, logout_user
 from models.cart import ShoppingCart
 from models.user import UserDB, Client, Management
 
@@ -8,6 +7,7 @@ app.secret_key = "your_secret_key"
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
+
 
 class User(UserMixin):
     def __init__(self, user_id):
@@ -27,6 +27,7 @@ class User(UserMixin):
         """Check if the user is a manager."""
         return self.role == "Management"
 
+
 @login_manager.user_loader
 def load_user(user_id):
     """Flask-Login function to load a user by ID."""
@@ -38,6 +39,7 @@ def load_user(user_id):
         elif user.type == "Management":
             return Management(user.id, user.username, user.email, user.password, user.address, user.rule)
     return None
+
 
 def login(username, password):
     """Authenticate and login a user."""
@@ -51,17 +53,52 @@ def login(username, password):
         return True
     return False
 
+
 def logout():
     """Logout the current user."""
     logout_user()
+
 
 # Load and save user data functions
 def load_user_data():
     """Load user data from a JSON file."""
     return UserDB().get_all_users()
 
+
 def save_user_data(data):
     """Save user data to a JSON file."""
     user_db = UserDB()
     user_db.user_data = data
     user_db.save_users()
+
+
+def authenticate(token):
+    """Authenticate a user via JWT token."""
+    try:
+        return jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
+
+
+def require_auth(func):
+    """Decorator to ensure authentication via JWT."""
+    def wrapper(*args, **kwargs):
+        token = request.headers.get("Authorization")
+        user_data = authenticate(token)
+        if not user_data:
+            return jsonify({"error": "Authentication required"}), 401
+        return func(user_data, *args, **kwargs)
+    return wrapper
+
+
+def require_role(required_role):
+    """Decorator to enforce role-based access control."""
+    def decorator(func):
+        def wrapper(user_data, *args, **kwargs):
+            if user_data["role"] != required_role:
+                return jsonify({"error": "Unauthorized"}), 403
+            return func(user_data, *args, **kwargs)
+        return wrapper
+    return decorator

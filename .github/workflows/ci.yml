@@ -26,6 +26,7 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements/requirements.txt
           pip install ruff  # Ensure ruff is installed
+          pip install pytest pytest-cov
 
       - name: Start Flask Server
         run: |
