@@ -1,23 +1,6 @@
-def calc_discount(price: float, discount_percentage: float) -> float:
-    """
-    Calculate the discounted price for a furniture item.
-
-    Parameters:
-    price (float): The original price of the item.
-    discount_percentage (float): The percentage discount to apply.
-
-    Returns:
-    float: The discounted price.
-    """
-    if discount_percentage < 0 or discount_percentage > 100:
-        raise ValueError("Discount percentage must be between 0 and 100.")
-
-    discounted_price = price * (1 - discount_percentage / 100)
-    return round(discounted_price, 2)
-
-
 from models.furniture import Furniture
 from models.factory import FurnitureFactory
+
 
 def serialize_furniture(furniture_obj):
     """Converts a Furniture object to a dictionary for JSON storage."""
@@ -26,6 +9,7 @@ def serialize_furniture(furniture_obj):
         furniture_dict["type"] = type(furniture_obj).__name__  # Store type for deserialization
         return furniture_dict
     return furniture_obj
+
 
 def deserialize_furniture(furniture_dict):
     """Converts a dictionary back into a Furniture object."""

@@ -1,10 +1,11 @@
 import sys
 import os
 from models.furniture import Chair, Sofa, Table, Bed, Closet
+from models.furniture import Furniture
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-# all of the created furniture
+# all the created furniture
 furniture_classes = {
     "Chair": Chair,
     "Sofa": Sofa,
@@ -20,7 +21,7 @@ class FurnitureFactory:
     """
 
     @staticmethod
-    def register_furniture(name, cls):
+    def register_furniture(name: str, cls: type) -> None:
         """
         Allows dynamic registration of new furniture types.
 
@@ -35,7 +36,7 @@ class FurnitureFactory:
         furniture_classes[name] = cls
 
     @staticmethod
-    def create_furniture(furniture_desc):
+    def create_furniture(furniture_desc: dict[str, any]) -> Furniture:
         """
         Factory method to create furniture objects.
 
@@ -82,7 +83,7 @@ class FurnitureFactory:
         """
         required_specifics = {
             "Sofa": ["how_many_seats", "can_turn_to_bed"],
-            "Table": ["expandable", "how_many_seats", "is_foldable"],
+            "Table": ["expandable", "how_many_seats", "can_fold"],
             "Closet": ["has_mirrors", "number_of_shelves", "how_many_doors"],
             "Chair": ["has_wheels", "how_many_legs"],
             "Bed": ["has_storage", "has_back"]
