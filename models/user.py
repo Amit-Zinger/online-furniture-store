@@ -1,8 +1,10 @@
 import json
 import os
 import bcrypt
-from abc import ABC, abstractmethod
+from abc import ABC
 from models.cart import ShoppingCart
+from models.furniture import Furniture
+from models.factory import FurnitureFactory
 
 
 def serialize_furniture(furniture_obj):
@@ -19,7 +21,7 @@ def deserialize_furniture(furniture_dict):
     if isinstance(furniture_dict, dict) and "serial_number" in furniture_dict:
         furniture_type = furniture_dict.pop("type", None)
         if furniture_type:
-            # ✅ Remove any attributes that are not part of the constructor
+            # Remove any attributes that are not part of the constructor
             allowed_keys = ["name", "description", "price", "dimensions", "serial_number",
                             "quantity", "weight", "manufacturing_country", "has_wheels",
                             "how_many_legs", "can_turn_to_bed", "how_many_seats",
