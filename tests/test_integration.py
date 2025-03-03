@@ -1,12 +1,11 @@
 import pytest
-from models.user import Client, UserDB, USER_FILE
+from models.user import Client, UserDB, USER_FILE, serialize_furniture, deserialize_furniture
 from models.cart import ShoppingCart, PaymentGateway
 from models.inventory import Inventory
 from models.order import OrderManager
 from models.factory import FurnitureFactory
 import os
 import tempfile
-from app.utils import serialize_furniture, deserialize_furniture  # ✅ Ensure correct import
 
 
 @pytest.fixture(scope="function")
