@@ -1,80 +1,73 @@
 from datetime import datetime, timedelta
-from models.user import UserDB
-import bcrypt
-import jwt
 from flask import Flask, request, jsonify
+import jwt
+from flask_login import logout_user
+from models.user import UserDB, Client, serialize_furniture
 from models.inventory import Inventory
 from models.order import OrderManager
-from app.auth import require_auth, require_role
 from models.cart import ShoppingCart, PaymentGateway
-from models.factory import Sofa, Chair, Closet, Table, Bed
-
+from app.auth import require_auth
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 JWT_SECRET = "super_secret_jwt_key"
 USER_FILE = "data/users.json"
 
-# Initialize inventory and order manager
+# ----------------- Initialize inventory and OrderManager -----------------
 inventory = Inventory("data/inventory.pkl")  # Using pickle for inventory
 order_manager = OrderManager()  # Singleton OrderManager instance
 
+
 # ---------------------- User register ----------------------
-
-
-@app.route("/register", methods=["POST"])
+@app.route("app/auth/register", methods=["POST"])
 def register():
-    """Register a new user."""
+    """
+    Register a new user.
+    """
     data = request.json
-    users = UserDB.get_all_users()
-    if any(user["username"] == data["username"] for user in users):
-        return jsonify({"error": "Username already exists"}), 400
-    new_user = {
-        "id": len(users) + 1,
-        "username": data["username"],
-        "email": data["email"],
-        "password": bcrypt.hashpw(data["password"].encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
-        "address": data["address"],
-        "role": data.get("role", "client"),
-    }
-    users.append(new_user)
-    UserDB.save_users(users)
+    user_db = UserDB()
+    if any(u.email == data["email"] for u in user_db.user_data.values()):
+        return jsonify({"error": "Email already registered"}), 400
+    new_user = Client(
+        user_id=len(user_db.user_data) + 1,
+        username=data["username"],
+        email=data["email"],
+        password=data["password"],
+        address=data["address"]
+    )
+    user_db.add_user(new_user)
     return jsonify({"message": "Registration successful!"}), 201
 
-# ---------------------- User Login ----------------------
 
-
-@app.route("/login", methods=["POST"])
+# ---------------------- User Login and Logout ----------------------
+@app.route("app/auth/login", methods=["POST"])
 def login():
-    """User login."""
+    """
+    User login.
+    """
     data = request.json
-    users = UserDB.get_all_users()
-    user = next((u for u in users if u["username"] == data["username"]), None)
-    if user and bcrypt.checkpw(data["password"].encode("utf-8"), user["password"].encode("utf-8")):
-        token = jwt.encode({"user_id": user["id"], "role": user["role"], "exp": datetime.utcnow() + timedelta(hours=2)}, JWT_SECRET, algorithm="HS256")
+    user_db = UserDB()
+    user = user_db.authenticate_user(data["email"], data["password"])
+    if user:
+        token = jwt.encode({"user_id": user.user_id, "role": user.type,
+                            "exp": datetime.utcnow() + timedelta(hours=2)}, JWT_SECRET, algorithm="HS256")
         return jsonify({"message": "Login successful!", "token": token}), 200
     return jsonify({"error": "Invalid credentials"}), 401
 
-# ---------------------- Inventory Management ----------------------
 
-
-@app.route("/api/inventory/update", methods=["PUT"])
+@app.route("app/auth/logout", methods=["POST"])
 @require_auth
-@require_role("manager")
-def update_inventory_route(user_data):
-    """Update the quantity of an item (only managers)."""
-    data = request.json
-    item = inventory.search_by(name=data["name"], category=data.get("type"))
-    if not item:
-        return jsonify({"error": "Item not found"}), 404
-    inventory.update_quantity(item[0], data["quantity"])
-    inventory.update_data()
-    return jsonify({"message": "Quantity updated successfully!"}), 200
+def logout(user_data):
+    """
+    Logout the current user.
+    """
+    user_id = user_data["user_id"]
+    logout_user()
+    return jsonify({"message": f"User {user_id} logged out successfully"}), 200
+
 
 # ---------------------- add or remove from cart ----------------------
-
-
-@app.route("/cart/add", methods=["POST"])
+@app.route("model/cart/add", methods=["POST"])
 @require_auth
 def add_to_cart(user_data):
     """Adds an item to the user's shopping cart."""
@@ -94,7 +87,7 @@ def add_to_cart(user_data):
     return jsonify({"message": "Item added to cart"}), 200
 
 
-@app.route("/cart/remove", methods=["DELETE"])
+@app.route("model/cart/remove", methods=["DELETE"])
 @require_auth
 def remove_from_cart(user_data):
     """Removes an item from the user's shopping cart."""
@@ -118,12 +111,15 @@ def checkout(user_data):
     if not cart.items:
         return jsonify({"error": "Cart is empty"}), 400
 
-    total_price = cart.calculate_total()
-    payment_info = request.json.get("payment_info")
-
     # Validate inventory availability
     if not cart.validate_cart(inventory):
         return jsonify({"error": "Some items are out of stock"}), 400
+
+    total_price = cart.calculate_total()
+    if total_price is None:
+        return jsonify({"error": "Failed to calculate total price"}), 500
+
+    payment_info = request.json.get("payment_info")
 
     # Process payment
     payment_gateway = PaymentGateway()
@@ -142,10 +138,9 @@ def checkout(user_data):
     cart.clear_cart()
     return jsonify({"message": "Checkout successful"}), 200
 
+
 # ---------------------- search product ----------------------
-
-
-@app.route("/api/inventory/search", methods=["GET"])
+@app.route("model/inventory/search", methods=["GET"])
 def search_product():
     """Search for products by name, category, or price range, returning all relevant attributes."""
     name = request.args.get("name")
@@ -164,54 +159,7 @@ def search_product():
     if not results:
         return jsonify({"message": "No products found"}), 404
 
-    def serialize_item(item):
-        """Convert furniture object to JSON including type-specific attributes."""
-        item_data = {
-            "name": item.name,
-            "description": item.description,
-            "price": item.price,
-            "dimensions": item.dimensions,
-            "serial_number": item.serial_number,
-            "quantity": item.quantity,
-            "weight": item.weight,
-            "manufacturing_country": item.manufacturing_country
-        }
-
-        if isinstance(item, Chair):
-            item_data.update({
-                "has_wheels": item.has_wheels,
-                "how_many_legs": item.how_many_legs
-            })
-        elif isinstance(item, Sofa):
-            item_data.update({
-                "how_many_seats": item.how_many_seats,
-                "can_turn_to_bed": item.can_turn_to_bed
-            })
-        elif isinstance(item, Table):
-            item_data.update({
-                "expandable": item.expandable,
-                "how_many_seats": item.how_many_seats,
-                "is_foldable": item.can_fold
-            })
-        elif isinstance(item, Bed):
-            item_data.update({
-                "has_storage": item.has_storage,
-                "has_back": item.has_back
-            })
-        elif isinstance(item, Closet):
-            item_data.update({
-                "has_mirrors": item.has_mirrors,
-                "number_of_shelves": item.number_of_shelves,
-                "how_many_doors": item.how_many_doors
-            })
-
-        return item_data
-
-
-    return jsonify([serialize_item(item) for item in results]), 200
-
-
-
+    return jsonify([serialize_furniture(item) for item in results]), 200
 # ---------------------- Run the API ----------------------
 
 

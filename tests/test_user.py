@@ -13,8 +13,8 @@ def setup_user_db():
 
     db = UserDB()  # Initialize a new user database
 
-    client = Client(id=1, username="test_client", email="client@test.com", password="password123", address="123 Street")
-    manager = Management(id=2, username="test_manager", email="manager@test.com", password="password123",
+    client = Client(user_id=1, username="test_client", email="client@test.com", password="password123", address="123 Street")
+    manager = Management(user_id=2, username="test_manager", email="manager@test.com", password="password123",
                          address="456 Avenue", rule="admin")
 
     db.add_user(client)
@@ -98,7 +98,7 @@ def test_client_shopping_cart_creation(setup_user_db):
 
     assert client is not None
     assert isinstance(client.shopping_cart, ShoppingCart)
-    assert client.shopping_cart.user_id == str(client.id)  # Ensure both are strings
+    assert client.shopping_cart.user_id == str(client.user_id)  # Ensure both are strings
 
 
 def test_authenticate_user(setup_user_db):

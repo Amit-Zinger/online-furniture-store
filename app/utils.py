@@ -16,11 +16,11 @@ def deserialize_furniture(furniture_dict):
     if isinstance(furniture_dict, dict) and "serial_number" in furniture_dict:
         furniture_type = furniture_dict.pop("type", None)
         if furniture_type:
-            # ✅ Remove any attributes that are not part of the constructor
+            #  Remove any attributes that are not part of the constructor
             allowed_keys = ["name", "description", "price", "dimensions", "serial_number",
                             "quantity", "weight", "manufacturing_country", "has_wheels",
                             "how_many_legs", "can_turn_to_bed", "how_many_seats",
-                            "expandable", "is_foldable", "has_storage", "has_back",
+                            "expandable", "can_fold", "has_storage", "has_back",
                             "how_many_doors", "has_mirrors", "number_of_shelves"]
 
             filtered_dict = {k: v for k, v in furniture_dict.items() if k in allowed_keys}

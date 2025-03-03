@@ -1,103 +1,52 @@
-from flask import Flask
-from models.cart import ShoppingCart
+from flask import Flask, request, jsonify
+from flask_login import LoginManager, login_user, logout_user
+import jwt
+from datetime import datetime, timedelta
+from functools import wraps
 from models.user import UserDB, Client, Management
 
-app = Flask(__name__)
-app.secret_key = "your_secret_key"
+# Secret keys for JWT
+JWT_SECRET = "super_secret_jwt_key"
+
+# Initialize Flask-Login
 login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = "login"
+login_manager.init_app()
 
 
-class User(UserMixin):
-    def __init__(self, user_id):
-        user_db = UserDB()
-        user_data = user_db.get_user(user_id)
-        if not user_data:
-            raise ValueError("User not found")
-
-        self.id = user_data.id
-        self.username = user_data.username
-        self.email = user_data.email
-        self.address = user_data.address
-        self.role = user_data.get("role", "client")
-        self.cart = ShoppingCart(user_id)
-
-    def is_manager(self):
-        """Check if the user is a manager."""
-        return self.role == "Management"
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    """Flask-Login function to load a user by ID."""
-    user_db = UserDB()
-    user = user_db.get_user(int(user_id))
-    if user:
-        if user.type == "Client":
-            return Client(user.id, user.username, user.email, user.password, user.address)
-        elif user.type == "Management":
-            return Management(user.id, user.username, user.email, user.password, user.address, user.rule)
-    return None
-
-
-def login(username, password):
-    """Authenticate and login a user."""
-    user_db = UserDB()
-    user = user_db.authenticate_user(username, password)
-    if user:
-        if user.type == "Client":
-            login_user(Client(user.id, user.username, user.email, user.password, user.address))
-        elif user.type == "Management":
-            login_user(Management(user.id, user.username, user.email, user.password, user.address, user.rule))
-        return True
-    return False
-
-
-def logout():
-    """Logout the current user."""
-    logout_user()
-
-
-# Load and save user data functions
-def load_user_data():
-    """Load user data from a JSON file."""
-    return UserDB().get_all_users()
-
-
-def save_user_data(data):
-    """Save user data to a JSON file."""
-    user_db = UserDB()
-    user_db.user_data = data
-    user_db.save_users()
-
-
-def authenticate(token):
-    """Authenticate a user via JWT token."""
+def authenticate(token: str):
+    """
+    Decode and verify a JWT token.
+    """
     try:
         return jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
-    except jwt.ExpiredSignatureError:
-        return None
-    except jwt.InvalidTokenError:
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
         return None
 
 
 def require_auth(func):
-    """Decorator to ensure authentication via JWT."""
+    """
+    Decorator to enforce authentication via JWT.
+    """
+    @wraps(func)
     def wrapper(*args, **kwargs):
         token = request.headers.get("Authorization")
+        if not token:
+            return jsonify({"error": "Authentication required"}), 401
         user_data = authenticate(token)
         if not user_data:
-            return jsonify({"error": "Authentication required"}), 401
+            return jsonify({"error": "Invalid or expired token"}), 401
         return func(user_data, *args, **kwargs)
     return wrapper
 
 
-def require_role(required_role):
-    """Decorator to enforce role-based access control."""
+def require_role(required_role: str):
+    """
+    Decorator to enforce role-based access control.
+    """
     def decorator(func):
+        @wraps(func)
         def wrapper(user_data, *args, **kwargs):
-            if user_data["role"] != required_role:
+            if user_data.get("role") != required_role:
                 return jsonify({"error": "Unauthorized"}), 403
             return func(user_data, *args, **kwargs)
         return wrapper
