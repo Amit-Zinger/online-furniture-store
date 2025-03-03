@@ -191,7 +191,7 @@ def search_product():
             item_data.update({
                 "expandable": item.expandable,
                 "how_many_seats": item.how_many_seats,
-                "is_foldable": item.is_foldable
+                "is_foldable": item.can_fold
             })
         elif isinstance(item, Bed):
             item_data.update({

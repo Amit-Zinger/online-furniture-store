@@ -1,6 +1,5 @@
 from abc import ABC
 from typing import List
-from app.utils import calc_discount
 
 
 class Furniture(ABC):
@@ -35,8 +34,9 @@ class Furniture(ABC):
         self.interested_clients = interested_clients if interested_clients else []
         self.tax_rate = 0.17  # Default tax rate
 
-    def __str__(self):
-        return f"{self.name} - {self.description} | Price: ${self.get_final_price()} | Stock: {self.quantity}"
+    @property
+    def __str__(self) -> str:
+        return f"{self.name} - {self.description} | Price: ${self.price} | Stock: {self.quantity}"
 
     def deduct_from_inventory(self, quantity):
         """
@@ -49,53 +49,20 @@ class Furniture(ABC):
             raise ValueError(f"Not enough stock for {self.name}")
         self.quantity -= quantity
 
-    def is_out_of_stock(self) -> bool:
-        """
-        Checks if the item is out of stock.
+    def is_available(self, min_stock: int = 1) -> bool:
+        return self.quantity >= min_stock
 
-        :return: True if quantity is 0, otherwise False.
-        """
-        return self.quantity == 0
-
-    def apply_discount(self, discount_percentage: float):
-        """
-        Apply a discount to the price of the furniture.
-
-        :param discount_percentage: The percentage discount to apply.
-        :raises ValueError: If discount is not between 0 and 100.
-        """
-        if not (0 <= discount_percentage <= 100):
+    def apply_discount(self, discount_percentage: float) -> float:
+        if discount_percentage < 0 or discount_percentage > 100:
             raise ValueError("Discount percentage must be between 0 and 100.")
+        self.price = round(self.price * (1 - discount_percentage / 100), 2)
+        return self.price
 
-        self.price = self._calculate_discounted_price(discount_percentage)
-
-    def apply_tax(self, tax_rate: float = None):
-        """
-        Apply tax to the price of the furniture.
-
-        :param tax_rate: The tax rate to apply (default is 17%).
-        :raises ValueError: If tax rate is negative.
-        """
+    def apply_tax(self, tax_rate: float = None) -> None:
         if tax_rate is not None:
             self._validate_positive_value(tax_rate, "Tax rate")
             self.tax_rate = tax_rate
-
-    def get_final_price(self) -> float:
-        """
-        Calculate the final price of the furniture after tax.
-
-        :return: Price after tax.
-        """
-        return round(self.price * (1 + self.tax_rate), 2)
-
-    def _calculate_discounted_price(self, discount_percentage: float) -> float:
-        """
-        Internal helper function to calculate price after discount.
-
-        :param discount_percentage: The discount percentage to apply.
-        :return: Discounted price.
-        """
-        return calc_discount(self.price, discount_percentage)
+        self.price = round(self.price * (1 + self.tax_rate), 2)
 
     @staticmethod
     def _validate_positive_value(value, field_name):
@@ -111,36 +78,36 @@ class Furniture(ABC):
 
 
 class Chair(Furniture):
-    def __init__(self, has_wheels: bool = False, how_many_legs: int = 4, **kwargs):
+    def __init__(self, has_wheels: bool = False, how_many_legs: int = 4, **kwargs) -> None:
         super().__init__(**kwargs)
         self.has_wheels = has_wheels
         self.how_many_legs = how_many_legs
 
 
 class Sofa(Furniture):
-    def __init__(self, how_many_seats: int = 3, can_turn_to_bed: bool = False, **kwargs):
+    def __init__(self, how_many_seats: int = 3, can_turn_to_bed: bool = False, **kwargs) -> None:
         super().__init__(**kwargs)
         self.how_many_seats = how_many_seats
         self.can_turn_to_bed = can_turn_to_bed
 
 
 class Bed(Furniture):
-    def __init__(self, has_storage: bool = False, has_back: bool = False, **kwargs):
+    def __init__(self, has_storage: bool = False, has_back: bool = False, **kwargs) -> None:
         super().__init__(**kwargs)
         self.has_storage = has_storage
         self.has_back = has_back
 
 
 class Table(Furniture):
-    def __init__(self, expandable: bool = False, how_many_seats: int = 4, is_foldable: bool = False, **kwargs):
+    def __init__(self, expandable: bool = False, how_many_seats: int = 4, can_fold: bool = False, **kwargs) -> None:
         super().__init__(**kwargs)
         self.expandable = expandable
         self.how_many_seats = how_many_seats
-        self.is_foldable = is_foldable
+        self.can_fold = can_fold
 
 
 class Closet(Furniture):
-    def __init__(self, has_mirrors: bool = False, number_of_shelves: int = 3, how_many_doors: int = 2, **kwargs):
+    def __init__(self, has_mirrors: bool = False, number_of_shelves: int = 3, how_many_doors: int = 2, **kwargs) -> None:
         super().__init__(**kwargs)
         self.has_mirrors = has_mirrors
         self.number_of_shelves = number_of_shelves

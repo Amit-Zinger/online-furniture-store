@@ -51,7 +51,7 @@ def setup_inventory():
                         {
                             "expandable": i % 2 == 0,
                             "how_many_seats": 4 + i,
-                            "is_foldable": False
+                            "can_fold": False
                         }
                     )
                 elif furniture_type == "Bed":

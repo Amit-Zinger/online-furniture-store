@@ -1,10 +1,11 @@
 import unittest
 from unittest.mock import MagicMock
 from models.cart import ShoppingCart, PaymentGateway
-from app.utils import calc_discount
-
+from models.cart import calc_discount
 
 # Mock Item class for testing
+
+
 class MockItem:
     def __init__(self, name, price, quantity):
         self.name = name
