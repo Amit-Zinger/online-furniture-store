@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements/requirements.in
 #
-bcrypt==4.2.1
+bcrypt==4.3.0
     # via -r requirements.in
 blinker==1.8.2
     # via flask
