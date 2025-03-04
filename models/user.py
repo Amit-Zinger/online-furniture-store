@@ -7,7 +7,6 @@ from typing import Dict, Optional
 from models.cart import ShoppingCart
 from models.furniture import Furniture
 from models.factory import FurnitureFactory
-from models.order import OrderManager
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -252,17 +251,17 @@ class UserDB:
 
     def add_user(self, user) -> str:
         """
-        Adds a new user to the database.
+                Adds a new user to the database.
 
-        param:
-            user (User): The user object to add.
+                param:
+                    user (User): The user object to add.
 
-        return:
-            str: Success or error message.
-        """
-        if user.user_id in self.user_data:
+                return:
+                    str: Success or error message.
+                """
+        if str(user.user_id) in self.user_data:  # Ensure user_id is always string
             return "User ID already exists in UserDB"
-        self.user_data[user.user_id] = user
+        self.user_data[str(user.user_id)] = user  # Store as string key
         self.save_users()
         return "User successfully added!"
 
@@ -294,7 +293,7 @@ class UserDB:
         return:
             User: The user object if found, None otherwise.
         """
-        return self.user_data.get(user_id)
+        return self.user_data.get(str(user_id))
 
     def authenticate_user(self, email: str, password: str) -> Optional[User]:
         """
@@ -322,6 +321,7 @@ class UserDB:
         return:
             str: Success or error message.
         """
+        user_id = str(user_id)  # Convert to string for consistency
         if user_id not in self.user_data:
             return "User not found. Cannot delete."
         del self.user_data[user_id]
