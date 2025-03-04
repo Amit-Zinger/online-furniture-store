@@ -1,4 +1,7 @@
 from typing import List
+
+from mypy.typeops import false_only
+
 from models.furniture import Furniture
 
 
@@ -172,7 +175,7 @@ class ShoppingCart:
             inventory: (Optional) Inventory system to update. If None, skips update.
         """
         if inventory is None:
-            return
+            return False
 
         for item in self.items:
             if item.quantity > 0:
