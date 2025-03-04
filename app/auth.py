@@ -1,14 +1,14 @@
-from flask import request, jsonify, session
+from flask import Flask, request, jsonify, session
 from flask_login import LoginManager
-from functools import wraps
-from models.user import UserDB
+from models.user import UserDB, Client, Management
+
+# Initialize Flask app
+app = Flask(__name__)
+app.secret_key = "super_secret_key"
 
 # Initialize Flask-Login
 login_manager = LoginManager()
-login_manager.init_app()
-
-# Session Configuration
-SESSION_LIFETIME_HOURS = 2
+login_manager.init_app(app)
 
 
 def authenticate_user(email: str, password: str):
