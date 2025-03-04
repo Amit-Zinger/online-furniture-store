@@ -7,6 +7,7 @@ import sys
 from io import StringIO
 from models.order import OrderManager
 from models.cart import ShoppingCart
+from models.furniture import Furniture
 
 
 class TestOrderManager(unittest.TestCase):
@@ -25,8 +26,10 @@ class TestOrderManager(unittest.TestCase):
         self.mock_cart = MagicMock(spec=ShoppingCart)
         self.mock_cart.user_id = 1
         self.mock_cart.items = [
-            {"item": MagicMock(id=101, name="Table", price=100.0), "quantity": 2},
-            {"item": MagicMock(id=102, name="Chair", price=50.0), "quantity": 4}
+            Furniture(name="Table", description="Wooden table", price=100.0, dimensions="120x60 cm",
+                      serial_number="F123", quantity=2, weight=15.0, manufacturing_country="USA"),
+            Furniture(name="Chair", description="Office chair", price=50.0, dimensions="50x50 cm",
+                      serial_number="C456", quantity=4, weight=7.0, manufacturing_country="Germany")
         ]
 
     def test_create_order(self):
@@ -117,7 +120,6 @@ class TestOrderManager(unittest.TestCase):
         """
         self.order_manager.create_order(self.mock_cart, "Credit Card", 300.0)
         order_id = self.order_manager.orders.iloc[0]["order_id"]
-
         new_order_manager = OrderManager()
         self.assertIn(order_id, new_order_manager.orders["order_id"].values)
 

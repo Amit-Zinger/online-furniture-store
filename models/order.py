@@ -1,8 +1,12 @@
 import pandas as pd
 import pickle
 import os
+import json
+import uuid
+from datetime import datetime
 from typing import Optional, List, Dict
 from models.cart import ShoppingCart
+from models.furniture import Furniture
 
 
 class OrderManager:
@@ -47,15 +51,11 @@ class OrderManager:
             payment_info (str): Payment details for the order.
             total_price (float): The total price of the order.
         """
-        import uuid
-        from datetime import datetime
-        import json
-
         order_id = str(uuid.uuid4())
         order_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         serialized_items = json.dumps(
-            [{"item": vars(i["item"]), "quantity": i["quantity"]} for i in cart.items],
+            [{"name": i.name, "quantity": i.quantity} for i in cart.items],
             default=str
         )
 
@@ -86,7 +86,7 @@ class OrderManager:
         """
         order = self.orders[
             (self.orders["order_id"] == order_id) & (self.orders["client_id"] == client_id)
-            ]
+        ]
         if not order.empty:
             return order.to_dict(orient="records")[0]
         return None
