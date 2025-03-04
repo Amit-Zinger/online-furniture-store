@@ -1,4 +1,7 @@
 from typing import List
+
+from mypy.typeops import false_only
+
 from models.furniture import Furniture
 
 
@@ -66,7 +69,7 @@ class ShoppingCart:
         """
         return self.items
 
-    def add_item(self, item: Furniture, quantity: int) -> None:
+    def add_item(self, item: Furniture, quantity: int) -> bool:
         """
         Adds a Furniture item to the shopping cart.
 
@@ -83,7 +86,9 @@ class ShoppingCart:
         for _ in range(quantity):
             self.items.append(item)
 
-    def remove_item(self, item_name: str) -> None:
+        return True
+
+    def remove_item(self, item_name: str) -> bool:
         """
         Removes an item from the cart by name.
 
@@ -92,6 +97,7 @@ class ShoppingCart:
         """
         self.items = [item for item in self.items if item.name != item_name]
 
+        return True
     def calculate_total(self) -> float:
         """
         Calculates the total cost of items in the cart.
@@ -133,7 +139,7 @@ class ShoppingCart:
                 return False
         return True
 
-    def purchase(self, payment_gateway: PaymentGateway, payment_info: str, inventory=None, order_manager=None):
+    def purchase(self, payment_gateway: PaymentGateway, payment_info: str, inventory=None, order_manager=None) -> bool:
         """
         Handles the purchase process, validates cart, processes payment, updates inventory, and creates an order.
 
@@ -159,7 +165,9 @@ class ShoppingCart:
             self.update_inventory(inventory)
             self.clear_cart()
 
-    def update_inventory(self, inventory=None) -> None:
+        return True
+
+    def update_inventory(self, inventory=None) -> bool:
         """
         Updates inventory after checkout.
 
@@ -167,15 +175,19 @@ class ShoppingCart:
             inventory: (Optional) Inventory system to update. If None, skips update.
         """
         if inventory is None:
-            return
+            return False
 
         for item in self.items:
             if item.quantity > 0:
                 item.deduct_from_inventory(1)
                 inventory.update_quantity(item, item.quantity)
 
-    def clear_cart(self) -> None:
+        return True
+
+    def clear_cart(self) -> bool:
         """
         Clears all items from the shopping cart.
         """
         self.items = []
+
+        return True
