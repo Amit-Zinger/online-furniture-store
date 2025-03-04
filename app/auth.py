@@ -1,53 +1,61 @@
-from flask import Flask, request, jsonify
-from flask_login import LoginManager, login_user, logout_user
-import jwt
-from datetime import datetime, timedelta
+from flask import request, jsonify, session
+from flask_login import LoginManager
 from functools import wraps
-from models.user import UserDB, Client, Management
-
-# Secret keys for JWT
-JWT_SECRET = "super_secret_jwt_key"
+from models.user import UserDB
 
 # Initialize Flask-Login
 login_manager = LoginManager()
 login_manager.init_app()
 
+# Session Configuration
+SESSION_LIFETIME_HOURS = 2
 
-def authenticate(token: str):
+
+def authenticate_user(email: str, password: str):
     """
-    Decode and verify a JWT token.
+    Authenticate a user by checking email and password.
     """
-    try:
-        return jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
-    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
-        return None
+    user_db = UserDB.get_instance()
+    user = next((u for u in user_db.user_data.values() if u.email == email), None)
+
+    if user and user.verify_password(password):
+        return user
+    return None
 
 
 def require_auth(func):
     """
-    Decorator to enforce authentication via JWT.
+    Decorator to enforce authentication via session.
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
-        token = request.headers.get("Authorization")
-        if not token:
+        if "user_id" not in session:
             return jsonify({"error": "Authentication required"}), 401
-        user_data = authenticate(token)
-        if not user_data:
-            return jsonify({"error": "Invalid or expired token"}), 401
-        return func(user_data, *args, **kwargs)
+        return func(*args, **kwargs)
     return wrapper
 
+# Authentication
 
-def require_role(required_role: str):
+
+def login():
     """
-    Decorator to enforce role-based access control.
+    User login using session-based authentication.
     """
-    def decorator(func):
-        @wraps(func)
-        def wrapper(user_data, *args, **kwargs):
-            if user_data.get("role") != required_role:
-                return jsonify({"error": "Unauthorized"}), 403
-            return func(user_data, *args, **kwargs)
-        return wrapper
-    return decorator
+    data = request.json
+    user = authenticate_user(data["email"], data["password"])
+
+    if user:
+        session["user_id"] = user.user_id
+        session["role"] = user.type
+        session.permanent = True
+        return jsonify({"message": "Login successful!"}), 200
+
+    return jsonify({"error": "Invalid credentials"}), 401
+
+
+def logout():
+    """
+    Logs out the user by clearing the session.
+    """
+    session.clear()
+    return jsonify({"message": "User logged out successfully"}), 200
