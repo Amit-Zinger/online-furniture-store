@@ -5,7 +5,7 @@ from typing import Generator
 from models.user import User, Client, Management, UserDB
 
 # Directory for test database
-TEST_DB_FILE: str = "tests/test_users.json"
+TEST_DB_FILE: str = "test_users.json"
 
 
 @pytest.fixture(scope="function")
@@ -25,6 +25,8 @@ def user_db() -> Generator[UserDB, None, None]:
 
     if os.path.exists(TEST_DB_FILE):
         os.remove(TEST_DB_FILE)
+    if os.path.exists("data.users.json"):
+        os.remove("data.users.json")
 
 
 def test_hash_password() -> None:
@@ -113,3 +115,6 @@ def test_invalid_role_edit(user_db: UserDB) -> None:
     """Test attempting to edit a non-existent manager's role."""
     result: str = user_db.edit_user("999", rule="CEO")
     assert result == "User not found. Please check the ID and try again.", "Should not edit non-existent user."
+
+#test for load users
+#making sure that data jason is not making an instance - because it is getting the path from te og file user

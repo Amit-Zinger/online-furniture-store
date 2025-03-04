@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, session
 from flask_login import LoginManager
-from models.user import UserDB, Client, Management
+from models.user import UserDB
 
 # Initialize Flask app
 app = Flask(__name__)
