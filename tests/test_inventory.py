@@ -74,8 +74,12 @@ def setup_inventory():
     create_inventory_with_furniture(test_file)  # Populate inventory
     inventory = Inventory(test_file)
 
-    return inventory, test_file
 
+    yield inventory, test_file
+
+    # Cleanup after test execution
+    if os.path.exists(test_file):
+        os.remove(test_file)
 
 def test_add_item(setup_inventory):
     inventory, _ = setup_inventory
