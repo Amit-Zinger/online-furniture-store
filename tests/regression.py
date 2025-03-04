@@ -61,7 +61,7 @@ def setup_system() -> Tuple[UserDB, Inventory, OrderManager]:
         user_db.add_user(user)
 
     # Create OrderManger object
-    order_manager = OrderManager()
+    order_manager = OrderManager(ORDER_FILE)
 
     print("System setup completed.")
     return user_db, inventory, order_manager
