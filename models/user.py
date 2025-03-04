@@ -1,11 +1,14 @@
 import json
 import os
+import sys
 import bcrypt
 from abc import ABC
 from typing import Dict, Optional
 from models.cart import ShoppingCart
 from models.furniture import Furniture
 from models.factory import FurnitureFactory
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
 # -------- Helper Func -------- #
@@ -35,7 +38,8 @@ def deserialize_furniture(furniture_dict):
     return furniture_dict
 
 
-USER_FILE = "data/users.json"  # JSON file as a database
+# JSON file as a database
+USER_FILE = os.path.join(os.path.join(os.path.dirname(__file__), ".."), "data/users.json")
 
 
 # -------- USER CLASSES {User,Client,Manager}-------- #
@@ -56,20 +60,20 @@ class User(ABC):
         Initialize a User object.
 
         param:
-            user_id (int): The unique ID of the user.
+            user_id (str): The unique ID of the user.
             username (str): The username of the user.
             email (str): The email address of the user.
-            password (str): The user's password (hashed if not already).
+            password (str): The user's password (hashed if not already): bytes
             address (str): The user's address.
         """
-        self.user_id = user_id
+        self.user_id = str(user_id)
         self.username = username
         self.email = email
         self.password = self.hash_password(password) if not password.startswith("$2b$") else password
         self.address = address
 
     @staticmethod
-    def hash_password(password) -> str:
+    def hash_password(password) -> bytes:
         """
         Hashes the password using bcrypt.
 
@@ -79,9 +83,9 @@ class User(ABC):
         return:
             str: The hashed password.
         """
-        return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        return bcrypt.hashpw(password, bcrypt.gensalt())
 
-    def verify_password(self, password):
+    def verify_password(self, password: str) -> bool | str:
         """
         Verifies if the provided password matches the stored hashed password.
 
@@ -89,11 +93,14 @@ class User(ABC):
             password (str): The plain text password.
 
         return:
-            bool: True if the password matches, False otherwise.
+            bool: True if password matches.
+            str: "Invalid password" if password does not match.
         """
-        return bcrypt.checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
+        if bcrypt.checkpw(password.encode(), self.password):
+            return True
+        return "Invalid password"
 
-    def edit_info(self, username=None, email=None, address=None):
+    def edit_info(self, username=None, email=None, address=None, password=None):
         """
         Update the user's information.
 
@@ -108,6 +115,8 @@ class User(ABC):
             self.email = email
         if address:
             self.address = address
+        if password:
+            self.password = self.hash_password(password) if not password.startswith("$2b$") else password
 
 
 class Client(User):
@@ -124,15 +133,41 @@ class Client(User):
         Initialize a Client object.
 
         param:
-            user_id (int): The unique ID of the client.
-            username (str): The username of the client.
-            email (str): The email address of the client.
-            password (str): The password of the client.
-            address (str): The client's address.
+            shopping cart [list]: the shopping cart for the client
+            type: the type of the user
         """
         super().__init__(user_id, username, email, password, address)
-        self.shopping_cart = ShoppingCart(str(user_id))
+        self.shopping_cart = ShoppingCart(user_id)
         self.type = "Client"
+
+    def user_add_to_cart(self, item, quantity):
+        """
+        Adds an item_name to the user's shopping cart.
+
+        Args:
+            item (Furniture): The item_name to add.
+            quantity (int): The number of items to add.
+        """
+        self.shopping_cart.add_item(item, quantity)
+
+    def user_remove_from_cart(self, item_name: str):
+        """
+        removes an item to the user's shopping cart.
+
+        Args:
+            item_name (Furniture): The item to remove.
+            .
+        """
+        self.shopping_cart.remove_item(item_name)
+
+    def get_cart(self):
+        """
+        Retrieves the shopping cart.
+
+        Returns:
+            ShoppingCart: The client's shopping cart.
+        """
+        return self.shopping_cart.get_cart()
 
 
 class Management(User):
@@ -203,6 +238,12 @@ class UserDB:
 
     def load_users(self):
         """Loads users from the JSON file and converts stored furniture dictionaries back into objects."""
+
+        directory = os.path.dirname(self.file_path)
+
+        if not os.path.exists(directory):  # Ensure the 'data' directory exists
+            os.makedirs(directory)  # Create the missing directory
+
         if not os.path.exists(self.file_path):
             with open(self.file_path, "w") as file:
                 json.dump({}, file, indent=4)
@@ -236,7 +277,7 @@ class UserDB:
                     user_id: {
                         **vars(user),
                         "shopping_cart": [
-                            {"item": serialize_furniture(i["item"]), "quantity": i["quantity"]}
+                            {"item_name": serialize_furniture(i["item_name"]), "quantity": i["quantity"]}
                             for i in user.shopping_cart.items
                         ]
                         if hasattr(user, "shopping_cart") else None
@@ -246,37 +287,39 @@ class UserDB:
                 file, indent=4
             )
 
-    def add_user(self, user):
+    def add_user(self, user) -> str:
         """
-        Add a new user to the database.
+        Adds a new user to the database.
 
         param:
             user (User): The user object to add.
 
         return:
-            None
+            str: Success or error message.
         """
         if user.user_id in self.user_data:
-            raise ValueError("User ID already exists!")
+            return "User ID already exists in UserDB"
         self.user_data[user.user_id] = user
         self.save_users()
+        return "User successfully added!"
 
     def edit_user(self, user_id, **kwargs):
         """
-        Edit an existing user's details.
+        Edits an existing user's details.
 
         param:
             user_id (int): The ID of the user to edit.
             **kwargs: Fields to update (e.g., username, email).
 
         return:
-            None
+            str: Success or error message.
         """
         user = self.user_data.get(user_id)
         if not user:
-            raise ValueError("User not found!")
+            return "User not found. Please check the ID and try again."
         user.edit_info(**kwargs)
         self.save_users()
+        return "User information updated successfully."
 
     def get_user(self, user_id: int) -> Optional[User]:
         """
@@ -305,3 +348,19 @@ class UserDB:
             if user.email == email and user.verify_password(password):
                 return user
         return None
+
+    def delete_user(self, user_id: int):
+        """
+        Deletes a user from the database.
+
+        param:
+            user_id (int): The ID of the user to delete.
+
+        return:
+            str: Success or error message.
+        """
+        if user_id not in self.user_data:
+            return "User not found. Cannot delete."
+        del self.user_data[user_id]
+        self.save_users()
+        return "User successfully deleted."
