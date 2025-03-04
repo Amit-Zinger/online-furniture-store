@@ -6,10 +6,16 @@ from models.order import OrderManager
 from models.cart import ShoppingCart
 from io import StringIO
 import sys
-
+import os
 class TestOrderManager(unittest.TestCase):
+    import os
+
     def setUp(self):
-        self.order_manager = OrderManager()
+        """Ensure each test starts with a fresh order list by deleting the saved pickle file."""
+        if os.path.exists(OrderManager.ORDER_STORAGE_FILE):
+            os.remove(OrderManager.ORDER_STORAGE_FILE)  # Delete the pickle file before each test
+
+        self.order_manager = OrderManager()  # This will now initialize with an empty DataFrame
         self.mock_cart = MagicMock(spec=ShoppingCart)
         self.mock_cart.user_id = 1
         self.mock_cart.items = [
@@ -71,6 +77,16 @@ class TestOrderManager(unittest.TestCase):
         sys.stdout = sys.__stdout__  # Reset stdout
         output = captured_output.getvalue()
         self.assertIn(f"Order {order_id} status is now Processing. Notifying observers...", output)
+
+    def test_order_persistence(self):
+        """Ensures that orders are saved and reloaded correctly."""
+        self.order_manager.create_order(self.mock_cart, "Credit Card", 300.0)
+        order_id = self.order_manager.orders.iloc[0]["order_id"]
+
+        # Create a new instance to simulate restarting the program
+        new_order_manager = OrderManager()
+        self.assertIn(order_id, new_order_manager.orders["order_id"].values)  # Order should be reloaded
+
 
 if __name__ == "__main__":
     unittest.main()

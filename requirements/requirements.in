@@ -1,8 +1,11 @@
-Flask
+flask
 pytest
 bcrypt
 PyJWT
 requests
-bcrypt
 cryptography
 ruff
+pytest-cov
+coverage
+pytest-cov
+cffi
