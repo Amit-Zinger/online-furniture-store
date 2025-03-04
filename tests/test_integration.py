@@ -21,7 +21,7 @@ def setup_system():
 
     # Create user database
     user_db = UserDB()
-    client = Client(id=1, username="test_client", email="client@test.com", password="password123", address="123 Street")
+    client = Client(user_id=1, username="test_client", email="client@test.com", password="password123", address="123 Street")
     user_db.add_user(client)
 
     # Create order manager

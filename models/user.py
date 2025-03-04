@@ -2,11 +2,13 @@ import json
 import os
 import bcrypt
 from abc import ABC
+from typing import Dict, Optional
 from models.cart import ShoppingCart
 from models.furniture import Furniture
 from models.factory import FurnitureFactory
 
 
+# -------- Helper Func -------- #
 def serialize_furniture(furniture_obj):
     """Converts a Furniture object to a dictionary for JSON storage."""
     if isinstance(furniture_obj, Furniture):
@@ -18,54 +20,56 @@ def serialize_furniture(furniture_obj):
 
 def deserialize_furniture(furniture_dict):
     """Converts a dictionary back into a Furniture object."""
-    if isinstance(furniture_dict, dict) and "serial_number" in furniture_dict:
+    if isinstance(furniture_dict, Dict) and "serial_number" in furniture_dict:
         furniture_type = furniture_dict.pop("type", None)
         if furniture_type:
             # Remove any attributes that are not part of the constructor
             allowed_keys = ["name", "description", "price", "dimensions", "serial_number",
                             "quantity", "weight", "manufacturing_country", "has_wheels",
                             "how_many_legs", "can_turn_to_bed", "how_many_seats",
-                            "expandable", "is_foldable", "has_storage", "has_back",
+                            "expandable", "can_fold", "has_storage", "has_back",
                             "how_many_doors", "has_mirrors", "number_of_shelves"]
 
             filtered_dict = {k: v for k, v in furniture_dict.items() if k in allowed_keys}
             return FurnitureFactory.create_furniture({"type": furniture_type, **filtered_dict})
     return furniture_dict
 
-USER_FILE = "users.json"  # JSON file as a database
+
+USER_FILE = "data/users.json"  # JSON file as a database
 
 
-# -------- USER CLASSES -------- #
+# -------- USER CLASSES {User,Client,Manager}-------- #
 class User(ABC):
     """
     Abstract base class representing a user.
 
     Attributes:
-        id (int): Unique identifier for the user.
+        user_id (int): Unique identifier for the user.
         username (str): The username of the user.
         email (str): The user's email address.
         password (str): The hashed password.
         address (str): The user's address.
     """
 
-    def __init__(self, id, username, email, password, address):
+    def __init__(self, user_id, username, email, password, address):
         """
         Initialize a User object.
 
         param:
-            id (int): The unique ID of the user.
+            user_id (int): The unique ID of the user.
             username (str): The username of the user.
             email (str): The email address of the user.
             password (str): The user's password (hashed if not already).
             address (str): The user's address.
         """
-        self.id = id
+        self.user_id = user_id
         self.username = username
         self.email = email
         self.password = self.hash_password(password) if not password.startswith("$2b$") else password
         self.address = address
 
-    def hash_password(self, password):
+    @staticmethod
+    def hash_password(password) -> str:
         """
         Hashes the password using bcrypt.
 
@@ -89,35 +93,9 @@ class User(ABC):
         """
         return bcrypt.checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
 
-
-
-class Client(User):
-    """
-    Represents a client user with a shopping cart.
-
-    Attributes:
-        shopping_cart (ShoppingCart): The client's shopping cart.
-        type (str): User type identifier ("Client").
-    """
-
-    def __init__(self, id, username, email, password, address):
-        """
-        Initialize a Client object.
-
-        param:
-            id (int): The unique ID of the client.
-            username (str): The username of the client.
-            email (str): The email address of the client.
-            password (str): The password of the client.
-            address (str): The client's address.
-        """
-        super().__init__(id, username, email, password, address)
-        self.shopping_cart = ShoppingCart(str(id))
-        self.type = "Client"
-
     def edit_info(self, username=None, email=None, address=None):
         """
-        Update the client's information.
+        Update the user's information.
 
         param:
             username (str, optional): New username.
@@ -132,6 +110,30 @@ class Client(User):
             self.address = address
 
 
+class Client(User):
+    """
+    Represents a client user with a shopping cart.
+
+    Attributes:
+        shopping_cart (ShoppingCart): The client's shopping cart.
+        type (str): User type identifier ("Client").
+    """
+
+    def __init__(self, user_id, username, email, password, address):
+        """
+        Initialize a Client object.
+
+        param:
+            user_id (int): The unique ID of the client.
+            username (str): The username of the client.
+            email (str): The email address of the client.
+            password (str): The password of the client.
+            address (str): The client's address.
+        """
+        super().__init__(user_id, username, email, password, address)
+        self.shopping_cart = ShoppingCart(str(user_id))
+        self.type = "Client"
+
 
 class Management(User):
     """
@@ -142,43 +144,21 @@ class Management(User):
         type (str): User type identifier ("Management").
     """
 
-    def __init__(self, id, username, email, password, address, rule):
+    def __init__(self, user_id, username, email, password, address, rule):
         """
         Initialize a Management user.
 
         param:
-            id (int): The unique ID of the manager.
+            user_id (int): The unique ID of the manager.
             username (str): The username of the manager.
             email (str): The email address of the manager.
             password (str): The password of the manager.
             address (str): The manager's address.
             rule (str): The managerial role.
         """
-        super().__init__(id, username, email, password, address)
+        super().__init__(user_id, username, email, password, address)
         self.rule = rule
         self.type = "Management"
-
-    def check_low_inventory(self, inventory):
-        """
-        Check for furniture items with zero quantity in stock.
-
-        param:
-            inventory (Inventory): The inventory object containing furniture items.
-
-        return:
-            list: A list of furniture objects with zero quantity.
-        """
-        low_furniture_list = []
-        category_types_list = ["Chair", "Sofa", "Table", "Bed", "Closet"]
-
-        for category in category_types_list:
-            atr_list = inventory.search_by(category=category)  # Fetch category-specific furniture
-            for atr in atr_list:
-                if atr.quantity == 0:
-                    low_furniture_list.append(atr)
-
-        return low_furniture_list
-
 
     def edit_info(self, username=None, email=None, address=None, rule=None):
         """
@@ -234,7 +214,7 @@ class UserDB:
         if not data:
             return
 
-        for id, user in data.items():
+        for user_id, user in data.items():
             type_user = user.pop("type")
             shopping_cart_items = user.pop("shopping_cart", [])
 
@@ -244,16 +224,16 @@ class UserDB:
                     {"item": deserialize_furniture(i["item"]), "quantity": i["quantity"]}
                     for i in shopping_cart_items
                 ]
-                self.user_data[int(id)] = client
+                self.user_data[int(user_id)] = client
             else:
-                self.user_data[int(id)] = Management(**user)
+                self.user_data[int(user_id)] = Management(**user)
 
     def save_users(self):
         """Saves users to the JSON file, ensuring furniture objects are serializable."""
         with open(self.file_path, "w") as file:
             json.dump(
                 {
-                    id: {
+                    user_id: {
                         **vars(user),
                         "shopping_cart": [
                             {"item": serialize_furniture(i["item"]), "quantity": i["quantity"]}
@@ -261,7 +241,7 @@ class UserDB:
                         ]
                         if hasattr(user, "shopping_cart") else None
                     }
-                    for id, user in self.user_data.items()
+                    for user_id, user in self.user_data.items()
                 },
                 file, indent=4
             )
@@ -276,9 +256,9 @@ class UserDB:
         return:
             None
         """
-        if user.id in self.user_data:
+        if user.user_id in self.user_data:
             raise ValueError("User ID already exists!")
-        self.user_data[user.id] = user
+        self.user_data[user.user_id] = user
         self.save_users()
 
     def edit_user(self, user_id, **kwargs):
@@ -298,7 +278,7 @@ class UserDB:
         user.edit_info(**kwargs)
         self.save_users()
 
-    def get_user(self, user_id):
+    def get_user(self, user_id: int) -> Optional[User]:
         """
         Retrieve a user by ID.
 
@@ -310,16 +290,7 @@ class UserDB:
         """
         return self.user_data.get(user_id)
 
-    def get_all_users(self):
-        """
-        Retrieve all users in the database.
-
-        return:
-            dict: A dictionary of all user objects with user ID as the key.
-        """
-        return self.user_data
-
-    def authenticate_user(self, email, password):
+    def authenticate_user(self, email: str, password: str) -> Optional[User]:
         """
         Authenticate a user by checking email and password.
 
