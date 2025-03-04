@@ -91,19 +91,6 @@ def test_edit_management_role(user_db: UserDB) -> None:
     assert manager.rule == "Director", "Manager role edit failed."
 
 
-def test_authenticate_user(user_db: UserDB) -> None:
-    """Test user authentication by email and password."""
-    client: Client = Client(user_id="1", username="client1", email="client@example.com",
-                            password=User.hash_password("ClientPass123!"), address="123 Client St")
-    user_db.add_user(client)
-    authenticated_user = user_db.authenticate_user("client@example.com", "ClientPass123!")
-    assert authenticated_user is not None, "Authentication failed."
-    assert authenticated_user.username == "client1", "Authenticated user data incorrect."
-
-    failed_auth = user_db.authenticate_user("client@example.com", "WrongPass")
-    assert failed_auth is None, "Authentication should fail with wrong password."
-
-
 def test_user_uniqueness(user_db: UserDB) -> None:
     """Test that UserDB prevents duplicate user IDs."""
     client1: Client = Client(user_id="1", username="client1", email="client1@example.com",

@@ -295,22 +295,6 @@ class UserDB:
         """
         return self.user_data.get(str(user_id))
 
-    def authenticate_user(self, email: str, password: str) -> Optional[User]:
-        """
-        Authenticate a user by checking email and password.
-
-        param:
-            email (str): The email of the user.
-            password (str): The password to verify.
-
-        return:
-            User: The authenticated user object if credentials are correct, otherwise None.
-        """
-        for user in self.user_data.values():
-            if user.email == email and user.verify_password(password):
-                return user
-        return None
-
     def delete_user(self, user_id: int):
         """
         Deletes a user from the database.
