@@ -5,31 +5,27 @@
 #    pip-compile requirements/requirements.in
 #
 bcrypt==4.2.1
-    # via -r requirements/requirements.in
+    # via -r requirements.in
 blinker==1.8.2
     # via flask
 certifi==2025.1.31
     # via requests
 cffi==1.17.1
     # via
-    #   -r requirements/requirements.in
+    #   -r requirements.in
     #   cryptography
 charset-normalizer==3.4.1
     # via requests
 click==8.1.8
     # via flask
-colorama==0.4.6
-    # via
-    #   click
-    #   pytest
 coverage[toml]==7.6.12
     # via
-    #   -r requirements/requirements.in
+    #   -r requirements.in
     #   pytest-cov
 cryptography==44.0.2
-    # via -r requirements/requirements.in
+    # via -r requirements.in
 flask==3.0.3
-    # via -r requirements/requirements.in
+    # via -r requirements.in
 idna==3.10
     # via requests
 iniconfig==2.0.0
@@ -49,17 +45,17 @@ pluggy==1.5.0
 pycparser==2.22
     # via cffi
 pyjwt==2.9.0
-    # via -r requirements/requirements.in
-pytest==8.3.4
+    # via -r requirements.in
+pytest==8.3.5
     # via
-    #   -r requirements/requirements.in
+    #   -r requirements.in
     #   pytest-cov
 pytest-cov==6.0.0
-    # via -r requirements/requirements.in
+    # via -r requirements.in
 requests==2.32.3
-    # via -r requirements/requirements.in
+    # via -r requirements.in
 ruff==0.9.9
-    # via -r requirements/requirements.in
+    # via -r requirements.in
 urllib3==2.2.3
     # via requests
 werkzeug==3.0.6
