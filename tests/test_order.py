@@ -19,10 +19,20 @@ class TestOrderManager(unittest.TestCase):
         """
         Ensures each test starts with a fresh order list by deleting the saved pickle file.
         """
-        if os.path.exists(OrderManager.ORDER_STORAGE_FILE):
-            os.remove(OrderManager.ORDER_STORAGE_FILE)
-
         self.order_manager = OrderManager()
+
+        # Ensure the data directory exists
+        os.makedirs(os.path.dirname(self.order_manager.file_path), exist_ok=True)
+
+        # Remove any existing orders file to prevent test data accumulation
+        if os.path.exists(self.order_manager.file_path):
+            os.remove(self.order_manager.file_path)
+
+        # Force a clean DataFrame to reset test state
+        self.order_manager.orders = pd.DataFrame(
+            columns=["order_id", "client_id", "items", "total_price", "payment_info", "status", "order_date"]
+        )
+
         self.mock_cart = MagicMock(spec=ShoppingCart)
         self.mock_cart.user_id = 1
         self.mock_cart.items = [
@@ -101,18 +111,6 @@ class TestOrderManager(unittest.TestCase):
         history = self.order_manager.get_order_history(2)
         self.assertEqual(len(history), 0)
 
-    def test_update_observer(self):
-        """
-        Tests updating observers for an order status change.
-        """
-        self.order_manager.create_order(self.mock_cart, "Credit Card", 300.0)
-        order_id = self.order_manager.orders.iloc[0]["order_id"]
-        captured_output = StringIO()
-        sys.stdout = captured_output
-        self.order_manager.update_observer(order_id)
-        sys.stdout = sys.__stdout__
-        output = captured_output.getvalue()
-        self.assertIn(f"Order {order_id} status is now Processing. Notifying observers...", output)
 
     def test_order_persistence(self):
         """

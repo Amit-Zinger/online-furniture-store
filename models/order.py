@@ -3,10 +3,17 @@ import pickle
 import os
 import json
 import uuid
+import sys
 from datetime import datetime
 from typing import Optional, List, Dict
 from models.cart import ShoppingCart
 from models.furniture import Furniture
+
+# Ensure the parent directory is in the import path (same as Inventory.py)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+# Define the default storage path, similar to Inventory.py
+ORDER_STORAGE_FILE = os.path.join(os.path.dirname(__file__), "..", "data/orders.pkl")
 
 
 class OrderManager:
@@ -14,33 +21,40 @@ class OrderManager:
     Manages orders in the system, including creation, updates, cancellations, and retrieval.
     """
 
-    ORDER_STORAGE_FILE = "orders.pkl"
-
-    def __init__(self):
+    def __init__(self, file_path=ORDER_STORAGE_FILE):
         """
         Initializes the OrderManager, loading orders from a pickle file if available.
         """
+        self.file_path = file_path
+
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(self.file_path), exist_ok=True)
+
         self.orders = self.load_orders()
 
     def save_orders(self) -> None:
         """
         Saves the orders DataFrame to a pickle file.
         """
-        with open(self.ORDER_STORAGE_FILE, "wb") as f:
-            pickle.dump(self.orders, f)
+        try:
+            self.orders.to_pickle(self.file_path)
+        except Exception as e:
+            print(f"Failed to save orders to pickle file: {e}")
 
     def load_orders(self) -> pd.DataFrame:
         """
         Loads the orders DataFrame from a pickle file if it exists, otherwise returns an empty DataFrame.
-
-        Returns:
-            pd.DataFrame: The loaded orders DataFrame or an empty DataFrame if the file does not exist.
         """
-        if os.path.exists(self.ORDER_STORAGE_FILE):
-            with open(self.ORDER_STORAGE_FILE, "rb") as f:
-                return pickle.load(f)
+        try:
+            if os.path.exists(self.file_path):
+                return pd.read_pickle(self.file_path)
+        except Exception as e:
+            print(f"Failed to load orders from pickle file: {e}")
+
+        # Ensure a new empty DataFrame if the file is missing or unreadable
         return pd.DataFrame(
-            columns=["order_id", "client_id", "items", "total_price", "payment_info", "status", "order_date"])
+            columns=["order_id", "client_id", "items", "total_price", "payment_info", "status", "order_date"]
+        )
 
     def create_order(self, cart: ShoppingCart, payment_info: str, total_price: float) -> None:
         """
@@ -126,16 +140,3 @@ class OrderManager:
         """
         history = self.orders[self.orders["client_id"] == client_id]
         return history.to_dict(orient="records") if not history.empty else []
-
-    def update_observer(self, order_id: str) -> None:
-        """
-        Updates observers about the current status of an order.
-
-        Args:
-            order_id (str): The unique ID of the order.
-        """
-        if order_id in self.orders["order_id"].values:
-            order_status = self.orders.loc[
-                self.orders["order_id"] == order_id, "status"
-            ].values[0]
-            print(f"Order {order_id} status is now {order_status}. Notifying observers...")
