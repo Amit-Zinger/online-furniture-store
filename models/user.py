@@ -7,6 +7,7 @@ from typing import Dict, Optional
 from models.cart import ShoppingCart
 from models.furniture import Furniture
 from models.factory import FurnitureFactory
+from models.order import OrderManager
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -73,7 +74,7 @@ class User(ABC):
         self.address = address
 
     @staticmethod
-    def hash_password(password) -> bytes:
+    def hash_password(password) -> str:
         """
         Hashes the password using bcrypt.
 
@@ -83,9 +84,9 @@ class User(ABC):
         return:
             str: The hashed password.
         """
-        return bcrypt.hashpw(password, bcrypt.gensalt())
+        return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
-    def verify_password(self, password: str) -> bool | str:
+    def verify_password(self, password: str) -> bool:
         """
         Verifies if the provided password matches the stored hashed password.
 
@@ -94,35 +95,35 @@ class User(ABC):
 
         return:
             bool: True if password matches.
-            str: "Invalid password" if password does not match.
-        """
-        if bcrypt.checkpw(password.encode(), self.password):
-            return True
-        return "Invalid password"
 
-    def edit_info(self, username=None, email=None, address=None, password=None):
         """
-        Update the user's information.
+        return bcrypt.checkpw(password.encode(), self.password.encode())
 
-        param:
-            username (str, optional): New username.
-            email (str, optional): New email address.
-            address (str, optional): New address.
-        """
+    def change_password(self, new_password):
+        """Changes the user's password, encrypts it, and updates the database."""
+        self.password = User.hash_password(new_password)
+
+        user_db = UserDB.get_instance()
+        if self.user_id in user_db.user_data:
+            user_db.user_data[self.user_id] = self
+            user_db.save_users()
+
+    def edit_info(self, username=None, email=None, address=None):
         if username:
             self.username = username
         if email:
             self.email = email
         if address:
             self.address = address
-        if password:
-            self.password = self.hash_password(password) if not password.startswith("$2b$") else password
+        user_db = UserDB.get_instance()
+        if self.user_id in user_db.user_data:
+            user_db.user_data[self.user_id] = self
+            user_db.save_users()
 
 
 class Client(User):
     """
-    Represents a client user with a shopping cart.
-
+    Represents a client user with a shopping cart
     Attributes:
         shopping_cart (ShoppingCart): The client's shopping cart.
         type (str): User type identifier ("Client").
@@ -139,35 +140,6 @@ class Client(User):
         super().__init__(user_id, username, email, password, address)
         self.shopping_cart = ShoppingCart(user_id)
         self.type = "Client"
-
-    def user_add_to_cart(self, item, quantity):
-        """
-        Adds an item_name to the user's shopping cart.
-
-        Args:
-            item (Furniture): The item_name to add.
-            quantity (int): The number of items to add.
-        """
-        self.shopping_cart.add_item(item, quantity)
-
-    def user_remove_from_cart(self, item_name: str):
-        """
-        removes an item to the user's shopping cart.
-
-        Args:
-            item_name (Furniture): The item to remove.
-            .
-        """
-        self.shopping_cart.remove_item(item_name)
-
-    def get_cart(self):
-        """
-        Retrieves the shopping cart.
-
-        Returns:
-            ShoppingCart: The client's shopping cart.
-        """
-        return self.shopping_cart.get_cart()
 
 
 class Management(User):
@@ -195,45 +167,37 @@ class Management(User):
         self.rule = rule
         self.type = "Management"
 
-    def edit_info(self, username=None, email=None, address=None, rule=None):
+    def edit_rule(self, rule=None):
         """
-        Update the management user's information.
-
+        Update the management user's rule.
         param:
-            username (str, optional): New username.
-            email (str, optional): New email address.
-            address (str, optional): New address.
             rule (str, optional): New managerial role.
         """
-        if username:
-            self.username = username
-        if email:
-            self.email = email
-        if address:
-            self.address = address
         if rule:
             self.rule = rule
+        user_db = UserDB.get_instance()
+        if self.user_id in user_db.user_data:
+            user_db.user_data[self.user_id] = self
+            user_db.save_users()
 
 
 # -------- USER DATABASE CLASS -------- #
 class UserDB:
-    """
-    Manages user data storage and retrieval using a JSON file.
+    _instance = None  # singleton
 
-    Attributes:
-        file_path (str): Path to the user database file.
-        user_data (dict): Dictionary containing user objects.
-    """
+    @staticmethod
+    def get_instance():
+        """Returns the single instance of UserDB."""
+        if UserDB._instance is None:
+            UserDB._instance = UserDB()
+        return UserDB._instance
 
     def __init__(self, file_path=USER_FILE):
-        """
-        Initialize the UserDB and load users from the JSON file.
-
-        param:
-            file_path (str, optional): Path to the JSON file. Default is "users.json".
-        """
+        """Initialize the UserDB and ensure only one instance exists."""
+        if UserDB._instance is not None:
+            raise Exception("Use UserDB.get_instance() instead of creating a new instance.")
         self.file_path = file_path
-        self.user_data = {}  # Store users in dictionary
+        self.user_data = {}
         self.load_users()
 
     def load_users(self):
@@ -277,10 +241,9 @@ class UserDB:
                     user_id: {
                         **vars(user),
                         "shopping_cart": [
-                            {"item_name": serialize_furniture(i["item_name"]), "quantity": i["quantity"]}
+                            {"item": serialize_furniture(i["item"]), "quantity": i["quantity"]}
                             for i in user.shopping_cart.items
-                        ]
-                        if hasattr(user, "shopping_cart") else None
+                        ] if hasattr(user, "shopping_cart") else None
                     }
                     for user_id, user in self.user_data.items()
                 },
