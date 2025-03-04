@@ -1,8 +1,11 @@
 import pandas as pd
 from models.factory import FurnitureFactory
+from models.furniture import Furniture
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+INVEN_FILE = os.path.join(os.path.join(os.path.dirname(__file__), ".."), "data/inventory.pkl")
 
 
 class Inventory:
@@ -14,7 +17,7 @@ class Inventory:
     - Search for furniture items by attributes such as name, category, and price range.
     """
 
-    def __init__(self, file_path):
+    def __init__(self, file_path=INVEN_FILE):
         """
         Initialize the Inventory class with the given file path.
 
@@ -112,7 +115,7 @@ class Inventory:
             else:
                 print("Basic attributes missing fail to create furniture object.")
                 return False
-        if furniture_atr:
+        if furniture_atr and isinstance(furniture_atr,Furniture):
             class_name = type(furniture_atr).__name__
             pd_spec_class = self.data[class_name][0]
             try:
@@ -137,7 +140,7 @@ class Inventory:
         True if quantity updated and False if not.
         """
         # Find the furniture_atr in the data frame
-        if furniture_atr:
+        if furniture_atr and isinstance(furniture_atr,Furniture):
             class_name = type(furniture_atr).__name__
             pd_spec_class = self.data[class_name][0]
             item_id = furniture_atr.serial_number
