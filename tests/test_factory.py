@@ -20,8 +20,7 @@ def test_create_valid_furniture(furniture_type, attributes):
         "serial_number": "SF001",
         "quantity": 5,
         "weight": 30.0,
-        "manufacturing_country": "Germany",
-        "interested_clients": ["Alice", "Bob"]
+        "manufacturing_country": "Germany"
     }
     furniture_attributes = {**common_attributes, **attributes}
     furniture = furniture_type(**furniture_attributes)
@@ -35,7 +34,7 @@ def test_register_invalid_furniture_type():
     with pytest.raises(ValueError, match="Furniture type name must be a non-empty string"):
         FurnitureFactory.register_furniture("", Chair)
     with pytest.raises(ValueError, match="The provided class must be callable"):
-        FurnitureFactory.register_furniture("InvalidType", "NotAClass")
+        FurnitureFactory.register_furniture("InvalidType", "not a class")
 
 
 def test_create_furniture_invalid_values():
@@ -49,6 +48,6 @@ def test_create_furniture_invalid_values():
         for attribute, invalid_value, expected_message in common_invalid_values:
             attributes = {"name": "Invalid Furniture", "description": "A sample description", "price": 250.0,
                           "dimensions": "100x100x100 cm", "serial_number": "SF001", "quantity": 5, "weight": 30.0,
-                          "manufacturing_country": "Germany", "interested_clients": [], attribute: invalid_value}
+                          "manufacturing_country": "Germany", attribute: invalid_value}
             with pytest.raises(ValueError, match=expected_message):
                 furniture_type(**attributes)
