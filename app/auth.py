@@ -1,13 +1,14 @@
 from functools import wraps
 from models.user import UserDB
+from flask import session, jsonify
 
 
-def authenticate_user(email: str, password: str):
+def authenticate_user(username: str, password: str):
     """
     Authenticate a user by checking email and password.
     """
     user_db = UserDB.get_instance()
-    user = next((u for u in user_db.user_data.values() if u.email == email), None)
+    user = next((u for u in user_db.user_data.values() if u.username == username), None)
 
     if user and user.verify_password(password):
         return user
