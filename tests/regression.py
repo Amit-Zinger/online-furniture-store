@@ -1,6 +1,5 @@
 import os
 import sys
-import copy
 from typing import Dict, Optional, List, Tuple
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -47,7 +46,7 @@ def setup_system() -> Tuple[UserDB, Inventory, OrderManager]:
     ]
 
     for item in furniture_items:
-        inventory.add_item(copy.deepcopy(item))
+        inventory.add_item(item)
     inventory.update_data()
 
     # Create multiple users
