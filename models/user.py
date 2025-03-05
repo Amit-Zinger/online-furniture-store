@@ -13,7 +13,15 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 # -------- Helper Func -------- #
 def serialize_furniture(furniture_obj):
-    """Converts a Furniture object to a dictionary for JSON storage."""
+    """
+    Converts a Furniture object to a dictionary for JSON storage.
+
+    param:
+        furniture_obj (Furniture): The furniture object to serialize.
+
+    return:
+        dict: Dictionary representation of the furniture object.
+    """
     if isinstance(furniture_obj, Furniture):
         furniture_dict = vars(furniture_obj)
         furniture_dict["type"] = type(furniture_obj).__name__  # Store type for deserialization
@@ -22,7 +30,15 @@ def serialize_furniture(furniture_obj):
 
 
 def deserialize_furniture(furniture_dict):
-    """Converts a dictionary back into a Furniture object."""
+    """
+    Converts a dictionary back into a Furniture object.
+
+    param:
+        furniture_dict (dict): Dictionary representation of a furniture object.
+
+    return:
+        Furniture: Deserialized Furniture object.
+    """
     if isinstance(furniture_dict, Dict) and "serial_number" in furniture_dict:
         furniture_type = furniture_dict.pop("type", None)
         if furniture_type:
@@ -99,7 +115,12 @@ class User(ABC):
         return bcrypt.checkpw(password.encode(), self.password.encode())
 
     def change_password(self, new_password):
-        """Changes the user's password, encrypts it, and updates the database."""
+        """
+        Changes the user's password, encrypts it, and updates the database.
+
+        param:
+            new_password (str): The new password to be set.
+        """
         self.password = User.hash_password(new_password)
 
         user_db = UserDB.get_instance()
@@ -108,6 +129,14 @@ class User(ABC):
             user_db.save_users()
 
     def edit_info(self, username=None, email=None, address=None):
+        """
+        Edits the user's information.
+
+        param:
+               username (str, optional): New username.
+               email (str, optional): New email address.
+               address (str, optional): New address.
+        """
         if username:
             self.username = username
         if email:
@@ -182,17 +211,32 @@ class Management(User):
 
 # -------- USER DATABASE CLASS -------- #
 class UserDB:
+    """
+    Singleton class to manage user data storage and retrieval.
+    """
     _instance = None  # singleton
 
     @staticmethod
     def get_instance():
-        """Returns the single instance of UserDB."""
+        """
+        Returns the single instance of UserDB.
+
+        return:
+            UserDB: The singleton instance of UserDB.
+        """
+
         if UserDB._instance is None:
             UserDB._instance = UserDB()
         return UserDB._instance
 
     def __init__(self, file_path=USER_FILE):
-        """Initialize the UserDB and ensure only one instance exists."""
+        """
+        Initialize the UserDB and ensure only one instance exists.
+
+        param:
+              file_path (str): Path to the user database file.
+        """
+
         if UserDB._instance is not None:
             raise Exception("Use UserDB.get_instance() instead of creating a new instance.")
         self.file_path = file_path
