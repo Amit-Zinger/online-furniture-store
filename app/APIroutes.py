@@ -1,6 +1,6 @@
 from datetime import timedelta, datetime , timezone
 from flask import Flask, request, jsonify, session, abort
-from models.user import UserDB, Client, serialize_furniture
+from models.user import UserDB, Client,Management, serialize_furniture
 from models.inventory import Inventory
 from models.order import OrderManager
 from models.cart import PaymentGateway
@@ -46,16 +46,29 @@ def helper_updating_DB():
 @app.route("/users", methods=["POST"])
 def register():
     data = request.json
-    if any(u.email == data["email"] for u in user_db.user_data.values()):
-        return jsonify({"error": "Email already registered"}), 400
-    new_user = Client(
-        user_id=len(user_db.user_data) + 1,
-        username=data["username"],
-        email=data["email"],
-        password=data["password"],
-        address=data["address"]
-    )
+    if any(u.username == data["username"] for u in user_db.user_data.values()):
+        return jsonify({"error": "username already registered"}), 400
+    if (data["kind"]== "Client"):
+        new_user = Client(
+            user_id=len(user_db.user_data) + 1,
+            username=data["username"],
+            email=data["email"],
+            password=data["password"],
+            address=data["address"]
+        )
+    elif(data["kind"]== "Management"):
+        new_user = Management(
+            user_id=len(user_db.user_data) + 1,
+            username=data["username"],
+            email=data["email"],
+            password=data["password"],
+            address=data["address"],
+            role = data["role"]
+        )
+    else :
+        return jsonify({"error": "roll undefined"}), 400
     user_db.add_user(new_user)
+    user_db.save_users()
     return jsonify({"message": "Registration successful!"}), 201
 
 
@@ -63,7 +76,7 @@ def register():
 @app.route("/auth/login", methods=["POST"])
 def login():
     data = request.json
-    user = authenticate_user(data["email"], data["password"])
+    user = authenticate_user(data["username"], data["password"])
     if user:
         session["user_id"] = user.user_id
         session["role"] = user.type
@@ -76,7 +89,9 @@ def login():
 @require_auth
 def add_to_cart():
     data = request.json
-    user = authenticate_user(data["email"], data["password"])
+    user = authenticate_user(data["username"], data["password"])
+    if(isinstance(user,Management)):
+        return jsonify({"error": "Not Management user API"}), 401
     if not user:
         return jsonify({"error": "Invalid credentials"}), 401
     cart = user.shopping_cart
@@ -106,7 +121,9 @@ def add_to_cart():
 @require_auth
 def remove_from_cart():
     data = request.json
-    user = authenticate_user(data["email"], data["password"])
+    user = authenticate_user(data["username"], data["password"])
+    if(isinstance(user,Management)):
+        return jsonify({"error": "Not Management user API"}), 401
     if not user:
         return jsonify({"error": "Invalid credentials"}), 401
     cart = user.shopping_cart
@@ -123,7 +140,7 @@ def remove_from_cart():
 @require_auth
 def checkout():
     data = request.json
-    user = authenticate_user(data["email"], data["password"])
+    user = authenticate_user(data["username"], data["password"])
     if not user:
         return jsonify({"error": "Invalid credentials"}), 401
     cart = user.shopping_cart
@@ -160,7 +177,7 @@ def checkout():
 @require_auth
 def search_product():
     data = request.json
-    if not (authenticate_user(data["email"], data["password"])):
+    if not (authenticate_user(data["username"], data["password"])):
         return jsonify({"error": "Invalid credentials"}), 401
 
     name = data.get("name")
