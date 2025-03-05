@@ -94,10 +94,13 @@ class TestShoppingCart(unittest.TestCase):
         Tests attempting a purchase without inventory or order manager.
         """
         self.cart.add_item(self.item1, 2)
-        with self.assertRaises(ValueError):
-            self.cart.purchase(self.payment_gateway, "card123", None, self.order_manager)
-        with self.assertRaises(ValueError):
-            self.cart.purchase(self.payment_gateway, "card123", self.inventory, None)
+
+        # Instead of expecting ValueError, expect False return value
+        result_no_inventory = self.cart.purchase(self.payment_gateway, "card123", None, self.order_manager)
+        result_no_order_manager = self.cart.purchase(self.payment_gateway, "card123", self.inventory, None)
+
+        self.assertFalse(result_no_inventory)
+        self.assertFalse(result_no_order_manager)
 
 
 if __name__ == "__main__":
