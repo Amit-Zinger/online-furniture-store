@@ -13,7 +13,15 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 # -------- Helper Func -------- #
 def serialize_furniture(furniture_obj):
-    """Converts a Furniture object to a dictionary for JSON storage."""
+    """
+    Converts a Furniture object to a dictionary for JSON storage.
+
+    param:
+        furniture_obj (Furniture): The furniture object to serialize.
+
+    return:
+        dict: Dictionary representation of the furniture object.
+    """
     if isinstance(furniture_obj, Furniture):
         furniture_dict = vars(furniture_obj)
         furniture_dict["type"] = type(furniture_obj).__name__  # Store type for deserialization
@@ -22,7 +30,15 @@ def serialize_furniture(furniture_obj):
 
 
 def deserialize_furniture(furniture_dict):
-    """Converts a dictionary back into a Furniture object."""
+    """
+    Converts a dictionary back into a Furniture object.
+
+    param:
+        furniture_dict (dict): Dictionary representation of a furniture object.
+
+    return:
+        Furniture: Deserialized Furniture object.
+    """
     if isinstance(furniture_dict, Dict) and "serial_number" in furniture_dict:
         furniture_type = furniture_dict.pop("type", None)
         if furniture_type:
@@ -55,7 +71,7 @@ class User(ABC):
         address (str): The user's address.
     """
 
-    def __init__(self, user_id, username, email, password, address):
+    def __init__(self, user_id: str, username: str, email: str, password: str, address: str) -> None:
         """
         Initialize a User object.
 
@@ -73,7 +89,7 @@ class User(ABC):
         self.address = address
 
     @staticmethod
-    def hash_password(password) -> str:
+    def hash_password(password: str) -> str:
         """
         Hashes the password using bcrypt.
 
@@ -98,8 +114,13 @@ class User(ABC):
         """
         return bcrypt.checkpw(password.encode(), self.password.encode())
 
-    def change_password(self, new_password):
-        """Changes the user's password, encrypts it, and updates the database."""
+    def change_password(self, new_password: str) -> None:
+        """
+        Changes the user's password, encrypts it, and updates the database.
+
+        param:
+            new_password (str): The new password to be set.
+        """
         self.password = User.hash_password(new_password)
 
         user_db = UserDB.get_instance()
@@ -107,7 +128,15 @@ class User(ABC):
             user_db.user_data[self.user_id] = self
             user_db.save_users()
 
-    def edit_info(self, username=None, email=None, address=None):
+    def edit_info(self, username: Optional[str] = None, email: Optional[str] = None, address: Optional[str] = None) -> None:
+        """
+        Edits the user's information.
+
+        param:
+               username (str, optional): New username.
+               email (str, optional): New email address.
+               address (str, optional): New address.
+        """
         if username:
             self.username = username
         if email:
@@ -128,7 +157,7 @@ class Client(User):
         type (str): User type identifier ("Client").
     """
 
-    def __init__(self, user_id, username, email, password, address):
+    def __init__(self, user_id: str, username: str, email: str, password: str, address: str) -> None:
         """
         Initialize a Client object.
 
@@ -150,7 +179,7 @@ class Management(User):
         type (str): User type identifier ("Management").
     """
 
-    def __init__(self, user_id, username, email, password, address, role):
+    def __init__(self, user_id: str, username: str, email: str, password: str, address: str, role: str) -> None:
         """
         Initialize a Management user.
 
@@ -166,7 +195,7 @@ class Management(User):
         self.role = role
         self.type = "Management"
 
-    def edit_role(self, role=None):
+    def edit_role(self, role: Optional[str] = None) -> None:
         """
         Update the management user's role.
         param:
@@ -182,24 +211,39 @@ class Management(User):
 
 # -------- USER DATABASE CLASS -------- #
 class UserDB:
+    """
+    Singleton class to manage user data storage and retrieval.
+    """
     _instance = None  # singleton
 
     @staticmethod
     def get_instance():
-        """Returns the single instance of UserDB."""
+        """
+        Returns the single instance of UserDB.
+
+        return:
+            UserDB: The singleton instance of UserDB.
+        """
+
         if UserDB._instance is None:
             UserDB._instance = UserDB()
         return UserDB._instance
 
-    def __init__(self, file_path=USER_FILE):
-        """Initialize the UserDB and ensure only one instance exists."""
+    def __init__(self, file_path: str = USER_FILE) -> None:
+        """
+        Initialize the UserDB and ensure only one instance exists.
+
+        param:
+              file_path (str): Path to the user database file.
+        """
+
         if UserDB._instance is not None:
             raise Exception("Use UserDB.get_instance() instead of creating a new instance.")
         self.file_path = file_path
         self.user_data = {}
         self.load_users()
 
-    def load_users(self):
+    def load_users(self) -> None:
         """Loads users from the JSON file and converts stored furniture dictionaries back into objects."""
 
         directory = os.path.dirname(self.file_path)
@@ -232,7 +276,7 @@ class UserDB:
             else:
                 self.user_data[int(user_id)] = Management(**user)
 
-    def save_users(self):
+    def save_users(self) -> None:
         """Saves users to the JSON file, ensuring furniture objects are serializable."""
         with open(self.file_path, "w") as file:
             json.dump(
@@ -249,7 +293,7 @@ class UserDB:
                 file, indent=4
             )
 
-    def add_user(self, user) -> str:
+    def add_user(self, user: User) -> str:
         """
                 Adds a new user to the database.
 

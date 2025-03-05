@@ -9,6 +9,10 @@ from typing import Optional, List, Dict
 from models.cart import ShoppingCart
 from models.furniture import Furniture
 
+import os
+import sys
+import pandas as pd
+
 # Ensure the parent directory is in the import path (same as Inventory.py)
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -23,14 +27,21 @@ class OrderManager:
 
     def __init__(self, file_path=ORDER_STORAGE_FILE):
         """
-        Initializes the OrderManager, loading orders from a pickle file if available.
+        Initializes the OrderManager, ensuring a valid pickle file is set up.
         """
         self.file_path = file_path
 
         # Ensure the directory exists
         os.makedirs(os.path.dirname(self.file_path), exist_ok=True)
 
-        self.orders = self.load_orders()
+        # Check if the file exists; if not, create an empty one with predefined columns
+        if not os.path.exists(self.file_path):
+            self.orders = pd.DataFrame(
+                columns=["order_id", "client_id", "items", "total_price", "payment_info", "status", "order_date"]
+            )
+            self.save_orders()
+        else:
+            self.orders = self.load_orders()
 
     def save_orders(self) -> None:
         """
@@ -55,6 +66,7 @@ class OrderManager:
         return pd.DataFrame(
             columns=["order_id", "client_id", "items", "total_price", "payment_info", "status", "order_date"]
         )
+
 
     def create_order(self, cart: ShoppingCart, payment_info: str, total_price: float) -> None:
         """
@@ -140,3 +152,5 @@ class OrderManager:
         """
         history = self.orders[self.orders["client_id"] == client_id]
         return history.to_dict(orient="records") if not history.empty else []
+
+
