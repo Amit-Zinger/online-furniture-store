@@ -61,8 +61,17 @@ class ShoppingCart:
     def remove_item(self, item_name: str) -> bool:
         """
         Removes an item from the cart by name.
+
+        Returns:
+            bool: True if the item was removed, False if the item was not found or an error occurred.
         """
         try:
+            # Check if the item exists in the cart
+            if not any(item.name == item_name for item in self.items):
+                print(f"Error: Item '{item_name}' not found in the cart.")
+                return False
+
+            # Remove the item
             self.items = [item for item in self.items if item.name != item_name]
             return True
         except Exception as e:
