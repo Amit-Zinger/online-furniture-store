@@ -82,7 +82,7 @@ def search_product_in_inventory(inventory: Inventory, product_name: str) -> Opti
 
 
 
-def add_to_cart(client: Client, product: object, quantity: int) -> None:
+def add_to_cart(client: Client, product: object, quantity: int) -> bool:
     """
     Add a product to the user's cart.
 
@@ -91,9 +91,13 @@ def add_to_cart(client: Client, product: object, quantity: int) -> None:
         product (object): The furniture product to add.
         quantity (int): The quantity to add.
 
+    return:
+        bool: True if add was successful, False otherwise.
     """
     # Add the bool option to add_item
-    client.shopping_cart.add_item(product, quantity)
+    if not (client.shopping_cart.add_item(product, quantity)):
+        return False
+    return True
 
 
 
@@ -187,7 +191,10 @@ def run_tests() -> None:
         if(not product):
             print("Search in Inventory failed in test.")
             return
-        add_to_cart(client, product, qty)
+        if(not add_to_cart(client, product, qty)):
+            print("Failed to add item to user ShoppingCart.")
+            return
+
     print("Search in Inventory furniture objects ended successfully.\nAdding furniture objects to ShoppingCart ended successfully")
 
     if checkout(client, inventory, order_manager):
