@@ -22,7 +22,6 @@ def test_furniture_creation(furniture_class, attributes):
         "quantity": 10,
         "weight": 50.0,
         "manufacturing_country": "USA",
-        "interested_clients": ["John", "Doe"]
     }
     obj_attributes = {**base_attributes, **attributes}
     furniture = furniture_class(**obj_attributes)

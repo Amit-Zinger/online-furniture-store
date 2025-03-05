@@ -17,7 +17,6 @@ class Furniture(ABC):
             quantity: int,
             weight: float,
             manufacturing_country: str,
-            interested_clients: List[str] = None,
     ):
         self._validate_positive_value(price, "Price")
         self._validate_positive_value(weight, "Weight")
@@ -31,7 +30,6 @@ class Furniture(ABC):
         self.quantity = quantity
         self.weight = weight
         self.manufacturing_country = manufacturing_country
-        self.interested_clients = interested_clients if interested_clients else []
         self.tax_rate = 0.17  # Default tax rate
 
     @property
