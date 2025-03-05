@@ -6,7 +6,7 @@ from models.furniture import Furniture
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # all the created furniture
-furniture_classes = {
+FURNITURE_CLASSES = {
     "Chair": Chair,
     "Sofa": Sofa,
     "Table": Table,
@@ -33,7 +33,7 @@ class FurnitureFactory:
             raise ValueError("Furniture type name must be a non-empty string.")
         if not callable(cls):
             raise ValueError("The provided class must be callable.")
-        furniture_classes[name] = cls
+        FURNITURE_CLASSES[name] = cls
 
     @staticmethod
     def create_furniture(furniture_desc: dict[str, any]) -> Furniture:
@@ -51,7 +51,7 @@ class FurnitureFactory:
             raise ValueError("Furniture type is required.")
 
         # if we already created the type
-        if furniture_type not in furniture_classes:
+        if furniture_type not in FURNITURE_CLASSES:
             raise ValueError(f"Unknown furniture type: {furniture_type}")
 
         furniture_desc.pop("type")
@@ -68,7 +68,7 @@ class FurnitureFactory:
         FurnitureFactory._validate_furniture_specifics(furniture_type, furniture_desc)
 
         try:
-            return furniture_classes[furniture_type](**furniture_desc)
+            return FURNITURE_CLASSES[furniture_type](**furniture_desc)
         except TypeError as e:
             raise TypeError(f"Failed to create furniture '{furniture_type}': {e}")
 

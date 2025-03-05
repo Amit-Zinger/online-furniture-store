@@ -1,5 +1,4 @@
 from abc import ABC
-from typing import List
 
 
 class Furniture(ABC):
@@ -105,7 +104,8 @@ class Table(Furniture):
 
 
 class Closet(Furniture):
-    def __init__(self, has_mirrors: bool = False, number_of_shelves: int = 3, how_many_doors: int = 2, **kwargs) -> None:
+    def __init__(self, has_mirrors: bool = False, number_of_shelves: int = 3,
+                 how_many_doors: int = 2, **kwargs) -> None:
         super().__init__(**kwargs)
         self.has_mirrors = has_mirrors
         self.number_of_shelves = number_of_shelves
