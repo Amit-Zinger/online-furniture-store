@@ -146,11 +146,11 @@ class Management(User):
     Represents a management-level user.
 
     Attributes:
-        rule (str): The management role.
+        role (str): The management role.
         type (str): User type identifier ("Management").
     """
 
-    def __init__(self, user_id, username, email, password, address, rule):
+    def __init__(self, user_id, username, email, password, address, role):
         """
         Initialize a Management user.
 
@@ -160,20 +160,20 @@ class Management(User):
             email (str): The email address of the manager.
             password (str): The password of the manager.
             address (str): The manager's address.
-            rule (str): The managerial role.
+            role (str): The managerial role.
         """
         super().__init__(user_id, username, email, password, address)
-        self.rule = rule
+        self.role = role
         self.type = "Management"
 
-    def edit_rule(self, rule=None):
+    def edit_role(self, role=None):
         """
-        Update the management user's rule.
+        Update the management user's role.
         param:
-            rule (str, optional): New managerial role.
+            role (str, optional): New managerial role.
         """
-        if rule:
-            self.rule = rule
+        if role:
+            self.role = role
         user_db = UserDB.get_instance()
         if self.user_id in user_db.user_data:
             user_db.user_data[self.user_id] = self
