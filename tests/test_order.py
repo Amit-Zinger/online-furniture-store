@@ -19,14 +19,18 @@ class TestOrderManager(unittest.TestCase):
         """
         Ensures each test starts with a fresh order list by deleting the saved pickle file.
         """
-        self.order_manager = OrderManager()
+        # Correct the typo in the test file path
+        self.test_orders_file = os.path.join(os.path.dirname(__file__), "..", "tests/test_orders.pkl")
 
-        # Ensure the data directory exists
-        os.makedirs(os.path.dirname(self.order_manager.file_path), exist_ok=True)
+        # Initialize OrderManager with the test file path
+        self.order_manager = OrderManager(file_path=self.test_orders_file)
 
-        # Remove any existing orders file to prevent test data accumulation
-        if os.path.exists(self.order_manager.file_path):
-            os.remove(self.order_manager.file_path)
+        # Ensure the test directory exists
+        os.makedirs(os.path.dirname(self.test_orders_file), exist_ok=True)
+
+        # Remove any existing test orders file to prevent test data accumulation
+        if os.path.exists(self.test_orders_file):
+            os.remove(self.test_orders_file)
 
         # Force a clean DataFrame to reset test state
         self.order_manager.orders = pd.DataFrame(
@@ -118,8 +122,21 @@ class TestOrderManager(unittest.TestCase):
         """
         self.order_manager.create_order(self.mock_cart, "Credit Card", 300.0)
         order_id = self.order_manager.orders.iloc[0]["order_id"]
-        new_order_manager = OrderManager()
+
+        # Ensure the new instance loads from the same test file
+        new_order_manager = OrderManager(file_path=self.test_orders_file)
+
         self.assertIn(order_id, new_order_manager.orders["order_id"].values)
+
+    @classmethod
+    def tearDownClass(cls):
+        """
+        Ensures that the test order pickle file is deleted after all tests have run.
+        """
+        test_orders_file = os.path.join(os.path.dirname(__file__), "..", "tests/test_orders.pkl")
+
+        if os.path.exists(test_orders_file):
+            os.remove(test_orders_file)
 
 
 if __name__ == "__main__":
