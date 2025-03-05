@@ -1,23 +1,21 @@
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime , timezone
 from flask import Flask, request, jsonify, session, abort
 from models.user import UserDB, Client, serialize_furniture
 from models.inventory import Inventory
 from models.order import OrderManager
-from models.cart import ShoppingCart, PaymentGateway
-from app.auth import require_auth
+from models.cart import PaymentGateway
+from app.auth import require_auth,authenticate_user
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
-USER_FILE = "data/users.json"
-
-
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=2)
+
 
 
 @app.before_request
 def manage_session():
     session.permanent = True
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     # If the user is logged in, check if the session expiration time has passed
     if "user_id" in session:
@@ -34,15 +32,20 @@ def manage_session():
 
 
 # Initialize inventory and OrderManager
-inventory = Inventory("data/inventory.pkl")  # Using pickle for inventory
-order_manager = OrderManager()  # Singleton OrderManager instance
+inventory = Inventory()
+order_manager = OrderManager()
+user_db = UserDB.get_instance()
 
+
+def helper_updating_DB():
+    inventory.update_data()
+    order_manager.save_orders()
+    user_db.save_users()
 
 # ---------------------- User register ----------------------
 @app.route("/users", methods=["POST"])
 def register():
     data = request.json
-    user_db = UserDB.get_instance()
     if any(u.email == data["email"] for u in user_db.user_data.values()):
         return jsonify({"error": "Email already registered"}), 400
     new_user = Client(
@@ -60,8 +63,7 @@ def register():
 @app.route("/auth/login", methods=["POST"])
 def login():
     data = request.json
-    user_db = UserDB.get_instance()
-    user = user_db.authenticate_user(data["email"], data["password"])
+    user = authenticate_user(data["email"], data["password"])
     if user:
         session["user_id"] = user.user_id
         session["role"] = user.type
@@ -72,17 +74,29 @@ def login():
 # ---------------------- Cart Management ----------------------
 @app.route("/cart/items", methods=["POST"])
 @require_auth
-def add_to_cart(user_data):
+def add_to_cart():
     data = request.json
-    user_id = user_data["user_id"]
-    cart = ShoppingCart(user_id)
+    user = authenticate_user(data["email"], data["password"])
+    if not user:
+        return jsonify({"error": "Invalid credentials"}), 401
+    cart = user.shopping_cart
 
     item_name = data.get("name")
-    quantity = data.get("quantity", 1)
+    quantity = int(data.get("quantity", 1))
 
     items = inventory.search_by(name=item_name)
-    if not items or items[0].quantity < quantity:
+    if not items or items[0].quantity <= quantity :
         return jsonify({"error": "Item not available or insufficient stock"}), 400
+
+    # Check if item already exist in User ShoppingCart
+
+    if items[0] in cart.items:
+        count=0
+        for i in cart.items:
+            if items[0].name == i.name :
+                count+=1
+        if items[0].quantity <= quantity + count:
+            return jsonify({"error": "Item insufficient stock"}), 400
 
     cart.add_item(items[0], quantity)
     return jsonify({"message": "Item added to cart"}), 200
@@ -90,22 +104,29 @@ def add_to_cart(user_data):
 
 @app.route("/cart/items", methods=["DELETE"])
 @require_auth
-def remove_from_cart(user_data):
+def remove_from_cart():
     data = request.json
-    user_id = user_data["user_id"]
-    cart = ShoppingCart(user_id)
+    user = authenticate_user(data["email"], data["password"])
+    if not user:
+        return jsonify({"error": "Invalid credentials"}), 401
+    cart = user.shopping_cart
 
     item_name = data.get("name")
-    cart.remove_item(item_name)
-    return jsonify({"message": "Item removed from cart"}), 200
 
+    if (cart.remove_item(item_name)):
+        return jsonify({"message": "Item removed from cart"}), 200
+    else :
+        return jsonify({"message": "Item not exist in user's cart"}), 400
 
 # ---------------------- Checkout ----------------------
 @app.route("/orders", methods=["POST"])
 @require_auth
-def checkout(user_data):
-    user_id = user_data["user_id"]
-    cart = ShoppingCart(user_id)
+def checkout():
+    data = request.json
+    user = authenticate_user(data["email"], data["password"])
+    if not user:
+        return jsonify({"error": "Invalid credentials"}), 401
+    cart = user.shopping_cart
 
     if not cart.items:
         return jsonify({"error": "Cart is empty"}), 400
@@ -125,23 +146,32 @@ def checkout(user_data):
     order_manager.create_order(cart, payment_info, total_price)
     for item in cart.items:
         inventory.update_quantity(item, item.quantity - 1)
+    user.shopping_cart.clear_cart()
 
-    cart.clear_cart()
+    # Updating all DB after order made successfully
+    helper_updating_DB()
+
+
     return jsonify({"message": "Checkout successful"}), 200
 
 
 # ---------------------- Search Inventory ----------------------
 @app.route("/inventory", methods=["GET"])
+@require_auth
 def search_product():
-    name = request.args.get("name")
-    category = request.args.get("category")
-    min_price = request.args.get("min_price", type=float)
-    max_price = request.args.get("max_price", type=float)
+    data = request.json
+    if not (authenticate_user(data["email"], data["password"])):
+        return jsonify({"error": "Invalid credentials"}), 401
+
+    name = data.get("name")
+    category = data.get("category")
+    min_price = data.get("min_price")
+    max_price = data.get("max_price")
 
     results = inventory.search_by(
         name=name,
         category=category,
-        price_range=(min_price, max_price) if min_price is not None and max_price is not None else None
+        price_range=(int(min_price), int(max_price)) if min_price is not None and max_price is not None else None
     )
 
     if not results:
