@@ -1,11 +1,15 @@
-import pandas as pd
-from models.factory import FurnitureFactory
-from models.furniture import Furniture
 import sys
 import os
+import pandas as pd
+from typing import Optional, Dict, List, Tuple, Union
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-INVEN_FILE = os.path.join(os.path.join(os.path.dirname(__file__), ".."), "data/inventory.pkl")
+from models.factory import FurnitureFactory
+from models.furniture import Furniture
+
+# Define directory for inventory database
+INVEN_FILE : str =  os.path.join(os.path.join(os.path.dirname(__file__), ".."), "data/inventory.pkl")
 
 
 class Inventory:
@@ -17,7 +21,7 @@ class Inventory:
     - Search for furniture items by attributes such as name, category, and price range.
     """
 
-    def __init__(self, file_path=INVEN_FILE):
+    def __init__(self, file_path: str = INVEN_FILE) -> None:
         """
         Initialize the Inventory class with the given file path.
 
@@ -44,7 +48,7 @@ class Inventory:
                 f"Failed to create Inventory object.\nChenk path to data file."
             )
 
-    def _load_data(self):
+    def _load_data(self) -> bool:
         """
         Load inventory data from a pickle file.
 
@@ -58,7 +62,7 @@ class Inventory:
             print("Failed to upload data to pickle file, check file path")
             return False
 
-    def update_data(self):
+    def update_data(self) -> bool:
         """
         Save the current inventory data to a pickle file.
 
@@ -72,7 +76,7 @@ class Inventory:
             print("Failed to update data to pickle file, check file path")
             return False
 
-    def add_item(self, furniture_desc):
+    def add_item(self, furniture_desc: Dict[str, Union[str, int, float]]) -> bool:
         """
         Add a new furniture item to the inventory.
 
@@ -97,7 +101,8 @@ class Inventory:
             return False
         return True
 
-    def remove_item(self, furniture_atr=None, furniture_desc=None):
+    def remove_item(self, furniture_atr: Optional[Furniture] = None,
+                    furniture_desc: Optional[Dict[str, Union[str, int, float]]] = None) -> bool:
         """
         Remove a furniture item from the inventory.
 
@@ -128,7 +133,7 @@ class Inventory:
         print("No furniture object or furniture data delivered.")
         return False
 
-    def update_quantity(self, furniture_atr, new_q):
+    def update_quantity(self, furniture_atr: Furniture, new_q: int) -> bool:
         """
         Update the quantity of an existing furniture item.
 
@@ -155,7 +160,7 @@ class Inventory:
             self.data.loc[0, class_name] = pd_spec_class
             return True
 
-    def search_by(self, name=None, category=None, price_range=None):
+    def search_by(self, name: Optional[str] = None, category: Optional[str] = None, price_range: Optional[Tuple[float, float]] = None) -> List[Furniture]:
         """
         Search for furniture items based on attributes, if no attributes passed return list with all the furniture objects.
 
@@ -168,14 +173,14 @@ class Inventory:
         List of furniture items that match the search criteria.
         """
 
-        def match_price_range(item):
+        def match_price_range(item: Furniture) -> bool:
             """Check if the item's price is within the specified range."""
             if not hasattr(item, "price"):
                 return False
             min_price, max_price = price_range
             return min_price <= item.price <= max_price
 
-        def match_name(item):
+        def match_name(item: Furniture) -> bool:
             """Check if the item's name matches the given name."""
             if not hasattr(item, "name") or getattr(item, "name") != name:
                 return False
