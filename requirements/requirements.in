@@ -9,3 +9,4 @@ pytest-cov
 coverage
 pytest-cov
 cffi
+mypy.typeops
