@@ -87,10 +87,10 @@ def test_delete_user(user_db: UserDB) -> None:
 def test_edit_management_role(user_db: UserDB) -> None:
     """Test editing a management user's role."""
     manager: Management = Management(user_id="2", username="admin", email="admin@example.com",
-                                     password=User.hash_password("AdminPass123!"), address="Admin St", rule="Manager")
+                                     password=User.hash_password("AdminPass123!"), address="Admin St", role="Manager")
     user_db.add_user(manager)
-    manager.edit_rule("Director")
-    assert manager.rule == "Director", "Manager role edit failed."
+    manager.edit_role("Director")
+    assert manager.role == "Director", "Manager role edit failed."
 
 
 def test_user_uniqueness(user_db: UserDB) -> None:
@@ -113,7 +113,7 @@ def test_invalid_password_hashing() -> None:
 
 def test_invalid_role_edit(user_db: UserDB) -> None:
     """Test attempting to edit a non-existent manager's role."""
-    result: str = user_db.edit_user("999", rule="CEO")
+    result: str = user_db.edit_user("999", role="CEO")
     assert result == "User not found. Please check the ID and try again.", "Should not edit non-existent user."
 
 #test for load users

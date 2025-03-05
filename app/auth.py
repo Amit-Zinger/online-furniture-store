@@ -1,14 +1,5 @@
-from flask import Flask, request, jsonify, session
-from flask_login import LoginManager
+from functools import wraps
 from models.user import UserDB
-
-# Initialize Flask app
-app = Flask(__name__)
-app.secret_key = "super_secret_key"
-
-# Initialize Flask-Login
-login_manager = LoginManager()
-login_manager.init_app(app)
 
 
 def authenticate_user(email: str, password: str):
@@ -34,28 +25,16 @@ def require_auth(func):
         return func(*args, **kwargs)
     return wrapper
 
-# Authentication
 
-
-def login():
+def require_role(required_role: str):
     """
-    User login using session-based authentication.
+    Decorator to enforce role-based access control.
     """
-    data = request.json
-    user = authenticate_user(data["email"], data["password"])
-
-    if user:
-        session["user_id"] = user.user_id
-        session["role"] = user.type
-        session.permanent = True
-        return jsonify({"message": "Login successful!"}), 200
-
-    return jsonify({"error": "Invalid credentials"}), 401
-
-
-def logout():
-    """
-    Logs out the user by clearing the session.
-    """
-    session.clear()
-    return jsonify({"message": "User logged out successfully"}), 200
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            if "role" not in session or session["role"] != required_role:
+                return jsonify({"error": "Unauthorized"}), 403
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
