@@ -1,18 +1,22 @@
-import pytest
-from models.inventory import Inventory
 import os
+import pytest
+from typing import Generator, Tuple, List, Dict, Union
 
+from models.inventory import Inventory
 
 @pytest.fixture
-def setup_inventory():
-    """Fixture to create a fresh inventory with predefined furniture items."""
+def setup_inventory() -> Generator[Tuple[Inventory, str], None, None]:
+    """
+    Fixture to create a fresh inventory with predefined furniture items.
+    Ensures a new test inventory file is created and removed after the test.
+    """
     test_file = "test_inventory.pkl"
 
     # Ensure a fresh test file is created
     if os.path.exists(test_file):
         os.remove(test_file)
 
-    def create_inventory_with_furniture(file_path):
+    def create_inventory_with_furniture(file_path: str) -> None:
         """
         Create an Inventory instance and populate it with five different objects from each furniture type.
 
@@ -81,7 +85,8 @@ def setup_inventory():
     if os.path.exists(test_file):
         os.remove(test_file)
 
-def test_add_item(setup_inventory):
+def test_add_item(setup_inventory: Tuple[Inventory, str]) -> None:
+    """Test adding an item to the inventory and checking if it is added correctly."""
     inventory, _ = setup_inventory
     initial_count = len(inventory.data["Chair"][0])
 
@@ -103,7 +108,8 @@ def test_add_item(setup_inventory):
     assert len(inventory.data["Chair"][0]) == initial_count + 1
 
 
-def test_remove_item(setup_inventory):
+def test_remove_item(setup_inventory: Tuple[Inventory, str]) -> None:
+    """Test removing an item from the inventory and ensuring it no longer exists."""
     inventory, _ = setup_inventory
     chair_obj = inventory.data["Chair"][0][0]
 
@@ -111,7 +117,8 @@ def test_remove_item(setup_inventory):
     assert chair_obj not in inventory.data["Chair"][0]
 
 
-def test_update_quantity(setup_inventory):
+def test_update_quantity(setup_inventory: Tuple[Inventory, str]) -> None:
+    """Test updating the quantity of an item in the inventory."""
     inventory, _ = setup_inventory
     chair_list = inventory.data["Chair"][0]
     chair_obj = inventory.data["Chair"][0][0]
@@ -121,7 +128,8 @@ def test_update_quantity(setup_inventory):
     assert chair_list[1:]== inventory.data["Chair"][0][1:]
 
 
-def test_search_by_name(setup_inventory):
+def test_search_by_name(setup_inventory: Tuple[Inventory, str]) -> None:
+    """Test searching for furniture by name and verifying the results."""
     inventory, _ = setup_inventory
     first_chair_name = inventory.data["Chair"][0][0].name
 
@@ -131,7 +139,8 @@ def test_search_by_name(setup_inventory):
     assert all(obj.name == first_chair_name for obj in results)
 
 
-def test_search_by_category(setup_inventory):
+def test_search_by_category(setup_inventory: Tuple[Inventory, str]) -> None:
+    """Test searching for furniture by category and verifying the count and type."""
     inventory, _ = setup_inventory
     results = inventory.search_by(category="Sofa")
 
@@ -139,7 +148,8 @@ def test_search_by_category(setup_inventory):
     assert all(type(obj).__name__ == "Sofa" for obj in results)
 
 
-def test_search_by_price_range(setup_inventory):
+def test_search_by_price_range(setup_inventory: Tuple[Inventory, str]) -> None:
+    """Test searching for furniture items within a specific price range."""
     inventory, _ = setup_inventory
     results = inventory.search_by(price_range=(150, 300))
 
@@ -150,7 +160,8 @@ def test_search_by_price_range(setup_inventory):
     assert all(100 <= obj.price <= 300 for obj in results)
 
 
-def test_search_by_name_and_price(setup_inventory):
+def test_search_by_name_and_price(setup_inventory: Tuple[Inventory, str]) -> None:
+    """Test searching for a furniture item by name and price range."""
     inventory, _ = setup_inventory
     chair_name = inventory.data["Chair"][0][1].name  # Selecting second chair
 
@@ -161,7 +172,8 @@ def test_search_by_name_and_price(setup_inventory):
                obj.price <= 200 for obj in results)
 
 
-def test_search_by_category_and_price(setup_inventory):
+def test_search_by_category_and_price(setup_inventory: Tuple[Inventory, str]) -> None:
+    """Test searching for furniture items by category and price range."""
     inventory, _ = setup_inventory
     results = inventory.search_by(category="Table", price_range=(100, 250))
 
@@ -173,7 +185,8 @@ def test_search_by_category_and_price(setup_inventory):
     )
 
 
-def test_search_by_name_category_and_price(setup_inventory):
+def test_search_by_name_category_and_price(setup_inventory: Tuple[Inventory, str]) -> None:
+    """Test searching for furniture by name, category, and price range."""
     inventory, _ = setup_inventory
     sofa_name = inventory.data["Sofa"][0][2].name  # Selecting third sofa
 
@@ -190,7 +203,9 @@ def test_search_by_name_category_and_price(setup_inventory):
     )
 
 
-def test_update_data(setup_inventory):
+
+def test_update_data(setup_inventory: Tuple[Inventory, str]) -> None:
+    """Test updating the inventory data and ensuring persistence."""
     inventory, test_file = setup_inventory
 
     assert inventory.update_data() is True
@@ -201,7 +216,8 @@ def test_update_data(setup_inventory):
     # Should still contain 5 chairs
     assert len(new_inventory.data["Chair"][0]) == 5
 
-def test_search_by_full_database(setup_inventory):
+def test_search_by_full_database(setup_inventory: Tuple[Inventory, str]) -> None:
+    """Test retrieving all inventory items when no filters are applied."""
     inventory, _ = setup_inventory
 
     # Call search_by with no parameters
