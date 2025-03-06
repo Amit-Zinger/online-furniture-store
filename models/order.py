@@ -1,22 +1,19 @@
 import pandas as pd
-import pickle
 import os
 import json
 import uuid
 import sys
 from datetime import datetime
 from typing import Optional, List, Dict
+
 from models.cart import ShoppingCart
-from models.furniture import Furniture
 
-import os
-import sys
-import pandas as pd
 
-# Ensure the parent directory is in the import path (same as Inventory.py)
+
+# Ensure the parent directory is in the import path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-# Define the default storage path, similar to Inventory.py
+# Define the default storage path
 ORDER_STORAGE_FILE = os.path.join(os.path.dirname(__file__), "..", "data/orders.pkl")
 
 
