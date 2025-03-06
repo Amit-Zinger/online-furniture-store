@@ -65,8 +65,8 @@ class User(ABC):
     Abstract base class representing a user.
 
     Attributes:
-        user_id (str): Unique identifier for the user.
-        username (str): The username of the user.
+        user_id (str): The ID for the user.
+        username (str): The username of the user - Unique identifier.
         email (str): The user's email address.
         password (str): The hashed password.
         address (str): The user's address.
@@ -77,8 +77,8 @@ class User(ABC):
         Initialize a User object.
 
         param:
-            user_id (int): The unique ID of the user.
-            username (str): The username of the user.
+            user_id (int): The ID of the user.
+            username (str): The unique username of the user.
             email (str): The email address of the user.
             password (str): The user's password (hashed if not already): bytes
             address (str): The user's address.
@@ -185,8 +185,8 @@ class Management(User):
         Initialize a Management user.
 
         param:
-            user_id (int): The unique ID of the manager.
-            username (str): The username of the manager.
+            user_id (int): The ID of the manager.
+            username (str): The unique username of the manager.
             email (str): The email address of the manager.
             password (str): The password of the manager.
             address (str): The manager's address.
@@ -215,7 +215,7 @@ class UserDB:
     """
     Singleton class to manage user data storage and retrieval.
     """
-    _instance = None  # singleton
+    _instance = None  # Singleton
 
     @staticmethod
     def get_instance():
@@ -294,40 +294,6 @@ class UserDB:
                 file, indent=4
             )
 
-    def add_user(self, user: User) -> str:
-        """
-                Adds a new user to the database.
-
-                param:
-                    user (User): The user object to add.
-
-                return:
-                    str: Success or error message.
-                """
-        if user.username in self.user_data:  # Ensure user_id is always string
-            return "User ID already exists in UserDB"
-        self.user_data[user.user_id] = user  # Store as string key
-        self.save_users()
-        return "User successfully added!"
-
-    def edit_user(self, user_id : int, **kwargs):
-        """
-        Edits an existing user's details.
-
-        param:
-            user_id (int): The ID of the user to edit.
-            **kwargs: Fields to update (e.g., username, email).
-
-        return:
-            str: Success or error message.
-        """
-        user = self.user_data.get(str(user_id))
-        if not user:
-            return "User not found. Please check the ID and try again."
-        user.edit_info(**kwargs)
-        self.save_users()
-        return "User information updated successfully."
-
     def get_user(self, user_id: int) -> Optional[User]:
         """
         Retrieve a user by ID.
@@ -340,7 +306,27 @@ class UserDB:
         """
         return self.user_data.get(str(user_id))
 
-    def delete_user(self, user_id: int):
+    def add_user(self, user: User) -> bool:
+        """
+        Adds a new user to the database.
+
+        param:
+            user (User): The user object to add.
+
+        return:
+            True if user added and False if not.
+        """
+        for temp_user in self.user_data.values():
+            if user.username == temp_user.username:
+                print("User name already exists in UserDB")
+                return False
+
+        self.user_data[user.user_id] = user  # Store as string key
+        self.save_users()
+        print("User successfully added!")
+        return True
+
+    def delete_user(self, user_id: int)-> bool:
         """
         Deletes a user from the database.
 
@@ -348,11 +334,40 @@ class UserDB:
             user_id (int): The ID of the user to delete.
 
         return:
-            str: Success or error message.
+            True if user deleted and False if not.
         """
         user_id = str(user_id)  # Convert to string for consistency
         if user_id not in self.user_data:
-            return "User not found. Cannot delete."
+            print("User not found. Cannot delete.")
+            return False
         del self.user_data[user_id]
         self.save_users()
-        return "User successfully deleted."
+        print("User successfully deleted.")
+        return True
+
+    def edit_user(self, user_id : int, **kwargs)->bool:
+        """
+        Edits an existing user's details.
+
+        param:
+            user_id (int): The ID of the user to edit.
+            **kwargs: Fields to update (e.g., username, email).
+
+        return:
+            True if edit user successfully and False if not.
+        """
+        user = self.user_data.get(str(user_id))
+        if not user:
+            print("User not found. Please check the ID and try again.")
+            return False
+
+        if "username" in kwargs:
+            for temp_user in self.user_data.values():
+                if kwargs['username'] == temp_user.username:
+                    print("User name already exists in UserDB")
+                    return False
+
+        user.edit_info(**kwargs)
+        self.save_users()
+        print("User information updated successfully.")
+        return True
