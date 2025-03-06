@@ -1,10 +1,10 @@
 # Online Furniture Store
 
 ## Group Members
-- **Amit-Zinger** - [GitHub Profile](https://github.com/Amit-Zinger)
-- **nitzanifrah** - [GitHub Profile](https://github.com/nitzanifrah)
-- **EladShneor** - [GitHub Profile](https://github.com/EladShneor)
-- **EtaiAlfassa** - [GitHub Profile](https://github.com/EtaiAlfassa)
+- **Amit Zinger** - [GitHub Profile](https://github.com/Amit-Zinger)
+- **Nitzan Ifrah** - [GitHub Profile](https://github.com/nitzanifrah)
+- **Elad Shneor** - [GitHub Profile](https://github.com/EladShneor)
+- **Etai Alfassa** - [GitHub Profile](https://github.com/EtaiAlfassa)
 
 ## Project Overview
 This project is an **online furniture store** implemented in Python using Flask. It provides a platform for managing an inventory of furniture items, user authentication, shopping cart operations, and an order processing system.
