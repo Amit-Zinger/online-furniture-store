@@ -1,6 +1,7 @@
 from functools import wraps
+from flask import session, jsonify
+
 from models.user import UserDB
-from flask import session,jsonify
 
 def authenticate_user(username: str, password: str):
     """

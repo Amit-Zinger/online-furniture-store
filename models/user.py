@@ -8,6 +8,7 @@ from models.cart import ShoppingCart
 from models.furniture import Furniture
 from models.factory import FurnitureFactory
 
+# Ensure the parent directory is in the import path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
@@ -54,7 +55,7 @@ def deserialize_furniture(furniture_dict):
     return furniture_dict
 
 
-# JSON file as a database
+# Define the default users DB path
 USER_FILE = os.path.join(os.path.join(os.path.dirname(__file__), ".."), "data/users.json")
 
 
@@ -64,19 +65,19 @@ class User(ABC):
     Abstract base class representing a user.
 
     Attributes:
-        user_id (int): Unique identifier for the user.
+        user_id (str): Unique identifier for the user.
         username (str): The username of the user.
         email (str): The user's email address.
         password (str): The hashed password.
         address (str): The user's address.
     """
 
-    def __init__(self, user_id: str, username: str, email: str, password: str, address: str) -> None:
+    def __init__(self, user_id: int, username: str, email: str, password: str, address: str) -> None:
         """
         Initialize a User object.
 
         param:
-            user_id (str): The unique ID of the user.
+            user_id (int): The unique ID of the user.
             username (str): The username of the user.
             email (str): The email address of the user.
             password (str): The user's password (hashed if not already): bytes
@@ -157,7 +158,7 @@ class Client(User):
         type (str): User type identifier ("Client").
     """
 
-    def __init__(self, user_id: str, username: str, email: str, password: str, address: str) -> None:
+    def __init__(self, user_id: int, username: str, email: str, password: str, address: str) -> None:
         """
         Initialize a Client object.
 
@@ -179,7 +180,7 @@ class Management(User):
         type (str): User type identifier ("Management").
     """
 
-    def __init__(self, user_id: str, username: str, email: str, password: str, address: str, role: str) -> None:
+    def __init__(self, user_id: int, username: str, email: str, password: str, address: str, role: str) -> None:
         """
         Initialize a Management user.
 
@@ -272,9 +273,9 @@ class UserDB:
                     {"item": deserialize_furniture(i["item"]), "quantity": i["quantity"]}
                     for i in shopping_cart_items
                 ]
-                self.user_data[int(user_id)] = client
+                self.user_data[user_id] = client
             else:
-                self.user_data[int(user_id)] = Management(**user)
+                self.user_data[user_id] = Management(**user)
 
     def save_users(self) -> None:
         """Saves users to the JSON file, ensuring furniture objects are serializable."""
@@ -303,13 +304,13 @@ class UserDB:
                 return:
                     str: Success or error message.
                 """
-        if str(user.user_id) in self.user_data:  # Ensure user_id is always string
+        if user.username in self.user_data:  # Ensure user_id is always string
             return "User ID already exists in UserDB"
-        self.user_data[str(user.user_id)] = user  # Store as string key
+        self.user_data[user.user_id] = user  # Store as string key
         self.save_users()
         return "User successfully added!"
 
-    def edit_user(self, user_id, **kwargs):
+    def edit_user(self, user_id : int, **kwargs):
         """
         Edits an existing user's details.
 
@@ -320,7 +321,7 @@ class UserDB:
         return:
             str: Success or error message.
         """
-        user = self.user_data.get(user_id)
+        user = self.user_data.get(str(user_id))
         if not user:
             return "User not found. Please check the ID and try again."
         user.edit_info(**kwargs)
