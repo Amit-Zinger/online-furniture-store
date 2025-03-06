@@ -1,6 +1,6 @@
 import os
 import pytest
-from typing import Generator, Tuple, List, Dict, Union
+from typing import Generator, Tuple
 
 from models.inventory import Inventory
 
