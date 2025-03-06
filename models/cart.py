@@ -1,6 +1,7 @@
 from typing import List
 from models.furniture import Furniture
 
+
 # -------- Helper Func -------- #
 def calc_discount(price: float, discount_percentage: float) -> float:
     """
@@ -9,6 +10,7 @@ def calc_discount(price: float, discount_percentage: float) -> float:
     if discount_percentage < 0 or discount_percentage > 100:
         raise ValueError("Discount percentage must be between 0 and 100.")
     return round(price * (1 - discount_percentage / 100), 2)
+
 
 # -------- PaymentGateway CLASS -------- #
 class PaymentGateway:
@@ -24,6 +26,7 @@ class PaymentGateway:
         if total_price <= 0:
             raise ValueError("Invalid payment amount")
         return True
+
 
 # -------- ShoppingCart CLASS -------- #
 class ShoppingCart:
@@ -116,7 +119,13 @@ class ShoppingCart:
             print(f"Error validating cart: {e}")
             return False
 
-    def purchase(self, payment_gateway: PaymentGateway, payment_info: str, inventory=None, order_manager=None) -> bool:
+    def purchase(
+        self,
+        payment_gateway: PaymentGateway,
+        payment_info: str,
+        inventory=None,
+        order_manager=None,
+    ) -> bool:
         """
         Handles the purchase process, validates cart, processes payment, updates inventory, and creates an order.
         """
@@ -124,10 +133,14 @@ class ShoppingCart:
             if inventory is None:
                 raise ValueError("Inventory instance must be provided for purchase.")
             if order_manager is None:
-                raise ValueError("OrderManager instance must be provided to record the order.")
+                raise ValueError(
+                    "OrderManager instance must be provided to record the order."
+                )
 
             total_price = self.calculate_total()
-            payment_successful = payment_gateway.process_payment(payment_info, total_price)
+            payment_successful = payment_gateway.process_payment(
+                payment_info, total_price
+            )
 
             if payment_successful:
                 order_manager.create_order(self, payment_info, total_price)

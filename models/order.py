@@ -9,12 +9,12 @@ from typing import Optional, List, Dict
 from models.cart import ShoppingCart
 
 
-
 # Ensure the parent directory is in the import path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Define the default orders DB path
 ORDER_STORAGE_FILE = os.path.join(os.path.dirname(__file__), "..", "data/orders.pkl")
+
 
 # -------- OrderManager CLASS -------- #
 class OrderManager:
@@ -34,7 +34,15 @@ class OrderManager:
         # Check if the file exists; if not, create an empty one with predefined columns
         if not os.path.exists(self.file_path):
             self.orders = pd.DataFrame(
-                columns=["order_id", "client_id", "items", "total_price", "payment_info", "status", "order_date"]
+                columns=[
+                    "order_id",
+                    "client_id",
+                    "items",
+                    "total_price",
+                    "payment_info",
+                    "status",
+                    "order_date",
+                ]
             )
             self.save_orders()
         else:
@@ -61,11 +69,20 @@ class OrderManager:
 
         # Ensure a new empty DataFrame if the file is missing or unreadable
         return pd.DataFrame(
-            columns=["order_id", "client_id", "items", "total_price", "payment_info", "status", "order_date"]
+            columns=[
+                "order_id",
+                "client_id",
+                "items",
+                "total_price",
+                "payment_info",
+                "status",
+                "order_date",
+            ]
         )
 
-
-    def create_order(self, cart: ShoppingCart, payment_info: str, total_price: float) -> None:
+    def create_order(
+        self, cart: ShoppingCart, payment_info: str, total_price: float
+    ) -> None:
         """
         Creates a new order and appends it to the DataFrame, then saves it.
 
@@ -78,8 +95,7 @@ class OrderManager:
         order_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         serialized_items = json.dumps(
-            [{"name": i.name, "quantity": i.quantity} for i in cart.items],
-            default=str
+            [{"name": i.name, "quantity": i.quantity} for i in cart.items], default=str
         )
 
         order_data = {
@@ -108,7 +124,8 @@ class OrderManager:
             Optional[Dict]: A dictionary containing the order details if found, else None.
         """
         order = self.orders[
-            (self.orders["order_id"] == order_id) & (self.orders["client_id"] == client_id)
+            (self.orders["order_id"] == order_id)
+            & (self.orders["client_id"] == client_id)
         ]
         if not order.empty:
             return order.to_dict(orient="records")[0]
@@ -149,5 +166,3 @@ class OrderManager:
         """
         history = self.orders[self.orders["client_id"] == client_id]
         return history.to_dict(orient="records") if not history.empty else []
-
-

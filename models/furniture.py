@@ -7,15 +7,15 @@ class Furniture(ABC):
     """
 
     def __init__(
-            self,
-            name: str,
-            description: str,
-            price: float,
-            dimensions: str,
-            serial_number: str,
-            quantity: int,
-            weight: float,
-            manufacturing_country: str,
+        self,
+        name: str,
+        description: str,
+        price: float,
+        dimensions: str,
+        serial_number: str,
+        quantity: int,
+        weight: float,
+        manufacturing_country: str,
     ):
         self._validate_positive_value(price, "Price")
         self._validate_positive_value(weight, "Weight")
@@ -75,28 +75,40 @@ class Furniture(ABC):
 
 
 class Chair(Furniture):
-    def __init__(self, has_wheels: bool = False, how_many_legs: int = 4, **kwargs) -> None:
+    def __init__(
+        self, has_wheels: bool = False, how_many_legs: int = 4, **kwargs
+    ) -> None:
         super().__init__(**kwargs)
         self.has_wheels = has_wheels
         self.how_many_legs = how_many_legs
 
 
 class Sofa(Furniture):
-    def __init__(self, how_many_seats: int = 3, can_turn_to_bed: bool = False, **kwargs) -> None:
+    def __init__(
+        self, how_many_seats: int = 3, can_turn_to_bed: bool = False, **kwargs
+    ) -> None:
         super().__init__(**kwargs)
         self.how_many_seats = how_many_seats
         self.can_turn_to_bed = can_turn_to_bed
 
 
 class Bed(Furniture):
-    def __init__(self, has_storage: bool = False, has_back: bool = False, **kwargs) -> None:
+    def __init__(
+        self, has_storage: bool = False, has_back: bool = False, **kwargs
+    ) -> None:
         super().__init__(**kwargs)
         self.has_storage = has_storage
         self.has_back = has_back
 
 
 class Table(Furniture):
-    def __init__(self, expandable: bool = False, how_many_seats: int = 4, can_fold: bool = False, **kwargs) -> None:
+    def __init__(
+        self,
+        expandable: bool = False,
+        how_many_seats: int = 4,
+        can_fold: bool = False,
+        **kwargs,
+    ) -> None:
         super().__init__(**kwargs)
         self.expandable = expandable
         self.how_many_seats = how_many_seats
@@ -104,8 +116,13 @@ class Table(Furniture):
 
 
 class Closet(Furniture):
-    def __init__(self, has_mirrors: bool = False, number_of_shelves: int = 3,
-                 how_many_doors: int = 2, **kwargs) -> None:
+    def __init__(
+        self,
+        has_mirrors: bool = False,
+        number_of_shelves: int = 3,
+        how_many_doors: int = 2,
+        **kwargs,
+    ) -> None:
         super().__init__(**kwargs)
         self.has_mirrors = has_mirrors
         self.number_of_shelves = number_of_shelves

@@ -20,7 +20,9 @@ class TestOrderManager(unittest.TestCase):
         Ensures each test starts with a fresh order list by deleting the saved pickle file.
         """
         # Correct the typo in the test file path
-        self.test_orders_file = os.path.join(os.path.dirname(__file__), "..", "tests/test_orders.pkl")
+        self.test_orders_file = os.path.join(
+            os.path.dirname(__file__), "..", "tests/test_orders.pkl"
+        )
 
         # Initialize OrderManager with the test file path
         self.order_manager = OrderManager(file_path=self.test_orders_file)
@@ -34,16 +36,40 @@ class TestOrderManager(unittest.TestCase):
 
         # Force a clean DataFrame to reset test state
         self.order_manager.orders = pd.DataFrame(
-            columns=["order_id", "client_id", "items", "total_price", "payment_info", "status", "order_date"]
+            columns=[
+                "order_id",
+                "client_id",
+                "items",
+                "total_price",
+                "payment_info",
+                "status",
+                "order_date",
+            ]
         )
 
         self.mock_cart = MagicMock(spec=ShoppingCart)
         self.mock_cart.user_id = 1
         self.mock_cart.items = [
-            Furniture(name="Table", description="Wooden table", price=100.0, dimensions="120x60 cm",
-                      serial_number="F123", quantity=2, weight=15.0, manufacturing_country="USA"),
-            Furniture(name="Chair", description="Office chair", price=50.0, dimensions="50x50 cm",
-                      serial_number="C456", quantity=4, weight=7.0, manufacturing_country="Germany")
+            Furniture(
+                name="Table",
+                description="Wooden table",
+                price=100.0,
+                dimensions="120x60 cm",
+                serial_number="F123",
+                quantity=2,
+                weight=15.0,
+                manufacturing_country="USA",
+            ),
+            Furniture(
+                name="Chair",
+                description="Office chair",
+                price=50.0,
+                dimensions="50x50 cm",
+                serial_number="C456",
+                quantity=4,
+                weight=7.0,
+                manufacturing_country="Germany",
+            ),
         ]
 
     def test_create_order(self):
@@ -85,8 +111,11 @@ class TestOrderManager(unittest.TestCase):
         order_id = self.order_manager.orders.iloc[0]["order_id"]
         self.order_manager.update_order_status(order_id, "Shipped")
         self.assertEqual(
-            self.order_manager.orders.loc[self.order_manager.orders["order_id"] == order_id, "status"].values[0],
-            "Shipped")
+            self.order_manager.orders.loc[
+                self.order_manager.orders["order_id"] == order_id, "status"
+            ].values[0],
+            "Shipped",
+        )
 
     def test_cancel_order(self):
         """
@@ -96,8 +125,11 @@ class TestOrderManager(unittest.TestCase):
         order_id = self.order_manager.orders.iloc[0]["order_id"]
         self.order_manager.cancel_order(order_id)
         self.assertEqual(
-            self.order_manager.orders.loc[self.order_manager.orders["order_id"] == order_id, "status"].values[0],
-            "Cancelled")
+            self.order_manager.orders.loc[
+                self.order_manager.orders["order_id"] == order_id, "status"
+            ].values[0],
+            "Cancelled",
+        )
 
     def test_get_order_history(self):
         """
@@ -114,7 +146,6 @@ class TestOrderManager(unittest.TestCase):
         """
         history = self.order_manager.get_order_history(2)
         self.assertEqual(len(history), 0)
-
 
     def test_order_persistence(self):
         """
@@ -133,7 +164,9 @@ class TestOrderManager(unittest.TestCase):
         """
         Ensures that the test order pickle file is deleted after all tests have run.
         """
-        test_orders_file = os.path.join(os.path.dirname(__file__), "..", "tests/test_orders.pkl")
+        test_orders_file = os.path.join(
+            os.path.dirname(__file__), "..", "tests/test_orders.pkl"
+        )
 
         if os.path.exists(test_orders_file):
             os.remove(test_orders_file)

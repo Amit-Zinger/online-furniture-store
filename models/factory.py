@@ -57,12 +57,22 @@ class FurnitureFactory:
         furniture_desc.pop("type")
 
         required_attributes = [
-            "name", "description", "price", "dimensions",
-            "serial_number", "quantity", "weight", "manufacturing_country"
+            "name",
+            "description",
+            "price",
+            "dimensions",
+            "serial_number",
+            "quantity",
+            "weight",
+            "manufacturing_country",
         ]
-        missing_attributes = [attr for attr in required_attributes if attr not in furniture_desc]
+        missing_attributes = [
+            attr for attr in required_attributes if attr not in furniture_desc
+        ]
         if missing_attributes:
-            raise ValueError(f"Missing required attributes: {', '.join(missing_attributes)}")
+            raise ValueError(
+                f"Missing required attributes: {', '.join(missing_attributes)}"
+            )
 
         # TypeError for a specific type
         FurnitureFactory._validate_furniture_specifics(furniture_type, furniture_desc)
@@ -86,12 +96,16 @@ class FurnitureFactory:
             "Table": ["expandable", "how_many_seats", "can_fold"],
             "Closet": ["has_mirrors", "number_of_shelves", "how_many_doors"],
             "Chair": ["has_wheels", "how_many_legs"],
-            "Bed": ["has_storage", "has_back"]
+            "Bed": ["has_storage", "has_back"],
         }
 
         missing_specifics = [
-            attr for attr in required_specifics.get(furniture_type, []) if attr not in furniture_desc
+            attr
+            for attr in required_specifics.get(furniture_type, [])
+            if attr not in furniture_desc
         ]
 
         if missing_specifics:
-            raise ValueError(f"{furniture_type} requires additional attributes: {', '.join(missing_specifics)}")
+            raise ValueError(
+                f"{furniture_type} requires additional attributes: {', '.join(missing_specifics)}"
+            )

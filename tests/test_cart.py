@@ -9,20 +9,32 @@ class TestShoppingCart(unittest.TestCase):
     """
     Unit tests for the ShoppingCart class.
     """
+
     def setUp(self):
         """
         Initializes the test case setup.
         """
         self.cart = ShoppingCart(user_id="user123")
         self.item1 = Table(
-            name="Dining Table", description="Wooden table", price=100,
-            dimensions="100x50", serial_number="T123", quantity=10,
-            weight=20, manufacturing_country="USA"
+            name="Dining Table",
+            description="Wooden table",
+            price=100,
+            dimensions="100x50",
+            serial_number="T123",
+            quantity=10,
+            weight=20,
+            manufacturing_country="USA",
         )
         self.item2 = Chair(
-            name="Office Chair", description="Ergonomic chair", price=50,
-            dimensions="40x40", serial_number="C123", quantity=20,
-            weight=10, manufacturing_country="Germany", has_wheels=True
+            name="Office Chair",
+            description="Ergonomic chair",
+            price=50,
+            dimensions="40x40",
+            serial_number="C123",
+            quantity=20,
+            weight=10,
+            manufacturing_country="Germany",
+            has_wheels=True,
         )
         self.payment_gateway = PaymentGateway()
         self.inventory = MagicMock()
@@ -48,7 +60,9 @@ class TestShoppingCart(unittest.TestCase):
         """
         Tests validating the cart with inventory availability.
         """
-        self.inventory.search_by.side_effect = lambda name: [self.item1] if name == "Dining Table" else [self.item2]
+        self.inventory.search_by.side_effect = lambda name: (
+            [self.item1] if name == "Dining Table" else [self.item2]
+        )
         self.cart.add_item(self.item1, 2)
         self.assertTrue(self.cart.validate_cart(self.inventory))
 
@@ -74,7 +88,9 @@ class TestShoppingCart(unittest.TestCase):
         """
         self.cart.add_item(self.item1, 2)
         self.payment_gateway.process_payment = MagicMock(return_value=True)
-        self.cart.purchase(self.payment_gateway, "card123", self.inventory, self.order_manager)
+        self.cart.purchase(
+            self.payment_gateway, "card123", self.inventory, self.order_manager
+        )
         self.assertEqual(len(self.cart.get_cart()), 0)
         self.order_manager.create_order.assert_called()
         self.inventory.update_quantity.assert_called()
@@ -85,7 +101,9 @@ class TestShoppingCart(unittest.TestCase):
         """
         self.cart.add_item(self.item1, 2)
         self.payment_gateway.process_payment = MagicMock(return_value=False)
-        self.cart.purchase(self.payment_gateway, "card123", self.inventory, self.order_manager)
+        self.cart.purchase(
+            self.payment_gateway, "card123", self.inventory, self.order_manager
+        )
         self.assertNotEqual(len(self.cart.get_cart()), 0)
         self.order_manager.create_order.assert_not_called()
 
@@ -96,8 +114,12 @@ class TestShoppingCart(unittest.TestCase):
         self.cart.add_item(self.item1, 2)
 
         # Instead of expecting ValueError, expect False return value
-        result_no_inventory = self.cart.purchase(self.payment_gateway, "card123", None, self.order_manager)
-        result_no_order_manager = self.cart.purchase(self.payment_gateway, "card123", self.inventory, None)
+        result_no_inventory = self.cart.purchase(
+            self.payment_gateway, "card123", None, self.order_manager
+        )
+        result_no_order_manager = self.cart.purchase(
+            self.payment_gateway, "card123", self.inventory, None
+        )
 
         self.assertFalse(result_no_inventory)
         self.assertFalse(result_no_order_manager)
