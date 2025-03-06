@@ -29,7 +29,10 @@ def helper_updating_DB() -> None:
 
 
 @app.before_request
-def manage_session():
+def manage_session() -> None:
+    """
+    Manages user sessions by checking inactivity and clearing session data if expired.
+    """
     session.permanent = True
     now = datetime.now(timezone.utc)
 
