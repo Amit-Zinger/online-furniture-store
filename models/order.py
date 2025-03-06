@@ -13,10 +13,10 @@ from models.cart import ShoppingCart
 # Ensure the parent directory is in the import path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-# Define the default storage path
+# Define the default orders DB path
 ORDER_STORAGE_FILE = os.path.join(os.path.dirname(__file__), "..", "data/orders.pkl")
 
-
+# -------- OrderManager CLASS -------- #
 class OrderManager:
     """
     Manages orders in the system, including creation, updates, cancellations, and retrieval.

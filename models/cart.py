@@ -1,7 +1,7 @@
 from typing import List
-from mypy.typeops import false_only
 from models.furniture import Furniture
 
+# -------- Helper Func -------- #
 def calc_discount(price: float, discount_percentage: float) -> float:
     """
     Calculate the discounted price for a furniture item.
@@ -10,7 +10,7 @@ def calc_discount(price: float, discount_percentage: float) -> float:
         raise ValueError("Discount percentage must be between 0 and 100.")
     return round(price * (1 - discount_percentage / 100), 2)
 
-
+# -------- PaymentGateway CLASS -------- #
 class PaymentGateway:
     """
     Simulates a payment processing system.
@@ -25,7 +25,7 @@ class PaymentGateway:
             raise ValueError("Invalid payment amount")
         return True
 
-
+# -------- ShoppingCart CLASS -------- #
 class ShoppingCart:
     """
     Manages a user's shopping cart, including item addition, removal, and discount applications.
