@@ -46,8 +46,6 @@ def helper_updating_DB():
 @app.route("/users", methods=["POST"])
 def register():
     data = request.json
-    if any(u.username == data["username"] for u in user_db.user_data.values()):
-        return jsonify({"error": "username already registered"}), 400
     if (data["kind"]== "Client"):
         new_user = Client(
             user_id=len(user_db.user_data) + 1,
@@ -67,7 +65,8 @@ def register():
         )
     else :
         return jsonify({"error": "roll undefined"}), 400
-    user_db.add_user(new_user)
+    if not user_db.add_user(new_user):
+        return jsonify({"error": "username already registered"}), 400
     user_db.save_users()
     return jsonify({"message": "Registration successful!"}), 201
 
@@ -91,7 +90,7 @@ def add_to_cart():
     data = request.json
     user = authenticate_user(data["username"], data["password"])
     if(isinstance(user,Management)):
-        return jsonify({"error": "Not Management user API"}), 401
+        return jsonify({"error": "Request deny for Management user"}), 401
     if not user:
         return jsonify({"error": "Invalid credentials"}), 401
     cart = user.shopping_cart
@@ -123,7 +122,7 @@ def remove_from_cart():
     data = request.json
     user = authenticate_user(data["username"], data["password"])
     if(isinstance(user,Management)):
-        return jsonify({"error": "Not Management user API"}), 401
+        return jsonify({"error": "Request deny for Management user"}), 401
     if not user:
         return jsonify({"error": "Invalid credentials"}), 401
     cart = user.shopping_cart

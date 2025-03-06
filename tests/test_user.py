@@ -57,8 +57,8 @@ def test_add_client(user_db: UserDB) -> None:
     """Test adding a client user to the database."""
     client: Client = Client(user_id="1", username="client1", email="client@example.com",
                             password=User.hash_password("ClientPass123!"), address="123 Client St")
-    result: str = user_db.add_user(client)
-    assert result == "User successfully added!", "Failed to add client."
+    result: bool = user_db.add_user(client)
+    assert result is True
     assert user_db.get_user(1) is not None, "User not found in database."
 
 
@@ -79,8 +79,8 @@ def test_delete_user(user_db: UserDB) -> None:
     client: Client = Client(user_id="1", username="client1", email="client@example.com",
                             password=User.hash_password("ClientPass123!"), address="123 Client St")
     user_db.add_user(client)
-    result: str = user_db.delete_user(1)
-    assert result == "User successfully deleted.", "User deletion failed."
+    result: bool = user_db.delete_user(1)
+    assert result is True
     assert user_db.get_user(1) is None, "User was not removed from database."
 
 
@@ -97,11 +97,11 @@ def test_user_uniqueness(user_db: UserDB) -> None:
     """Test that UserDB prevents duplicate user IDs."""
     client1: Client = Client(user_id="1", username="client1", email="client1@example.com",
                              password=User.hash_password("ClientPass123!"), address="123 Client St")
-    client2: Client = Client(user_id="1", username="client2", email="client2@example.com",
+    client2: Client = Client(user_id="2", username="client1", email="client2@example.com",
                              password=User.hash_password("ClientPass456!"), address="456 Another St")
     user_db.add_user(client1)
-    result: str = user_db.add_user(client2)
-    assert result == "User ID already exists in UserDB", "Duplicate user ID was allowed!"
+    result: bool = user_db.add_user(client2)
+    assert result is False
 
 
 def test_invalid_password_hashing() -> None:
@@ -113,8 +113,6 @@ def test_invalid_password_hashing() -> None:
 
 def test_invalid_role_edit(user_db: UserDB) -> None:
     """Test attempting to edit a non-existent manager's role."""
-    result: str = user_db.edit_user("999", role="CEO")
-    assert result == "User not found. Please check the ID and try again.", "Should not edit non-existent user."
+    result: bool = user_db.edit_user("999", role="CEO")
+    assert result is False
 
-#test for load users
-#making sure that data jason is not making an instance - because it is getting the path from te og file user
