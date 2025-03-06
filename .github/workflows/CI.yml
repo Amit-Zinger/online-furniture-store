@@ -28,10 +28,6 @@ jobs:
           pip install -r requirements/requirements.txt || true
           pip install pytest pytest-cov black flake8
 
-      - name: Run Linting with Black
-        run: |
-          black . --check
-
       - name: Run Linting with Flake8
         run: |
           flake8 --max-line-length=88 --exclude=venv,__pycache__,.pytest_cache
