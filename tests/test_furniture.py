@@ -9,8 +9,6 @@ from models.furniture import Chair, Sofa, Table, Bed, Closet, Furniture
     (Bed, {"has_storage": True, "has_back": True}),
     (Closet, {"has_mirrors": True, "number_of_shelves": 5, "how_many_doors": 3})
 ])
-
-
 def test_furniture_creation(furniture_class, attributes):
     """Test creation of all furniture types using polymorphism."""
     base_attributes = {

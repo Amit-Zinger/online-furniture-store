@@ -1,13 +1,12 @@
 import os
 import sys
 from typing import Dict, Optional, List, Tuple
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 from models.user import Client, UserDB
 from models.cart import PaymentGateway
 from models.inventory import Inventory
 from models.order import OrderManager
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Define test database file paths
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -15,6 +14,7 @@ DATA_DIR = os.path.join(BASE_DIR, "data")
 USER_FILE = os.path.join(DATA_DIR, "test_users.json")
 INVEN_FILE = os.path.join(DATA_DIR, "test_inventory.pkl")
 ORDER_FILE = os.path.join(DATA_DIR, "test_orders.pkl")
+
 
 def setup_system() -> Tuple[UserDB, Inventory, OrderManager]:
     """
@@ -38,11 +38,14 @@ def setup_system() -> Tuple[UserDB, Inventory, OrderManager]:
     # Create multiple furniture items
     furniture_items = [
         {"type": "Chair", "name": "Office Chair", "description": "Ergonomic chair", "price": 120.0, "quantity": 10,
-         "serial_number": "CH001" ,"has_wheels" :False,"how_many_legs": 4,"weight": 25,"manufacturing_country": "USA","dimensions": "100x50x75 cm"},
+         "serial_number": "CH001", "has_wheels": False, "how_many_legs": 4, "weight": 25,
+         "manufacturing_country": "USA", "dimensions": "100x50x75 cm"},
         {"type": "Table", "name": "Dining Table", "description": "Wooden dining table", "price": 300.0, "quantity": 5,
-         "serial_number": "TB001","expandable": False,"how_many_seats": 4,"can_fold": False,"weight": 25,"manufacturing_country": "USA","dimensions": "100x50x75 cm"},
+         "serial_number": "TB001", "expandable": False, "how_many_seats": 4, "can_fold": False, "weight": 25,
+         "manufacturing_country": "USA", "dimensions": "100x50x75 cm"},
         {"type": "Sofa", "name": "Leather Sofa", "description": "Comfortable leather sofa", "price": 700.0,
-         "quantity": 3, "serial_number": "SF001","can_turn_to_bed":True, "how_many_seats": 3,"weight": 25,"manufacturing_country": "USA","dimensions": "100x50x75 cm"}
+         "quantity": 3, "serial_number": "SF001", "can_turn_to_bed": True, "how_many_seats": 3, "weight": 25,
+         "manufacturing_country": "USA", "dimensions": "100x50x75 cm"}
     ]
 
     for item in furniture_items:
@@ -81,7 +84,6 @@ def search_product_in_inventory(inventory: Inventory, product_name: str) -> Opti
     return results[0] if results else None
 
 
-
 def add_to_cart(client: Client, product: object, quantity: int) -> bool:
     """
     Add a product to the user's cart.
@@ -98,8 +100,6 @@ def add_to_cart(client: Client, product: object, quantity: int) -> bool:
     if not (client.shopping_cart.add_item(product, quantity)):
         return False
     return True
-
-
 
 
 def checkout(client: Client, inventory: Inventory, order_manager: OrderManager) -> bool:
@@ -146,7 +146,8 @@ def verify_updates(inventory: Inventory, order_manager: OrderManager, purchased_
         print("OrderManger update failed.")
 
 
-def check_other_inventory_unchanged(original_inventory: List[object], updated_inventory: Inventory, modified_items: List[str]) -> None:
+def check_other_inventory_unchanged(original_inventory: List[object], updated_inventory: Inventory,
+                                    modified_items: List[str]) -> None:
     """
     Ensure that only the purchased items were changed and others remained the same.
 
@@ -163,6 +164,7 @@ def check_other_inventory_unchanged(original_inventory: List[object], updated_in
                 print(f"Unexpected change detected for {furniture_item.name} in inventory.")
                 return
     print(f"Inventory DB for other objects remained unchanged for .")
+
 
 def cleanup_system() -> None:
     """
@@ -182,20 +184,20 @@ def run_tests() -> None:
     client = user_db.get_user(1)
     original_inventory = inventory.search_by()
 
-    print ("-------Starting Test----------")
+    print("-------Starting Test----------")
 
     purchases = {"Office Chair": 2, "Dining Table": 1}
 
     for item_name, qty in purchases.items():
         product = search_product_in_inventory(inventory, item_name)
-        if(not product):
+        if not product:
             print("Search in Inventory failed in test.")
             return
-        if(not add_to_cart(client, product, qty)):
+        if not add_to_cart(client, product, qty):
             print("Failed to add item to user ShoppingCart.")
             return
-
-    print("Search in Inventory furniture objects ended successfully.\nAdding furniture objects to ShoppingCart ended successfully")
+    print("Search in Inventory furniture objects ended successfully.\nAdding furniture objects "
+          "to ShoppingCart ended successfully")
 
     if checkout(client, inventory, order_manager):
         verify_updates(inventory, order_manager, {"Office Chair": 8, "Dining Table": 4})
@@ -212,5 +214,3 @@ def run_tests() -> None:
 
 if __name__ == "__main__":
     run_tests()
-
-

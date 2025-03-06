@@ -115,7 +115,6 @@ class TestOrderManager(unittest.TestCase):
         history = self.order_manager.get_order_history(2)
         self.assertEqual(len(history), 0)
 
-
     def test_order_persistence(self):
         """
         Tests that orders persist after being saved and reloaded.

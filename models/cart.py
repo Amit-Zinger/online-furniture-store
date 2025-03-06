@@ -1,6 +1,7 @@
 from typing import List
 from models.furniture import Furniture
 
+
 # -------- Helper Func -------- #
 def calc_discount(price: float, discount_percentage: float) -> float:
     """
@@ -9,6 +10,7 @@ def calc_discount(price: float, discount_percentage: float) -> float:
     if discount_percentage < 0 or discount_percentage > 100:
         raise ValueError("Discount percentage must be between 0 and 100.")
     return round(price * (1 - discount_percentage / 100), 2)
+
 
 # -------- PaymentGateway CLASS -------- #
 class PaymentGateway:
@@ -24,6 +26,7 @@ class PaymentGateway:
         if total_price <= 0:
             raise ValueError("Invalid payment amount")
         return True
+
 
 # -------- ShoppingCart CLASS -------- #
 class ShoppingCart:

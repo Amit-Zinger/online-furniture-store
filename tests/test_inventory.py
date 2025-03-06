@@ -4,6 +4,7 @@ from typing import Generator, Tuple, List, Dict, Union
 
 from models.inventory import Inventory
 
+
 @pytest.fixture
 def setup_inventory() -> Generator[Tuple[Inventory, str], None, None]:
     """
@@ -78,12 +79,12 @@ def setup_inventory() -> Generator[Tuple[Inventory, str], None, None]:
     create_inventory_with_furniture(test_file)  # Populate inventory
     inventory = Inventory(test_file)
 
-
     yield inventory, test_file
 
     # Cleanup after test execution
     if os.path.exists(test_file):
         os.remove(test_file)
+
 
 def test_add_item(setup_inventory: Tuple[Inventory, str]) -> None:
     """Test adding an item to the inventory and checking if it is added correctly."""
@@ -125,7 +126,7 @@ def test_update_quantity(setup_inventory: Tuple[Inventory, str]) -> None:
 
     assert inventory.update_quantity(chair_obj, 99) is True
     assert chair_obj.quantity == 99
-    assert chair_list[1:]== inventory.data["Chair"][0][1:]
+    assert chair_list[1:] == inventory.data["Chair"][0][1:]
 
 
 def test_search_by_name(setup_inventory: Tuple[Inventory, str]) -> None:
@@ -203,7 +204,6 @@ def test_search_by_name_category_and_price(setup_inventory: Tuple[Inventory, str
     )
 
 
-
 def test_update_data(setup_inventory: Tuple[Inventory, str]) -> None:
     """Test updating the inventory data and ensuring persistence."""
     inventory, test_file = setup_inventory
@@ -215,6 +215,7 @@ def test_update_data(setup_inventory: Tuple[Inventory, str]) -> None:
     new_inventory = Inventory(test_file)
     # Should still contain 5 chairs
     assert len(new_inventory.data["Chair"][0]) == 5
+
 
 def test_search_by_full_database(setup_inventory: Tuple[Inventory, str]) -> None:
     """Test retrieving all inventory items when no filters are applied."""
@@ -229,6 +230,5 @@ def test_search_by_full_database(setup_inventory: Tuple[Inventory, str]) -> None
         expected_result.extend(inventory.data[category][0])
 
     # Assert that all objects are returned in a single list
-    assert sorted(result, key=lambda x: x.name) == sorted(expected_result, key=lambda
-        x: x.name), "search_by() did not return the full database correctly when no parameters were provided."
-
+    assert sorted(result, key=lambda x: x.name) == sorted(expected_result, key=lambda x: x.name), \
+        "search_by() did not return the full database correctly when no parameters were provided."
