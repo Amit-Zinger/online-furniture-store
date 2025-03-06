@@ -1,7 +1,6 @@
 import os
 import pytest
 import bcrypt
-from typing import Generator
 from models.user import User, Client, Management, UserDB
 
 # Directory for test database
@@ -9,7 +8,7 @@ TEST_DB_FILE: str = "test_users.json"
 
 
 @pytest.fixture(scope="function")
-def user_db() -> Generator[UserDB, None, None]:
+def user_db() -> UserDB:
     """Fixture to initialize and clean up the test database."""
 
     # Reset the singleton instance

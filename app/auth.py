@@ -1,9 +1,9 @@
 from functools import wraps
 from flask import session, jsonify
-
+from typing import Callable
 from models.user import UserDB
 
-def authenticate_user(username: str, password: str):
+def authenticate_user(username: str, password: str)-> UserDB:
     """
     Authenticate a user by checking email and password.
     """
@@ -15,7 +15,7 @@ def authenticate_user(username: str, password: str):
     return None
 
 
-def require_auth(func):
+def require_auth(func: Callable):
     """
     Decorator to enforce authentication via session.
     """
