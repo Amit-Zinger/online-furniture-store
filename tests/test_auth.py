@@ -1,10 +1,11 @@
 import pytest
+
 from app.auth import authenticate_user
 from models.user import UserDB, Client, Management
 
 
 @pytest.fixture(scope="module")
-def setup_user_db():
+def setup_user_db() -> UserDB:
     """
     Create a shared test user database for all tests without modifying the original database.
     """
@@ -30,26 +31,26 @@ def setup_user_db():
     return user_db
 
 
-def test_authenticate_valid_user(setup_user_db):
+def test_authenticate_valid_user(setup_user_db: UserDB) -> None:
     """
     Test that a user with valid credentials can authenticate successfully.
     """
-    user = authenticate_user("client@example.com", "ClientPass123!")
+    user = authenticate_user("client_user", "ClientPass123!")
     assert user is not None, "User should be authenticated successfully"
     assert user.email == "client@example.com"
 
 
-def test_authenticate_invalid_password(setup_user_db):
+def test_authenticate_invalid_password(setup_user_db: UserDB) -> None:
     """
     Test authentication fails for a wrong password.
     """
-    user = authenticate_user("client@example.com", "WrongPassword")
+    user = authenticate_user("client_user", "WrongPassword")
     assert user is None, "Authentication should fail with an incorrect password"
 
 
-def test_authenticate_non_existent_user(setup_user_db):
+def test_authenticate_non_existent_user(setup_user_db: UserDB) -> None:
     """
     Test authentication fails for a non-existent user.
     """
-    user = authenticate_user("nonexistent@example.com", "SomePassword")
+    user = authenticate_user("client_user", "SomePassword")
     assert user is None, "Authentication should fail for an email not in the database"
