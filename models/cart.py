@@ -50,7 +50,8 @@ class ShoppingCart:
         """
         try:
             if quantity <= 0:
-                raise ValueError("Quantity must be greater than 0")
+                print(f"Error: Item '{item.name}' quantity is not valid.")
+                return False
             for _ in range(quantity):
                 self.items.append(item)
             return True
