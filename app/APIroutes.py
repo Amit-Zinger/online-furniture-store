@@ -13,20 +13,6 @@ app.secret_key = "your_secret_key"
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=2)
 
 
-# Initialize Inventory, Ordermanger and UserDB for databases usage
-INVENTORY = Inventory()
-ORDER_MANGER = OrderManager()
-USER_DB = UserDB.get_instance()
-
-def helper_updating_DB() -> None:
-    """
-    Updates databases to persist data changes.
-    """
-    INVENTORY.update_data()
-    ORDER_MANGER.save_orders()
-    USER_DB.save_users()
-
-
 @app.before_request
 def manage_session() -> None:
     """
