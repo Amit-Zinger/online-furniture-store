@@ -11,7 +11,6 @@ app.secret_key = "your_secret_key"
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=2)
 
 
-
 @app.before_request
 def manage_session():
     session.permanent = True
