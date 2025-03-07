@@ -2,14 +2,13 @@ import sys
 import os
 import pandas as pd
 from typing import Optional, Dict, List, Tuple, Union
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 from models.factory import FurnitureFactory
 from models.furniture import Furniture
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 # Define directory for inventory database
-INVEN_FILE : str =  os.path.join(os.path.join(os.path.dirname(__file__), ".."), "data/inventory.pkl")
+INVEN_FILE: str = os.path.join(os.path.join(os.path.dirname(__file__), ".."), "data/inventory.pkl")
 
 
 class Inventory:
@@ -120,7 +119,7 @@ class Inventory:
             else:
                 print("Basic attributes missing fail to create furniture object.")
                 return False
-        if furniture_atr and isinstance(furniture_atr,Furniture):
+        if furniture_atr and isinstance(furniture_atr, Furniture):
             class_name = type(furniture_atr).__name__
             pd_spec_class = self.data[class_name][0]
             try:
@@ -145,7 +144,7 @@ class Inventory:
         True if quantity updated and False if not.
         """
         # Find the furniture_atr in the data frame
-        if furniture_atr and isinstance(furniture_atr,Furniture):
+        if furniture_atr and isinstance(furniture_atr, Furniture):
             class_name = type(furniture_atr).__name__
             pd_spec_class = self.data[class_name][0]
             item_id = furniture_atr.serial_number
@@ -160,9 +159,11 @@ class Inventory:
             self.data.loc[0, class_name] = pd_spec_class
             return True
 
-    def search_by(self, name: Optional[str] = None, category: Optional[str] = None, price_range: Optional[Tuple[float, float]] = None) -> List[Furniture]:
+    def search_by(self, name: Optional[str] = None, category: Optional[str] = None,
+                  price_range: Optional[Tuple[float, float]] = None) -> List[Furniture]:
         """
-        Search for furniture items based on attributes, if no attributes passed return list with all the furniture objects.
+        Search for furniture items based on attributes, if no
+         attributes passed return list with all the furniture objects.
 
         Parameters:
         name: Name of the furniture item.
@@ -242,6 +243,4 @@ class Inventory:
             return []
 
         return result["object"].tolist()
-
-
 

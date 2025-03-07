@@ -129,7 +129,8 @@ class User(ABC):
             user_db.user_data[self.user_id] = self
             user_db.save_users()
 
-    def edit_info(self, username: Optional[str] = None, email: Optional[str] = None, address: Optional[str] = None) -> None:
+    def edit_info(self, username: Optional[str] = None, email: Optional[str] = None,
+                  address: Optional[str] = None) -> None:
         """
         Edits the user's information.
 
@@ -326,7 +327,7 @@ class UserDB:
         print("User successfully added!")
         return True
 
-    def delete_user(self, user_id: int)-> bool:
+    def delete_user(self, user_id: int) -> bool:
         """
         Deletes a user from the database.
 
@@ -345,7 +346,7 @@ class UserDB:
         print("User successfully deleted.")
         return True
 
-    def edit_user(self, user_id : int, **kwargs)->bool:
+    def edit_user(self, user_id: int, **kwargs) -> bool:
         """
         Edits an existing user's details.
 

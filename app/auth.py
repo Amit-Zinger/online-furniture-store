@@ -3,7 +3,8 @@ from flask import session, jsonify
 from typing import Callable
 from models.user import UserDB
 
-def authenticate_user(username: str, password: str)-> UserDB:
+
+def authenticate_user(username: str, password: str) -> UserDB:
     """
     Authenticate a user by checking email and password.
     """

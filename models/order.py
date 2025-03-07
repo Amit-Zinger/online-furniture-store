@@ -5,9 +5,7 @@ import uuid
 import sys
 from datetime import datetime
 from typing import Optional, List, Dict
-
 from models.cart import ShoppingCart
-
 
 
 # Ensure the parent directory is in the import path
@@ -15,6 +13,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 # Define the default orders DB path
 ORDER_STORAGE_FILE = os.path.join(os.path.dirname(__file__), "..", "data/orders.pkl")
+
 
 # -------- OrderManager CLASS -------- #
 class OrderManager:
@@ -63,7 +62,6 @@ class OrderManager:
         return pd.DataFrame(
             columns=["order_id", "client_id", "items", "total_price", "payment_info", "status", "order_date"]
         )
-
 
     def create_order(self, cart: ShoppingCart, payment_info: str, total_price: float) -> None:
         """
@@ -149,5 +147,3 @@ class OrderManager:
         """
         history = self.orders[self.orders["client_id"] == client_id]
         return history.to_dict(orient="records") if not history.empty else []
-
-

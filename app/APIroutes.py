@@ -1,19 +1,18 @@
-from datetime import timedelta, datetime , timezone
+from datetime import timedelta, datetime, timezone
 from flask import Flask, request, jsonify, session, abort
-from typing import Optional, Dict, Any
+from typing import Any
 
-from models.user import UserDB, Client,Management, serialize_furniture
+from models.user import UserDB, Client, Management, serialize_furniture
 from models.inventory import Inventory
 from models.order import OrderManager
 from models.cart import PaymentGateway
-from app.auth import require_auth,authenticate_user
+from app.auth import require_auth, authenticate_user
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=2)
 
-
-# Initialize Inventory, Ordermanger and UserDB for databases usage
+# Initialize Inventory, Order manger and UserDB for databases usage
 INVENTORY = Inventory()
 ORDER_MANGER = OrderManager()
 USER_DB = UserDB.get_instance()
@@ -56,12 +55,13 @@ def register() -> Any:
     """
     Registers a new user (Client or Management) in the system.
 
-    Expected keys: "username", "email", "password", "address", "kind" (Client or Management), optional "role" (for Management users)
+    Expected keys: "username", "email", "password", "address", "kind" (Client or Management),
+    optional "role" (for Management users)
 
     """
 
     data = request.json
-    if (data["kind"]== "Client"):
+    if data["kind"] == "Client":
         new_user = Client(
             user_id=len(USER_DB.user_data) + 1,
             username=data["username"],
@@ -69,16 +69,16 @@ def register() -> Any:
             password=data["password"],
             address=data["address"]
         )
-    elif(data["kind"]== "Management"):
+    elif data["kind"] == "Management":
         new_user = Management(
             user_id=len(USER_DB.user_data) + 1,
             username=data["username"],
             email=data["email"],
             password=data["password"],
             address=data["address"],
-            role = data["role"]
+            role=data["role"]
         )
-    else :
+    else:
         return jsonify({"error": "roll undefined"}), 400
     if not USER_DB.add_user(new_user):
         return jsonify({"error": "username already registered"}), 400
@@ -114,7 +114,7 @@ def add_to_cart() -> Any:
     """
     data = request.json
     user = authenticate_user(data["username"], data["password"])
-    if(isinstance(user,Management)):
+    if isinstance(user, Management):
         return jsonify({"error": "Request deny for Management user"}), 401
     if not user:
         return jsonify({"error": "Invalid credentials"}), 401
@@ -124,16 +124,16 @@ def add_to_cart() -> Any:
     quantity = int(data.get("quantity", 1))
 
     items = INVENTORY.search_by(name=item_name)
-    if not items or items[0].quantity <= quantity :
+    if not items or items[0].quantity <= quantity:
         return jsonify({"error": "Item not available or insufficient stock"}), 400
 
     # Check if item already exist in User ShoppingCart
 
     if items[0] in cart.items:
-        count=0
+        count = 0
         for i in cart.items:
-            if items[0].name == i.name :
-                count+=1
+            if items[0].name == i.name:
+                count += 1
         if items[0].quantity <= quantity + count:
             return jsonify({"error": "Item insufficient stock"}), 400
 
@@ -151,7 +151,7 @@ def remove_from_cart() -> Any:
     """
     data = request.json
     user = authenticate_user(data["username"], data["password"])
-    if(isinstance(user,Management)):
+    if isinstance(user, Management):
         return jsonify({"error": "Request deny for Management user"}), 401
     if not user:
         return jsonify({"error": "Invalid credentials"}), 401
@@ -159,10 +159,11 @@ def remove_from_cart() -> Any:
 
     item_name = data.get("name")
 
-    if (cart.remove_item(item_name)):
+    if cart.remove_item(item_name):
         return jsonify({"message": "Item removed from cart"}), 200
-    else :
+    else:
         return jsonify({"message": "Item not exist in user's cart"}), 400
+
 
 # ---------------------- Checkout ----------------------
 @app.route("/orders", methods=["POST"])
@@ -202,7 +203,6 @@ def checkout() -> Any:
 
     # Updating all DB after order made successfully
     helper_updating_DB()
-
 
     return jsonify({"message": "Checkout successful"}), 200
 

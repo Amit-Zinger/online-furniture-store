@@ -114,4 +114,3 @@ def test_invalid_role_edit(user_db: UserDB) -> None:
     """Test attempting to edit a non-existent manager's role."""
     result: bool = user_db.edit_user("999", role="CEO")
     assert result is False
-
