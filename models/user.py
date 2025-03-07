@@ -159,6 +159,7 @@ class User(ABC):
             user_db.user_data[self.user_id] = self
             user_db.save_users()
 
+
     def edit_info(
         self,
         username: Optional[str] = None,

@@ -5,7 +5,6 @@ import uuid
 import sys
 from datetime import datetime
 from typing import Optional, List, Dict
-
 from models.cart import ShoppingCart
 
 

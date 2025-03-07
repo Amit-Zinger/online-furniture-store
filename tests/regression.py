@@ -1,13 +1,12 @@
 import os
 import sys
 from typing import Dict, Optional, List, Tuple
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 from models.user import Client, UserDB
 from models.cart import PaymentGateway
 from models.inventory import Inventory
 from models.order import OrderManager
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Define test database file paths
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -195,6 +194,7 @@ def verify_updates(
         print("OrderManger update failed.")
 
 
+
 def check_other_inventory_unchanged(
     original_inventory: List[object],
     updated_inventory: Inventory,
@@ -250,10 +250,8 @@ def run_tests() -> None:
         if not add_to_cart(client, product, qty):
             print("Failed to add item to user ShoppingCart.")
             return
-
-    print(
-        "Search in Inventory furniture objects ended successfully.\nAdding furniture objects to ShoppingCart ended successfully"
-    )
+    print("Search in Inventory furniture objects ended successfully.\nAdding furniture objects "
+          "to ShoppingCart ended successfully")
 
     if checkout(client, inventory, order_manager):
         verify_updates(inventory, order_manager, {"Office Chair": 8, "Dining Table": 4})

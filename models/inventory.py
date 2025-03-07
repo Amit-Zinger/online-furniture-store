@@ -2,13 +2,13 @@ import sys
 import os
 import pandas as pd
 from typing import Optional, Dict, List, Tuple, Union
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 from models.factory import FurnitureFactory
 from models.furniture import Furniture
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 # Define directory for inventory database
+
 INVEN_FILE: str = os.path.join(
     os.path.join(os.path.dirname(__file__), ".."), "data/inventory.pkl"
 )
@@ -170,7 +170,8 @@ class Inventory:
         price_range: Optional[Tuple[float, float]] = None,
     ) -> List[Furniture]:
         """
-        Search for furniture items based on attributes, if no attributes passed return list with all the furniture objects.
+        Search for furniture items based on attributes, if no
+         attributes passed return list with all the furniture objects.
 
         Parameters:
         name: Name of the furniture item.

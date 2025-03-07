@@ -1,6 +1,6 @@
 from datetime import timedelta, datetime, timezone
 from flask import Flask, request, jsonify, session, abort
-from typing import Optional, Dict, Any
+from typing import Any
 
 from models.user import UserDB, Client, Management, serialize_furniture
 from models.inventory import Inventory
@@ -12,8 +12,7 @@ app = Flask(__name__)
 app.secret_key = "your_secret_key"
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=2)
 
-
-# Initialize Inventory, Ordermanger and UserDB for databases usage
+# Initialize Inventory, Order manger and UserDB for databases usage
 INVENTORY = Inventory()
 ORDER_MANGER = OrderManager()
 USER_DB = UserDB.get_instance()
@@ -56,7 +55,8 @@ def register() -> Any:
     """
     Registers a new user (Client or Management) in the system.
 
-    Expected keys: "username", "email", "password", "address", "kind" (Client or Management), optional "role" (for Management users)
+    Expected keys: "username", "email", "password", "address", "kind" (Client or Management),
+    optional "role" (for Management users)
 
     """
 
@@ -67,7 +67,7 @@ def register() -> Any:
             username=data["username"],
             email=data["email"],
             password=data["password"],
-            address=data["address"],
+            address=data["address"]
         )
     elif data["kind"] == "Management":
         new_user = Management(
@@ -76,7 +76,7 @@ def register() -> Any:
             email=data["email"],
             password=data["password"],
             address=data["address"],
-            role=data["role"],
+            role=data["role"]
         )
     else:
         return jsonify({"error": "roll undefined"}), 400
