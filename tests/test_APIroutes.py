@@ -17,17 +17,18 @@ def mock_response(status_code, json_data):
 @pytest.fixture(scope="session", autouse=True)
 def mock_requests():
     """Mock all requests to the API to prevent real HTTP calls."""
-    with patch("requests.post") as mock_post, \
-         patch("requests.get") as mock_get, \
-         patch("requests.put") as mock_put, \
-         patch("requests.delete") as mock_delete:
+    with patch("requests.post") as mock_post, patch("requests.get") as mock_get, patch(
+        "requests.put"
+    ) as mock_put, patch("requests.delete") as mock_delete:
 
         def post_side_effect(url, **kwargs):
             _ = kwargs.get("json", {})
             if "/users" in url:
                 return mock_response(201, {"message": "Registration successful!"})
             elif "/auth/token" in url:
-                return mock_response(200, {"message": "Login successful!", "token": "mock_token"})
+                return mock_response(
+                    200, {"message": "Login successful!", "token": "mock_token"}
+                )
             elif "/cart/items" in url:
                 return mock_response(200, {"message": "Item added to cart"})
             elif "/orders" in url:
@@ -42,7 +43,9 @@ def mock_requests():
             elif "/orders" in url:
                 return mock_response(200, {"orders": []})
             elif "/order" in url:
-                return mock_response(200, {"order": {"order_id": "123", "status": "Processing"}})
+                return mock_response(
+                    200, {"order": {"order_id": "123", "status": "Processing"}}
+                )
             return mock_response(404, {"error": "Not Found"})
 
         def put_side_effect(url, **kwargs):
@@ -90,10 +93,7 @@ def test_login():
 
 
 def test_add_to_cart():
-    item_data = {
-        "name": "Office Chair",
-        "quantity": 2
-    }
+    item_data = {"name": "Office Chair", "quantity": 2}
     headers = {"Authorization": "Bearer mock_token"}
     response = requests.post(f"{BASE_URL}/cart/items", json=item_data, headers=headers)
     assert response.status_code == 200
@@ -103,7 +103,9 @@ def test_add_to_cart():
 def test_remove_from_cart():
     remove_data = {"name": "Office Chair"}
     headers = {"Authorization": "Bearer mock_token"}
-    response = requests.delete(f"{BASE_URL}/cart/items", json=remove_data, headers=headers)
+    response = requests.delete(
+        f"{BASE_URL}/cart/items", json=remove_data, headers=headers
+    )
     assert response.status_code == 200
     assert "Item removed from cart" in response.json()["message"]
 
@@ -133,7 +135,9 @@ def test_cancel_order():
 def test_update_order_status():
     status_data = {"status": "Shipped"}
     headers = {"Authorization": "Bearer mock_token"}
-    response = requests.put(f"{BASE_URL}/orders/status", json=status_data, headers=headers)
+    response = requests.put(
+        f"{BASE_URL}/orders/status", json=status_data, headers=headers
+    )
     assert response.status_code == 200
     assert "Order status updated" in response.json()["message"]
 

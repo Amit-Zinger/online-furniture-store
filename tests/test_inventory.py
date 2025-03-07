@@ -1,6 +1,6 @@
 import os
 import pytest
-from typing import Generator, Tuple, List, Dict, Union
+from typing import Generator, Tuple
 
 from models.inventory import Inventory
 
@@ -56,12 +56,11 @@ def setup_inventory() -> Generator[Tuple[Inventory, str], None, None]:
                         {
                             "expandable": i % 2 == 0,
                             "how_many_seats": 4 + i,
-                            "can_fold": False
+                            "can_fold": False,
                         }
                     )
                 elif furniture_type == "Bed":
-                    furniture_desc.update(
-                        {"has_storage": i % 2 == 0, "has_back": True})
+                    furniture_desc.update({"has_storage": i % 2 == 0, "has_back": True})
                 elif furniture_type == "Closet":
                     furniture_desc.update(
                         {
@@ -169,8 +168,7 @@ def test_search_by_name_and_price(setup_inventory: Tuple[Inventory, str]) -> Non
     results = inventory.search_by(name=chair_name, price_range=(100, 200))
 
     assert len(results) > 0
-    assert all(obj.name == chair_name and 100 <=
-               obj.price <= 200 for obj in results)
+    assert all(obj.name == chair_name and 100 <= obj.price <= 200 for obj in results)
 
 
 def test_search_by_category_and_price(setup_inventory: Tuple[Inventory, str]) -> None:
@@ -186,7 +184,9 @@ def test_search_by_category_and_price(setup_inventory: Tuple[Inventory, str]) ->
     )
 
 
-def test_search_by_name_category_and_price(setup_inventory: Tuple[Inventory, str]) -> None:
+def test_search_by_name_category_and_price(
+    setup_inventory: Tuple[Inventory, str]
+) -> None:
     """Test searching for furniture by name, category, and price range."""
     inventory, _ = setup_inventory
     sofa_name = inventory.data["Sofa"][0][2].name  # Selecting third sofa
@@ -230,5 +230,6 @@ def test_search_by_full_database(setup_inventory: Tuple[Inventory, str]) -> None
         expected_result.extend(inventory.data[category][0])
 
     # Assert that all objects are returned in a single list
-    assert sorted(result, key=lambda x: x.name) == sorted(expected_result, key=lambda x: x.name), \
-        "search_by() did not return the full database correctly when no parameters were provided."
+    assert sorted(result, key=lambda x: x.name) == sorted(
+        expected_result, key=lambda x: x.name
+    ), "search_by() did not return the full database correctly when no parameters were provided."

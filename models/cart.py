@@ -119,7 +119,13 @@ class ShoppingCart:
             print(f"Error validating cart: {e}")
             return False
 
-    def purchase(self, payment_gateway: PaymentGateway, payment_info: str, inventory=None, order_manager=None) -> bool:
+    def purchase(
+        self,
+        payment_gateway: PaymentGateway,
+        payment_info: str,
+        inventory=None,
+        order_manager=None,
+    ) -> bool:
         """
         Handles the purchase process, validates cart, processes payment, updates inventory, and creates an order.
         """
@@ -127,10 +133,14 @@ class ShoppingCart:
             if inventory is None:
                 raise ValueError("Inventory instance must be provided for purchase.")
             if order_manager is None:
-                raise ValueError("OrderManager instance must be provided to record the order.")
+                raise ValueError(
+                    "OrderManager instance must be provided to record the order."
+                )
 
             total_price = self.calculate_total()
-            payment_successful = payment_gateway.process_payment(payment_info, total_price)
+            payment_successful = payment_gateway.process_payment(
+                payment_info, total_price
+            )
 
             if payment_successful:
                 order_manager.create_order(self, payment_info, total_price)

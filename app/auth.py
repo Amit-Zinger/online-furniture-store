@@ -20,11 +20,13 @@ def require_auth(func: Callable):
     """
     Decorator to enforce authentication via session.
     """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         if "user_id" not in session:
             return jsonify({"error": "Authentication required"}), 401
         return func(*args, **kwargs)
+
     return wrapper
 
 
@@ -32,11 +34,14 @@ def require_role(required_role: str):
     """
     Decorator to enforce role-based access control.
     """
+
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             if "role" not in session or session["role"] != required_role:
                 return jsonify({"error": "Unauthorized"}), 403
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator

@@ -16,7 +16,7 @@ def setup_user_db() -> UserDB:
         username="client_user",
         email="client@example.com",
         password="ClientPass123!",
-        address="123 Client St"
+        address="123 Client St",
     )
     manager_user = Management(
         user_id="2",
@@ -24,7 +24,7 @@ def setup_user_db() -> UserDB:
         email="manager@example.com",
         password="ManagerPass123!",
         address="456 Manager St",
-        role="Admin"
+        role="Admin",
     )
     user_db.add_user(client_user)
     user_db.add_user(manager_user)

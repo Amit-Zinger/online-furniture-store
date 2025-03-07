@@ -2,13 +2,16 @@ import pytest
 from models.furniture import Chair, Sofa, Table, Bed, Closet, Furniture
 
 
-@pytest.mark.parametrize("furniture_class, attributes", [
-    (Chair, {"has_wheels": True, "how_many_legs": 5}),
-    (Sofa, {"how_many_seats": 3, "can_turn_to_bed": True}),
-    (Table, {"expandable": True, "how_many_seats": 6, "can_fold": False}),
-    (Bed, {"has_storage": True, "has_back": True}),
-    (Closet, {"has_mirrors": True, "number_of_shelves": 5, "how_many_doors": 3})
-])
+@pytest.mark.parametrize(
+    "furniture_class, attributes",
+    [
+        (Chair, {"has_wheels": True, "how_many_legs": 5}),
+        (Sofa, {"how_many_seats": 3, "can_turn_to_bed": True}),
+        (Table, {"expandable": True, "how_many_seats": 6, "can_fold": False}),
+        (Bed, {"has_storage": True, "has_back": True}),
+        (Closet, {"has_mirrors": True, "number_of_shelves": 5, "how_many_doors": 3}),
+    ],
+)
 def test_furniture_creation(furniture_class, attributes):
     """Test creation of all furniture types using polymorphism."""
     base_attributes = {

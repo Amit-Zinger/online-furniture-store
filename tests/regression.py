@@ -37,15 +37,46 @@ def setup_system() -> Tuple[UserDB, Inventory, OrderManager]:
 
     # Create multiple furniture items
     furniture_items = [
-        {"type": "Chair", "name": "Office Chair", "description": "Ergonomic chair", "price": 120.0, "quantity": 10,
-         "serial_number": "CH001", "has_wheels": False, "how_many_legs": 4, "weight": 25,
-         "manufacturing_country": "USA", "dimensions": "100x50x75 cm"},
-        {"type": "Table", "name": "Dining Table", "description": "Wooden dining table", "price": 300.0, "quantity": 5,
-         "serial_number": "TB001", "expandable": False, "how_many_seats": 4, "can_fold": False, "weight": 25,
-         "manufacturing_country": "USA", "dimensions": "100x50x75 cm"},
-        {"type": "Sofa", "name": "Leather Sofa", "description": "Comfortable leather sofa", "price": 700.0,
-         "quantity": 3, "serial_number": "SF001", "can_turn_to_bed": True, "how_many_seats": 3, "weight": 25,
-         "manufacturing_country": "USA", "dimensions": "100x50x75 cm"}
+        {
+            "type": "Chair",
+            "name": "Office Chair",
+            "description": "Ergonomic chair",
+            "price": 120.0,
+            "quantity": 10,
+            "serial_number": "CH001",
+            "has_wheels": False,
+            "how_many_legs": 4,
+            "weight": 25,
+            "manufacturing_country": "USA",
+            "dimensions": "100x50x75 cm",
+        },
+        {
+            "type": "Table",
+            "name": "Dining Table",
+            "description": "Wooden dining table",
+            "price": 300.0,
+            "quantity": 5,
+            "serial_number": "TB001",
+            "expandable": False,
+            "how_many_seats": 4,
+            "can_fold": False,
+            "weight": 25,
+            "manufacturing_country": "USA",
+            "dimensions": "100x50x75 cm",
+        },
+        {
+            "type": "Sofa",
+            "name": "Leather Sofa",
+            "description": "Comfortable leather sofa",
+            "price": 700.0,
+            "quantity": 3,
+            "serial_number": "SF001",
+            "can_turn_to_bed": True,
+            "how_many_seats": 3,
+            "weight": 25,
+            "manufacturing_country": "USA",
+            "dimensions": "100x50x75 cm",
+        },
     ]
 
     for item in furniture_items:
@@ -55,9 +86,20 @@ def setup_system() -> Tuple[UserDB, Inventory, OrderManager]:
     # Create multiple users
     user_db = UserDB(USER_FILE)
     users = [
-        Client(user_id=1, username="test_client", email="client1@test.com", password="password123",
-               address="123 Street"),
-        Client(user_id=2, username="client2", email="client2@test.com", password="password456", address="456 Avenue")
+        Client(
+            user_id=1,
+            username="test_client",
+            email="client1@test.com",
+            password="password123",
+            address="123 Street",
+        ),
+        Client(
+            user_id=2,
+            username="client2",
+            email="client2@test.com",
+            password="password456",
+            address="456 Avenue",
+        ),
     ]
     for user in users:
         user_db.add_user(user)
@@ -69,7 +111,9 @@ def setup_system() -> Tuple[UserDB, Inventory, OrderManager]:
     return user_db, inventory, order_manager
 
 
-def search_product_in_inventory(inventory: Inventory, product_name: str) -> Optional[object]:
+def search_product_in_inventory(
+    inventory: Inventory, product_name: str
+) -> Optional[object]:
     """
     Search for a product in inventory and return it.
 
@@ -116,14 +160,18 @@ def checkout(client: Client, inventory: Inventory, order_manager: OrderManager) 
     """
     payment_gateway = PaymentGateway()
     if client.shopping_cart.get_cart():
-        client.shopping_cart.purchase(payment_gateway, "dummy_payment_info", inventory, order_manager)
+        client.shopping_cart.purchase(
+            payment_gateway, "dummy_payment_info", inventory, order_manager
+        )
         print("Checkout successful. Order created and inventory updated.")
         return True
     print("Cart is empty. Checkout failed.")
     return False
 
 
-def verify_updates(inventory: Inventory, order_manager: OrderManager, purchased_items: Dict[str, int]) -> None:
+def verify_updates(
+    inventory: Inventory, order_manager: OrderManager, purchased_items: Dict[str, int]
+) -> None:
     """
     Verify if inventory and order database are updated correctly.
 
@@ -146,8 +194,12 @@ def verify_updates(inventory: Inventory, order_manager: OrderManager, purchased_
         print("OrderManger update failed.")
 
 
-def check_other_inventory_unchanged(original_inventory: List[object], updated_inventory: Inventory,
-                                    modified_items: List[str]) -> None:
+
+def check_other_inventory_unchanged(
+    original_inventory: List[object],
+    updated_inventory: Inventory,
+    modified_items: List[str],
+) -> None:
     """
     Ensure that only the purchased items were changed and others remained the same.
 
@@ -161,7 +213,9 @@ def check_other_inventory_unchanged(original_inventory: List[object], updated_in
         if furniture_item.name not in modified_items:
             updated_item = updated_inventory.search_by(name=furniture_item.name)[0]
             if updated_item != furniture_item:
-                print(f"Unexpected change detected for {furniture_item.name} in inventory.")
+                print(
+                    f"Unexpected change detected for {furniture_item.name} in inventory."
+                )
                 return
     print(f"Inventory DB for other objects remained unchanged for .")
 

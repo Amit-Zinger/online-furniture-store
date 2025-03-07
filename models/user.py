@@ -25,7 +25,9 @@ def serialize_furniture(furniture_obj):
     """
     if isinstance(furniture_obj, Furniture):
         furniture_dict = vars(furniture_obj)
-        furniture_dict["type"] = type(furniture_obj).__name__  # Store type for deserialization
+        furniture_dict["type"] = type(
+            furniture_obj
+        ).__name__  # Store type for deserialization
         return furniture_dict
     return furniture_obj
 
@@ -44,19 +46,41 @@ def deserialize_furniture(furniture_dict):
         furniture_type = furniture_dict.pop("type", None)
         if furniture_type:
             # Remove any attributes that are not part of the constructor
-            allowed_keys = ["name", "description", "price", "dimensions", "serial_number",
-                            "quantity", "weight", "manufacturing_country", "has_wheels",
-                            "how_many_legs", "can_turn_to_bed", "how_many_seats",
-                            "expandable", "can_fold", "has_storage", "has_back",
-                            "how_many_doors", "has_mirrors", "number_of_shelves"]
+            allowed_keys = [
+                "name",
+                "description",
+                "price",
+                "dimensions",
+                "serial_number",
+                "quantity",
+                "weight",
+                "manufacturing_country",
+                "has_wheels",
+                "how_many_legs",
+                "can_turn_to_bed",
+                "how_many_seats",
+                "expandable",
+                "can_fold",
+                "has_storage",
+                "has_back",
+                "how_many_doors",
+                "has_mirrors",
+                "number_of_shelves",
+            ]
 
-            filtered_dict = {k: v for k, v in furniture_dict.items() if k in allowed_keys}
-            return FurnitureFactory.create_furniture({"type": furniture_type, **filtered_dict})
+            filtered_dict = {
+                k: v for k, v in furniture_dict.items() if k in allowed_keys
+            }
+            return FurnitureFactory.create_furniture(
+                {"type": furniture_type, **filtered_dict}
+            )
     return furniture_dict
 
 
 # Define the default users DB path
-USER_FILE = os.path.join(os.path.join(os.path.dirname(__file__), ".."), "data/users.json")
+USER_FILE = os.path.join(
+    os.path.join(os.path.dirname(__file__), ".."), "data/users.json"
+)
 
 
 # -------- USER CLASSES {User,Client,Manager}-------- #
@@ -72,7 +96,9 @@ class User(ABC):
         address (str): The user's address.
     """
 
-    def __init__(self, user_id: int, username: str, email: str, password: str, address: str) -> None:
+    def __init__(
+        self, user_id: int, username: str, email: str, password: str, address: str
+    ) -> None:
         """
         Initialize a User object.
 
@@ -86,7 +112,11 @@ class User(ABC):
         self.user_id = str(user_id)
         self.username = username
         self.email = email
-        self.password = self.hash_password(password) if not password.startswith("$2b$") else password
+        self.password = (
+            self.hash_password(password)
+            if not password.startswith("$2b$")
+            else password
+        )
         self.address = address
 
     @staticmethod
@@ -129,8 +159,13 @@ class User(ABC):
             user_db.user_data[self.user_id] = self
             user_db.save_users()
 
-    def edit_info(self, username: Optional[str] = None, email: Optional[str] = None,
-                  address: Optional[str] = None) -> None:
+
+    def edit_info(
+        self,
+        username: Optional[str] = None,
+        email: Optional[str] = None,
+        address: Optional[str] = None,
+    ) -> None:
         """
         Edits the user's information.
 
@@ -159,7 +194,9 @@ class Client(User):
         type (str): User type identifier ("Client").
     """
 
-    def __init__(self, user_id: int, username: str, email: str, password: str, address: str) -> None:
+    def __init__(
+        self, user_id: int, username: str, email: str, password: str, address: str
+    ) -> None:
         """
         Initialize a Client object.
 
@@ -181,7 +218,15 @@ class Management(User):
         type (str): User type identifier ("Management").
     """
 
-    def __init__(self, user_id: int, username: str, email: str, password: str, address: str, role: str) -> None:
+    def __init__(
+        self,
+        user_id: int,
+        username: str,
+        email: str,
+        password: str,
+        address: str,
+        role: str,
+    ) -> None:
         """
         Initialize a Management user.
 
@@ -216,6 +261,7 @@ class UserDB:
     """
     Singleton class to manage user data storage and retrieval.
     """
+
     _instance = None  # Singleton
 
     @staticmethod
@@ -240,7 +286,9 @@ class UserDB:
         """
 
         if UserDB._instance is not None:
-            raise Exception("Use UserDB.get_instance() instead of creating a new instance.")
+            raise Exception(
+                "Use UserDB.get_instance() instead of creating a new instance."
+            )
         self.file_path = file_path
         self.user_data = {}
         self.load_users()
@@ -271,7 +319,10 @@ class UserDB:
             if type_user == "Client":
                 client = Client(**user)
                 client.shopping_cart.items = [
-                    {"item": deserialize_furniture(i["item"]), "quantity": i["quantity"]}
+                    {
+                        "item": deserialize_furniture(i["item"]),
+                        "quantity": i["quantity"],
+                    }
                     for i in shopping_cart_items
                 ]
                 self.user_data[user_id] = client
@@ -285,14 +336,22 @@ class UserDB:
                 {
                     user_id: {
                         **vars(user),
-                        "shopping_cart": [
-                            {"item": serialize_furniture(i["item"]), "quantity": i["quantity"]}
-                            for i in user.shopping_cart.items
-                        ] if hasattr(user, "shopping_cart") else None
+                        "shopping_cart": (
+                            [
+                                {
+                                    "item": serialize_furniture(i["item"]),
+                                    "quantity": i["quantity"],
+                                }
+                                for i in user.shopping_cart.items
+                            ]
+                            if hasattr(user, "shopping_cart")
+                            else None
+                        ),
                     }
                     for user_id, user in self.user_data.items()
                 },
-                file, indent=4
+                file,
+                indent=4,
             )
 
     def get_user(self, user_id: int) -> Optional[User]:
@@ -364,7 +423,7 @@ class UserDB:
 
         if "username" in kwargs:
             for temp_user in self.user_data.values():
-                if kwargs['username'] == temp_user.username:
+                if kwargs["username"] == temp_user.username:
                     print("User name already exists in UserDB")
                     return False
 

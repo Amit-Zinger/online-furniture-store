@@ -233,7 +233,11 @@ def search_product() -> Any:
     results = INVENTORY.search_by(
         name=name,
         category=category,
-        price_range=(int(min_price), int(max_price)) if min_price is not None and max_price is not None else None
+        price_range=(
+            (int(min_price), int(max_price))
+            if min_price is not None and max_price is not None
+            else None
+        ),
     )
 
     if not results:
