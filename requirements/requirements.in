@@ -10,3 +10,5 @@ coverage
 pytest-cov
 cffi
 mypy.typeops
+black
+flake8
