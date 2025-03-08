@@ -86,29 +86,24 @@ def setup_inventory() -> Generator[Tuple[Inventory, str], None, None]:
         os.remove(test_file)
 
 
-@pytest.fixture
-def empty_inventory() -> Inventory:
-    """
-    Fixture to provide an empty inventory instance for exception testing.
-    """
-    return Inventory("test_empty_inventory.pkl")
 
-
-def test_add_item_missing_attributes(empty_inventory: Inventory) -> None:
+def test_add_item_missing_attributes(setup_inventory: Tuple[Inventory, str]) -> None:
     """
     Test that adding an item with missing required attributes raises an exception.
     """
+    inventory, _ = setup_inventory
     incomplete_furniture: Dict[str, Union[str, int, float]] = {
         "name": "Basic Chair",
         "price": 100,
     }
-    assert not empty_inventory.add_item(incomplete_furniture), "Adding an item with missing attributes should fail."
+    assert not inventory.add_item(incomplete_furniture), "Adding an item with missing attributes should fail."
 
 
-def test_remove_non_existent_item(empty_inventory: Inventory) -> None:
+def test_remove_non_existent_item(setup_inventory: Tuple[Inventory, str]) -> None:
     """
     Test that attempting to remove a non-existent item results in failure.
     """
+    inventory, _ = setup_inventory
     fake_furniture_desc = {
                     "type": "Chair",
                     "name": "Fake Item",
@@ -123,13 +118,14 @@ def test_remove_non_existent_item(empty_inventory: Inventory) -> None:
                     "how_many_legs": 4,
                      }
     fake_furniture = FurnitureFactory.create_furniture(fake_furniture_desc)
-    assert not empty_inventory.remove_item(fake_furniture), "Removing an item that does not exist should fail."
+    assert not inventory.remove_item(fake_furniture), "Removing an item that does not exist should fail."
 
 
-def test_update_quantity_non_existent_item(empty_inventory: Inventory) -> None:
+def test_update_quantity_non_existent_item(setup_inventory: Tuple[Inventory, str]) -> None:
     """
     Test that updating the quantity of an item not in the inventory results in failure.
     """
+    inventory, _ = setup_inventory
     fake_furniture_desc = {
                     "type": "Chair",
                     "name": "Fake Item",
@@ -144,22 +140,24 @@ def test_update_quantity_non_existent_item(empty_inventory: Inventory) -> None:
                     "how_many_legs": 4,
                      }
     fake_furniture = FurnitureFactory.create_furniture(fake_furniture_desc)
-    assert not empty_inventory.update_quantity(fake_furniture, 100), "Updating quantity of a non-existent item should fail."
+    assert not inventory.update_quantity(fake_furniture, 100), "Updating quantity of a non-existent item should fail."
 
 
-def test_search_invalid_category(empty_inventory: Inventory) -> None:
+def test_search_invalid_category(setup_inventory: Tuple[Inventory, str]) -> None:
     """
     Test that searching for an invalid category returns an empty list.
     """
-    results = empty_inventory.search_by(category="NonExistentCategory")
+    inventory, _ = setup_inventory
+    results = inventory.search_by(category="NonExistentCategory")
     assert results == [], "Searching for a non-existent category should return an empty list."
 
 
-def test_search_invalid_price_range(empty_inventory: Inventory) -> None:
+def test_search_invalid_price_range(setup_inventory: Tuple[Inventory, str]) -> None:
     """
     Test that searching with an invalid price range returns an empty list.
     """
-    results = empty_inventory.search_by(price_range=(10000, 20000))
+    inventory, _ = setup_inventory
+    results = inventory.search_by(price_range=(10000, 20000))
     assert results == [], "Searching with an extreme price range should return an empty list."
 
 def test_add_item(setup_inventory: Tuple[Inventory, str]) -> None:
