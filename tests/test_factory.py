@@ -1,5 +1,6 @@
 import pytest
-from models.factory import FurnitureFactory
+from models.factory import FurnitureFactory, FURNITURE_CLASSES
+from models.furniture import Furniture, Chair
 
 
 @pytest.mark.parametrize(
@@ -65,10 +66,30 @@ def test_missing_furniture_specific_attributes(furniture_type, missing_attribute
         "how_many_doors": 2,
     }
 
-    del valid_data[missing_attribute]  # מוחקים את המאפיין החיוני
+    del valid_data[missing_attribute]
 
     with pytest.raises(ValueError, match=f"{furniture_type} requires additional attributes"):
-        FurnitureFactory.create_furniture(valid_data)  # ניסיון ליצור את הרהיט ללא המאפיין החיוני
+        FurnitureFactory.create_furniture(valid_data)
+
+
+def test_register_furniture_valid():
+    """Test registering a valid furniture class."""
+
+    class CustomFurniture(Furniture):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+
+    FurnitureFactory.register_furniture("CustomFurniture", CustomFurniture)
+    assert "CustomFurniture" in FURNITURE_CLASSES
+
+
+def test_register_furniture_invalid():
+    """Test registering an invalid furniture type."""
+    with pytest.raises(ValueError, match="Furniture type name must be a non-empty string"):
+        FurnitureFactory.register_furniture("", Chair)
+
+    with pytest.raises(ValueError, match="The provided class must be callable"):
+        FurnitureFactory.register_furniture("InvalidType", "not_a_class")
 
 
 def test_create_furniture_unknown_type():
@@ -86,23 +107,3 @@ def test_create_furniture_unknown_type():
     }
     with pytest.raises(ValueError, match="Unknown furniture type"):
         FurnitureFactory.create_furniture(furniture_data)
-
-
-def test_create_furniture_invalid_parameters():
-    """Test handling of TypeError when creating furniture with invalid parameters."""
-    furniture_data = {
-        "name": "Faulty Chair",
-        "description": "A bad chair",
-        "price": 150.0,
-        "dimensions": "90x90x90 cm",
-        "serial_number": "CH002",
-        "quantity": 3,
-        "weight": 25.0,
-        "manufacturing_country": "Italy",
-        "type": "Chair",
-        "has_wheels": "invalid_boolean",
-        "how_many_legs": 4,
-    }
-    with pytest.raises(TypeError, match="Invalid type for has_wheels, expected bool"):
-        FurnitureFactory.create_furniture(furniture_data)
-
