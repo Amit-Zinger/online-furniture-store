@@ -46,7 +46,8 @@ def test_verify_password() -> None:
         password=User.hash_password("TestPass123!"),
         address="123 Main St",
     )
-    assert user.verify_password("TestPass123!"), "Password verification failed."
+    assert user.verify_password(
+        "TestPass123!"), "Password verification failed."
     assert not user.verify_password(
         "WrongPass"
     ), "Incorrect password should not pass verification."

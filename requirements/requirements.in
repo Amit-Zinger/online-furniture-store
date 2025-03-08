@@ -10,3 +10,4 @@ coverage
 pytest-cov
 cffi
 mypy.typeops
+autopep8

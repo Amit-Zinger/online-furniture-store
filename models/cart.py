@@ -76,7 +76,8 @@ class ShoppingCart:
                 return False
 
             # Remove the item
-            self.items = [item for item in self.items if item.name != item_name]
+            self.items = [
+                item for item in self.items if item.name != item_name]
             return True
         except Exception as e:
             print(f"Error removing item: {e}")
@@ -131,7 +132,8 @@ class ShoppingCart:
         """
         try:
             if inventory is None:
-                raise ValueError("Inventory instance must be provided for purchase.")
+                raise ValueError(
+                    "Inventory instance must be provided for purchase.")
             if order_manager is None:
                 raise ValueError(
                     "OrderManager instance must be provided to record the order."

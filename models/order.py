@@ -9,10 +9,16 @@ from models.cart import ShoppingCart
 
 
 # Ensure the parent directory is in the import path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert(
+    0,
+    os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__),
+            "..")))
 
 # Define the default orders DB path
-ORDER_STORAGE_FILE = os.path.join(os.path.dirname(__file__), "..", "data/orders.pkl")
+ORDER_STORAGE_FILE = os.path.join(
+    os.path.dirname(__file__), "..", "data/orders.pkl")
 
 
 # -------- OrderManager CLASS -------- #
@@ -30,7 +36,8 @@ class OrderManager:
         # Ensure the directory exists
         os.makedirs(os.path.dirname(self.file_path), exist_ok=True)
 
-        # Check if the file exists; if not, create an empty one with predefined columns
+        # Check if the file exists; if not, create an empty one with predefined
+        # columns
         if not os.path.exists(self.file_path):
             self.orders = pd.DataFrame(
                 columns=[
@@ -139,7 +146,8 @@ class OrderManager:
             status (str): The new status of the order.
         """
         if order_id in self.orders["order_id"].values:
-            self.orders.loc[self.orders["order_id"] == order_id, "status"] = status
+            self.orders.loc[self.orders["order_id"]
+                            == order_id, "status"] = status
             self.save_orders()
 
     def cancel_order(self, order_id: str) -> None:
@@ -150,7 +158,8 @@ class OrderManager:
             order_id (str): The unique ID of the order.
         """
         if order_id in self.orders["order_id"].values:
-            self.orders.loc[self.orders["order_id"] == order_id, "status"] = "Cancelled"
+            self.orders.loc[self.orders["order_id"]
+                            == order_id, "status"] = "Cancelled"
             self.save_orders()
 
     def get_order_history(self, client_id: str) -> List[Dict]:
