@@ -74,7 +74,7 @@ python-bcrypt==0.3.2
 python-dateutil==2.9.0.post0
 python-jwt==4.1.0
 pytz==2025.1
-pywin32==308
+pywin32==308; sys_platform == "win32"
 pyzmq==26.2.0
 referencing==0.35.1
 requests==2.32.3
