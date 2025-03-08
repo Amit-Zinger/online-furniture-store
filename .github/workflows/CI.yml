@@ -42,7 +42,3 @@ jobs:
           pytest --cov=models --cov=app \
                  --cov-report=term --cov-report=html --cov-report=xml \
                  --cov-omit="tests/*" --cov-omit="*/__init__.py" --cov-omit="tests/regression.py"
-
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.xml
