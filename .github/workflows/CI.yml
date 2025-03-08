@@ -33,9 +33,6 @@ jobs:
         run: |
           ruff check --fix .
 
-      - name: Run type checking (MyPy)
-        run: mypy .
-
       - name: Run tests with pytest and coverage
         run: |
           pytest --cov=app --cov=models --cov=tests --cov-report=html

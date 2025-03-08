@@ -57,12 +57,16 @@ mypy-extensions==1.0.0
     #   black
     #   mypy
 numpy==2.2.3
-    # via pandas
+    # via
+    #   pandas
+    #   pandas-stubs
 packaging==24.2
     # via
     #   black
     #   pytest
 pandas==2.2.3
+    # via -r requirements/requirements.in
+pandas-stubs==2.2.3.241126
     # via -r requirements/requirements.in
 pathspec==0.12.1
     # via black
@@ -94,6 +98,8 @@ ruff==0.9.10
     # via -r requirements/requirements.in
 six==1.17.0
     # via python-dateutil
+types-pytz==2025.1.0.20250204
+    # via pandas-stubs
 typing-extensions==4.12.2
     # via mypy
 tzdata==2025.1

@@ -213,9 +213,7 @@ def check_other_inventory_unchanged(
             updated_item = updated_inventory.search_by(name=furniture_item.name)[0]
             if updated_item != furniture_item:
                 print(
-                    f"Unexpected change detected for {
-                        furniture_item.name} in inventory."
-                )
+                    f"Unexpected change detected for {furniture_item.name} in inventory.")
                 return
     print("Inventory DB for other objects remained unchanged for .")
 
