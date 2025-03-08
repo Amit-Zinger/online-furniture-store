@@ -1,6 +1,5 @@
 import sys
 import os
-from typing import Any
 from models.furniture import Chair, Sofa, Table, Bed, Closet
 from models.furniture import Furniture
 
@@ -37,7 +36,7 @@ class FurnitureFactory:
         FURNITURE_CLASSES[name] = cls
 
     @staticmethod
-    def create_furniture(furniture_desc: dict[str, Any]) -> Furniture:
+    def create_furniture(furniture_desc: dict[str, any]) -> Furniture:
         """
         Factory method to create furniture objects.
 
@@ -51,33 +50,47 @@ class FurnitureFactory:
         if not furniture_type:
             raise ValueError("Furniture type is required.")
 
-        # if we already created the type
         if furniture_type not in FURNITURE_CLASSES:
             raise ValueError(f"Unknown furniture type: {furniture_type}")
 
         furniture_desc.pop("type")
 
         required_attributes = [
-            "name",
-            "description",
-            "price",
-            "dimensions",
-            "serial_number",
-            "quantity",
-            "weight",
-            "manufacturing_country",
+            "name", "description", "price", "dimensions",
+            "serial_number", "quantity", "weight", "manufacturing_country"
         ]
         missing_attributes = [
             attr for attr in required_attributes if attr not in furniture_desc
         ]
         if missing_attributes:
-            raise ValueError(
-                f"Missing required attributes: {', '.join(missing_attributes)}"
-            )
+            raise ValueError(f"Missing required attributes: {', '.join(missing_attributes)}")
 
-        # TypeError for a specific type
+        # Validate specific furniture attributes
         FurnitureFactory._validate_furniture_specifics(furniture_type, furniture_desc)
 
+        # **New: Validate attribute types**
+        type_validations = {
+            "price": float,
+            "quantity": int,
+            "weight": float,
+            "has_wheels": bool,
+            "how_many_legs": int,
+            "can_turn_to_bed": bool,
+            "how_many_seats": int,
+            "expandable": bool,
+            "can_fold": bool,
+            "has_storage": bool,
+            "has_back": bool,
+            "how_many_doors": int,
+            "has_mirrors": bool,
+            "number_of_shelves": int,
+        }
+
+        for attr, expected_type in type_validations.items():
+            if attr in furniture_desc and not isinstance(furniture_desc[attr], expected_type):
+                raise TypeError(f"Invalid type for {attr}. Expected {expected_type.__name__}.")
+
+        # Try creating the furniture object
         try:
             return FURNITURE_CLASSES[furniture_type](**furniture_desc)
         except TypeError as e:

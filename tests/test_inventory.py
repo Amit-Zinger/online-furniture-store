@@ -35,11 +35,11 @@ def setup_inventory() -> Generator[Tuple[Inventory, str], None, None]:
                     "type": furniture_type,
                     "name": f"{furniture_type} Model {i + 1}",
                     "description": f"A stylish {furniture_type} for home or office.",
-                    "price": 100 + i * 50,
+                    "price": float(100 + i * 50),
                     "dimensions": "100x50x75 cm",
                     "serial_number": f"SN{furniture_type}{i + 1}",
                     "quantity": 10 + i,
-                    "weight": 20 + i * 5,
+                    "weight": float(20 + i * 5),
                     "manufacturing_country": "USA",
                 }
 
@@ -86,7 +86,6 @@ def setup_inventory() -> Generator[Tuple[Inventory, str], None, None]:
         os.remove(test_file)
 
 
-
 def test_add_item_missing_attributes(setup_inventory: Tuple[Inventory, str]) -> None:
     """
     Test that adding an item with missing required attributes raises an exception.
@@ -108,11 +107,11 @@ def test_remove_non_existent_item(setup_inventory: Tuple[Inventory, str]) -> Non
                     "type": "Chair",
                     "name": "Fake Item",
                     "description": "No description",
-                    "price": 100 ,
+                    "price": 100.0,
                     "dimensions": "100x50x75 cm",
                     "serial_number": "SN999",
                     "quantity": 1,
-                    "weight": 20,
+                    "weight": 20.0,
                     "manufacturing_country": "USA",
                     "has_wheels": True,
                     "how_many_legs": 4,
@@ -130,11 +129,11 @@ def test_update_quantity_non_existent_item(setup_inventory: Tuple[Inventory, str
                     "type": "Chair",
                     "name": "Fake Item",
                     "description": "No description",
-                    "price": 100 ,
+                    "price": 100.0,
                     "dimensions": "100x50x75 cm",
                     "serial_number": "SN999",
                     "quantity": 1,
-                    "weight": 20,
+                    "weight": 20.0,
                     "manufacturing_country": "USA",
                     "has_wheels": True,
                     "how_many_legs": 4,
@@ -160,6 +159,7 @@ def test_search_invalid_price_range(setup_inventory: Tuple[Inventory, str]) -> N
     results = inventory.search_by(price_range=(10000, 20000))
     assert results == [], "Searching with an extreme price range should return an empty list."
 
+
 def test_add_item(setup_inventory: Tuple[Inventory, str]) -> None:
     """Test adding an item to the inventory and checking if it is added correctly."""
     inventory, _ = setup_inventory
@@ -169,11 +169,11 @@ def test_add_item(setup_inventory: Tuple[Inventory, str]) -> None:
         "type": "Chair",
         "name": "Luxury Chair",
         "description": "Premium comfortable chair",
-        "price": 250,
+        "price": 250.0,
         "dimensions": "120x60x100 cm",
         "serial_number": "CH010",
         "quantity": 5,
-        "weight": 20,
+        "weight": 20.0,
         "manufacturing_country": "Germany",
         "has_wheels": False,
         "how_many_legs": 4,
