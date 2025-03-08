@@ -40,6 +40,54 @@ class TestShoppingCart(unittest.TestCase):
         self.inventory = MagicMock()
         self.order_manager = MagicMock()
 
+
+    def test_add_invalid_quantity(self) -> None:
+        """
+        Test that adding an item with invalid quantity return False.
+        """
+        assert self.cart.add_item(self.item1, -1) is False
+
+    def test_remove_non_existent_item(self) -> None:
+        """
+        Test removing an item that does not exist in the cart.
+        """
+        result = self.cart.remove_item("NonExistentItem")
+        self.assertFalse(result, "Removing a non-existent item should return False.")
+
+    def test_calculate_total_with_empty_cart(self) -> None:
+        """
+        Test calculating total price when the cart is empty.
+        """
+        self.assertEqual(self.cart.calculate_total(), 0.0, "Total should be 0 for an empty cart.")
+
+    def test_apply_discount_invalid_percentage(self) -> None:
+        """
+        Test that applying an invalid discount percentage raises an exception.
+        """
+        with self.assertRaises(ValueError):
+            calc_discount(100, 150)  # Discount greater than 100%
+
+    def test_payment_with_invalid_amount(self) -> None:
+        """
+        Test that attempting to process payment with an invalid amount raises an exception.
+        """
+        with self.assertRaises(ValueError):
+            self.payment_gateway.process_payment("card123", -50)
+
+    def test_purchase_without_inventory(self) -> None:
+        """
+        Test attempting a purchase without providing inventory, which should raise an error.
+        """
+        result = self.cart.purchase(self.payment_gateway, "card123", None, self.order_manager)
+        self.assertFalse(result, "Purchase should fail if inventory is not provided.")
+
+    def test_purchase_without_order_manager(self) -> None:
+        """
+        Test attempting a purchase without providing an order manager, which should raise an error.
+        """
+        result = self.cart.purchase(self.payment_gateway, "card123", self.inventory, None)
+        self.assertFalse(result, "Purchase should fail if order manager is not provided.")
+
     def test_add_item(self):
         """
         Tests adding an item to the shopping cart.
