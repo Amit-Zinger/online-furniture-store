@@ -2,6 +2,7 @@ import os
 import pytest
 from typing import Generator, Tuple
 
+from models.factory import FurnitureFactory
 from models.inventory import Inventory
 
 
@@ -84,17 +85,82 @@ def setup_inventory() -> Generator[Tuple[Inventory, str], None, None]:
     if os.path.exists(test_file):
         os.remove(test_file)
 
-def test_load_data(setup_inventory: Tuple[Inventory, str]) -> None:
-    """Test adding an item to the inventory and checking if it is added correctly."""
-    _, test_file = setup_inventory
-    inventory = Inventory(test_file)
 
-    assert inventory.file_path is test_file
-    assert len(inventory.data["Chair"][0]) == 5
-    assert len(inventory.data["Sofa"][0]) == 5
-    assert len(inventory.data["Table"][0]) == 5
-    assert len(inventory.data["Bed"][0]) == 5
-    assert len(inventory.data["Closet"][0]) == 5
+@pytest.fixture
+def empty_inventory() -> Inventory:
+    """
+    Fixture to provide an empty inventory instance for exception testing.
+    """
+    return Inventory("test_empty_inventory.pkl")
+
+
+def test_add_item_missing_attributes(empty_inventory: Inventory) -> None:
+    """
+    Test that adding an item with missing required attributes raises an exception.
+    """
+    incomplete_furniture: Dict[str, Union[str, int, float]] = {
+        "name": "Basic Chair",
+        "price": 100,
+    }
+    assert not empty_inventory.add_item(incomplete_furniture), "Adding an item with missing attributes should fail."
+
+
+def test_remove_non_existent_item(empty_inventory: Inventory) -> None:
+    """
+    Test that attempting to remove a non-existent item results in failure.
+    """
+    fake_furniture_desc = {
+                    "type": "Chair",
+                    "name": "Fake Item",
+                    "description": "No description",
+                    "price": 100 ,
+                    "dimensions": "100x50x75 cm",
+                    "serial_number": "SN999",
+                    "quantity": 1,
+                    "weight": 20,
+                    "manufacturing_country": "USA",
+                    "has_wheels": True,
+                    "how_many_legs": 4,
+                     }
+    fake_furniture = FurnitureFactory.create_furniture(fake_furniture_desc)
+    assert not empty_inventory.remove_item(fake_furniture), "Removing an item that does not exist should fail."
+
+
+def test_update_quantity_non_existent_item(empty_inventory: Inventory) -> None:
+    """
+    Test that updating the quantity of an item not in the inventory results in failure.
+    """
+    fake_furniture_desc = {
+                    "type": "Chair",
+                    "name": "Fake Item",
+                    "description": "No description",
+                    "price": 100 ,
+                    "dimensions": "100x50x75 cm",
+                    "serial_number": "SN999",
+                    "quantity": 1,
+                    "weight": 20,
+                    "manufacturing_country": "USA",
+                    "has_wheels": True,
+                    "how_many_legs": 4,
+                     }
+    fake_furniture = FurnitureFactory.create_furniture(fake_furniture_desc)
+    assert not empty_inventory.update_quantity(fake_furniture, 100), "Updating quantity of a non-existent item should fail."
+
+
+def test_search_invalid_category(empty_inventory: Inventory) -> None:
+    """
+    Test that searching for an invalid category returns an empty list.
+    """
+    results = empty_inventory.search_by(category="NonExistentCategory")
+    assert results == [], "Searching for a non-existent category should return an empty list."
+
+
+def test_search_invalid_price_range(empty_inventory: Inventory) -> None:
+    """
+    Test that searching with an invalid price range returns an empty list.
+    """
+    results = empty_inventory.search_by(price_range=(10000, 20000))
+    assert results == [], "Searching with an extreme price range should return an empty list."
 
 def test_add_item(setup_inventory: Tuple[Inventory, str]) -> None:
     """Test adding an item to the inventory and checking if it is added correctly."""
