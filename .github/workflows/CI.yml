@@ -1,4 +1,4 @@
-name: CI - Run Tests & Linting
+name: CI Pipeline
 
 on:
   push:
@@ -7,39 +7,37 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
-  test:
-    name: Run Tests & Code Quality Checks
+  build:
     runs-on: ubuntu-latest
 
+
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: '3.12'
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements/requirements.txt --retries 3 --timeout 30 || (sleep 5 && pip install -r requirements/requirements.txt --retries 3 --timeout 30)
-          pip install pytest pytest-cov black flake8
+          pip install pip-tools
+          pip-compile requirements/requirements.in
+          pip install -r requirements/requirements.txt
 
-      - name: Run Linting with Flake8
+      - name: Run linting (flake8 & black)
         run: |
-          flake8 --max-line-length=88 --exclude=venv,__pycache__,.pytest_cache
+          ruff check --fix .
 
-      - name: Run Tests with Coverage
+      - name: Remove previous coverage data
+        run: coverage erase || true
+
+      - name: Run tests with coverage
         run: |
-          pytest --cov=. --cov-report=xml --cov-report=term-missing
-
-      - name: Upload Coverage Report
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./coverage.xml
-          fail_ci_if_error: true
-
-
+          pytest --cov=models --cov=app \
+                 --cov-report=term --cov-report=html

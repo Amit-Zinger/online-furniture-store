@@ -32,11 +32,13 @@ def setup_inventory() -> Generator[Tuple[Inventory, str], None, None]:
             for i in range(5):
                 furniture_desc = {
                     "type": furniture_type,
-                    "name": f"{furniture_type} Model {i + 1}",
+                    "name": f"{furniture_type} Model {
+                        i + 1}",
                     "description": f"A stylish {furniture_type} for home or office.",
                     "price": 100 + i * 50,
                     "dimensions": "100x50x75 cm",
-                    "serial_number": f"SN{furniture_type}{i + 1}",
+                    "serial_number": f"SN{furniture_type}{
+                        i + 1}",
                     "quantity": 10 + i,
                     "weight": 20 + i * 5,
                     "manufacturing_country": "USA",

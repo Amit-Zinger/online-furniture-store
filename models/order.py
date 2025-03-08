@@ -30,7 +30,8 @@ class OrderManager:
         # Ensure the directory exists
         os.makedirs(os.path.dirname(self.file_path), exist_ok=True)
 
-        # Check if the file exists; if not, create an empty one with predefined columns
+        # Check if the file exists; if not, create an empty one with predefined
+        # columns
         if not os.path.exists(self.file_path):
             self.orders = pd.DataFrame(
                 columns=[
@@ -108,7 +109,10 @@ class OrderManager:
         }
 
         new_order_df = pd.DataFrame([order_data])
-        self.orders = pd.concat([self.orders, new_order_df], ignore_index=True)
+        if not new_order_df.dropna(axis=1, how="all").empty:
+            new_order_df = new_order_df.dropna(axis=1, how="all")
+            self.orders = pd.concat([self.orders, new_order_df], ignore_index=True)
+
         self.save_orders()
 
     def get_order(self, order_id: str, client_id: str) -> Optional[Dict]:

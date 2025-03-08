@@ -1,4 +1,5 @@
 from abc import ABC
+from typing import Optional
 
 
 class Furniture(ABC):
@@ -32,7 +33,7 @@ class Furniture(ABC):
         self.tax_rate = 0.17  # Default tax rate
 
     @property
-    def __str__(self) -> str:
+    def item_desc(self) -> str:
         return f"{self.name} - {self.description} | Price: ${self.price} | Stock: {self.quantity}"
 
     def deduct_from_inventory(self, quantity):
@@ -55,7 +56,7 @@ class Furniture(ABC):
         self.price = round(self.price * (1 - discount_percentage / 100), 2)
         return self.price
 
-    def apply_tax(self, tax_rate: float = None) -> None:
+    def apply_tax(self, tax_rate: Optional[float] = None) -> None:
         if tax_rate is not None:
             self._validate_positive_value(tax_rate, "Tax rate")
             self.tax_rate = tax_rate

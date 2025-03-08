@@ -40,7 +40,7 @@ def test_hash_password() -> None:
 def test_verify_password() -> None:
     """Test password verification."""
     user: User = User(
-        user_id="1",
+        user_id=1,
         username="test_user",
         email="test@example.com",
         password=User.hash_password("TestPass123!"),
@@ -55,7 +55,7 @@ def test_verify_password() -> None:
 def test_change_password(user_db: UserDB) -> None:
     """Test changing a user's password."""
     user: Client = Client(
-        user_id="1",
+        user_id=1,
         username="client1",
         email="client@example.com",
         password=User.hash_password("OldPass123!"),
@@ -69,7 +69,7 @@ def test_change_password(user_db: UserDB) -> None:
 def test_add_client(user_db: UserDB) -> None:
     """Test adding a client user to the database."""
     client: Client = Client(
-        user_id="1",
+        user_id=1,
         username="client1",
         email="client@example.com",
         password=User.hash_password("ClientPass123!"),
@@ -83,7 +83,7 @@ def test_add_client(user_db: UserDB) -> None:
 def test_edit_user(user_db: UserDB) -> None:
     """Test editing user information."""
     client: Client = Client(
-        user_id="1",
+        user_id=1,
         username="client1",
         email="client@example.com",
         password=User.hash_password("ClientPass123!"),
@@ -91,7 +91,7 @@ def test_edit_user(user_db: UserDB) -> None:
     )
     user_db.add_user(client)
     user_db.edit_user(
-        "1",
+        1,
         username="new_client1",
         email="new_client@example.com",
         address="456 New St",
@@ -105,7 +105,7 @@ def test_edit_user(user_db: UserDB) -> None:
 def test_delete_user(user_db: UserDB) -> None:
     """Test deleting a user from the database."""
     client: Client = Client(
-        user_id="1",
+        user_id=1,
         username="client1",
         email="client@example.com",
         password=User.hash_password("ClientPass123!"),
@@ -120,7 +120,7 @@ def test_delete_user(user_db: UserDB) -> None:
 def test_edit_management_role(user_db: UserDB) -> None:
     """Test editing a management user's role."""
     manager: Management = Management(
-        user_id="2",
+        user_id=2,
         username="admin",
         email="admin@example.com",
         password=User.hash_password("AdminPass123!"),
@@ -135,14 +135,14 @@ def test_edit_management_role(user_db: UserDB) -> None:
 def test_user_uniqueness(user_db: UserDB) -> None:
     """Test that UserDB prevents duplicate user IDs."""
     client1: Client = Client(
-        user_id="1",
+        user_id=1,
         username="client1",
         email="client1@example.com",
         password=User.hash_password("ClientPass123!"),
         address="123 Client St",
     )
     client2: Client = Client(
-        user_id="2",
+        user_id=2,
         username="client1",
         email="client2@example.com",
         password=User.hash_password("ClientPass456!"),
@@ -156,7 +156,7 @@ def test_user_uniqueness(user_db: UserDB) -> None:
 def test_invalid_password_hashing() -> None:
     """Test handling of incorrectly formatted password hashes."""
     invalid_user: User = User(
-        user_id="1",
+        user_id=1,
         username="invalid_user",
         email="invalid@example.com",
         password="NotAHashedPassword",
@@ -169,5 +169,5 @@ def test_invalid_password_hashing() -> None:
 
 def test_invalid_role_edit(user_db: UserDB) -> None:
     """Test attempting to edit a non-existent manager's role."""
-    result: bool = user_db.edit_user("999", role="CEO")
+    result: bool = user_db.edit_user(999, role="CEO")
     assert result is False

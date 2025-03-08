@@ -1,5 +1,6 @@
 import sys
 import os
+from typing import Any
 from models.furniture import Chair, Sofa, Table, Bed, Closet
 from models.furniture import Furniture
 
@@ -36,7 +37,7 @@ class FurnitureFactory:
         FURNITURE_CLASSES[name] = cls
 
     @staticmethod
-    def create_furniture(furniture_desc: dict[str, any]) -> Furniture:
+    def create_furniture(furniture_desc: dict[str, Any]) -> Furniture:
         """
         Factory method to create furniture objects.
 

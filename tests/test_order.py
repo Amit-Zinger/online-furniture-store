@@ -3,8 +3,6 @@ from unittest.mock import MagicMock
 import pandas as pd
 import json
 import os
-import sys
-from io import StringIO
 from models.order import OrderManager
 from models.cart import ShoppingCart
 from models.furniture import Furniture
@@ -30,7 +28,8 @@ class TestOrderManager(unittest.TestCase):
         # Ensure the test directory exists
         os.makedirs(os.path.dirname(self.test_orders_file), exist_ok=True)
 
-        # Remove any existing test orders file to prevent test data accumulation
+        # Remove any existing test orders file to prevent test data
+        # accumulation
         if os.path.exists(self.test_orders_file):
             os.remove(self.test_orders_file)
 

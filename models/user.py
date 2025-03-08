@@ -109,7 +109,7 @@ class User(ABC):
             password (str): The user's password (hashed if not already): bytes
             address (str): The user's address.
         """
-        self.user_id = str(user_id)
+        self.user_id = user_id
         self.username = username
         self.email = email
         self.password = (
@@ -159,7 +159,6 @@ class User(ABC):
             user_db.user_data[self.user_id] = self
             user_db.save_users()
 
-
     def edit_info(
         self,
         username: Optional[str] = None,
@@ -205,7 +204,7 @@ class Client(User):
             type: the type of the user
         """
         super().__init__(user_id, username, email, password, address)
-        self.shopping_cart = ShoppingCart(user_id)
+        self.shopping_cart = ShoppingCart(str(user_id))
         self.type = "Client"
 
 
@@ -290,7 +289,7 @@ class UserDB:
                 "Use UserDB.get_instance() instead of creating a new instance."
             )
         self.file_path = file_path
-        self.user_data = {}
+        self.user_data: dict[int, User] = {}
         self.load_users()
 
     def load_users(self) -> None:
@@ -364,7 +363,7 @@ class UserDB:
         return:
             User: The user object if found, None otherwise.
         """
-        return self.user_data.get(str(user_id))
+        return self.user_data.get(user_id)
 
     def add_user(self, user: User) -> bool:
         """
@@ -396,7 +395,6 @@ class UserDB:
         return:
             True if user deleted and False if not.
         """
-        user_id = str(user_id)  # Convert to string for consistency
         if user_id not in self.user_data:
             print("User not found. Cannot delete.")
             return False
@@ -416,7 +414,7 @@ class UserDB:
         return:
             True if edit user successfully and False if not.
         """
-        user = self.user_data.get(str(user_id))
+        user = self.user_data.get(user_id)
         if not user:
             print("User not found. Please check the ID and try again.")
             return False

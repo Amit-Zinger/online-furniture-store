@@ -45,9 +45,9 @@ class Inventory:
                 self.update_data()
                 return
             self._load_data()
-        except Exception as e:
+        except Exception:
             raise Exception(
-                f"Failed to create Inventory object.\nChenk path to data file."
+                "Failed to create Inventory object.\nChenk path to data file."
             )
 
     def _load_data(self) -> bool:

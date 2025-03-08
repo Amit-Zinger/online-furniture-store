@@ -67,7 +67,7 @@ def register() -> Any:
             username=data["username"],
             email=data["email"],
             password=data["password"],
-            address=data["address"]
+            address=data["address"],
         )
     elif data["kind"] == "Management":
         new_user = Management(
@@ -76,7 +76,7 @@ def register() -> Any:
             email=data["email"],
             password=data["password"],
             address=data["address"],
-            role=data["role"]
+            role=data["role"],
         )
     else:
         return jsonify({"error": "roll undefined"}), 400
@@ -125,7 +125,8 @@ def add_to_cart() -> Any:
 
     items = INVENTORY.search_by(name=item_name)
     if not items or items[0].quantity <= quantity:
-        return jsonify({"error": "Item not available or insufficient stock"}), 400
+        return jsonify(
+            {"error": "Item not available or insufficient stock"}), 400
 
     # Check if item already exist in User ShoppingCart
 

@@ -194,7 +194,6 @@ def verify_updates(
         print("OrderManger update failed.")
 
 
-
 def check_other_inventory_unchanged(
     original_inventory: List[object],
     updated_inventory: Inventory,
@@ -214,10 +213,9 @@ def check_other_inventory_unchanged(
             updated_item = updated_inventory.search_by(name=furniture_item.name)[0]
             if updated_item != furniture_item:
                 print(
-                    f"Unexpected change detected for {furniture_item.name} in inventory."
-                )
+                    f"Unexpected change detected for {furniture_item.name} in inventory.")
                 return
-    print(f"Inventory DB for other objects remained unchanged for .")
+    print("Inventory DB for other objects remained unchanged for .")
 
 
 def cleanup_system() -> None:
@@ -250,14 +248,17 @@ def run_tests() -> None:
         if not add_to_cart(client, product, qty):
             print("Failed to add item to user ShoppingCart.")
             return
-    print("Search in Inventory furniture objects ended successfully.\nAdding furniture objects "
-          "to ShoppingCart ended successfully")
+    print(
+        "Search in Inventory furniture objects ended successfully.\nAdding furniture objects "
+        "to ShoppingCart ended successfully"
+    )
 
     if checkout(client, inventory, order_manager):
         verify_updates(inventory, order_manager, {"Office Chair": 8, "Dining Table": 4})
         check_other_inventory_unchanged(original_inventory, inventory, purchases.keys())
 
-    # Once a day the system should update the databsaes file - demonstartion of it
+    # Once a day the system should update the databsaes file - demonstartion
+    # of it
     inventory.update_data()
     user_db.save_users()
     order_manager.save_orders()
