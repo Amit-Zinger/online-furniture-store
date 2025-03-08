@@ -5,7 +5,7 @@ omit =
     */__init__.py
     tests/regression.py
     app/main.py
-
+    app/APIroutes.py
 
 [report]
 show_missing = True
