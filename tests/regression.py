@@ -6,7 +6,12 @@ from models.cart import PaymentGateway
 from models.inventory import Inventory
 from models.order import OrderManager
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert(
+    0,
+    os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__),
+            "..")))
 
 # Define test database file paths
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -146,7 +151,8 @@ def add_to_cart(client: Client, product: object, quantity: int) -> bool:
     return True
 
 
-def checkout(client: Client, inventory: Inventory, order_manager: OrderManager) -> bool:
+def checkout(client: Client, inventory: Inventory,
+             order_manager: OrderManager) -> bool:
     """
     Process checkout and update inventory and orders.
 
@@ -169,9 +175,10 @@ def checkout(client: Client, inventory: Inventory, order_manager: OrderManager) 
     return False
 
 
-def verify_updates(
-    inventory: Inventory, order_manager: OrderManager, purchased_items: Dict[str, int]
-) -> None:
+def verify_updates(inventory: Inventory,
+                   order_manager: OrderManager,
+                   purchased_items: Dict[str,
+                                         int]) -> None:
     """
     Verify if inventory and order database are updated correctly.
 
@@ -194,7 +201,6 @@ def verify_updates(
         print("OrderManger update failed.")
 
 
-
 def check_other_inventory_unchanged(
     original_inventory: List[object],
     updated_inventory: Inventory,
@@ -211,11 +217,12 @@ def check_other_inventory_unchanged(
     """
     for furniture_item in original_inventory:
         if furniture_item.name not in modified_items:
-            updated_item = updated_inventory.search_by(name=furniture_item.name)[0]
+            updated_item = updated_inventory.search_by(
+                name=furniture_item.name)[0]
             if updated_item != furniture_item:
                 print(
-                    f"Unexpected change detected for {furniture_item.name} in inventory."
-                )
+                    f"Unexpected change detected for {
+                        furniture_item.name} in inventory.")
                 return
     print(f"Inventory DB for other objects remained unchanged for .")
 
@@ -250,14 +257,19 @@ def run_tests() -> None:
         if not add_to_cart(client, product, qty):
             print("Failed to add item to user ShoppingCart.")
             return
-    print("Search in Inventory furniture objects ended successfully.\nAdding furniture objects "
-          "to ShoppingCart ended successfully")
+    print(
+        "Search in Inventory furniture objects ended successfully.\nAdding furniture objects "
+        "to ShoppingCart ended successfully")
 
     if checkout(client, inventory, order_manager):
-        verify_updates(inventory, order_manager, {"Office Chair": 8, "Dining Table": 4})
-        check_other_inventory_unchanged(original_inventory, inventory, purchases.keys())
+        verify_updates(
+            inventory, order_manager, {
+                "Office Chair": 8, "Dining Table": 4})
+        check_other_inventory_unchanged(
+            original_inventory, inventory, purchases.keys())
 
-    # Once a day the system should update the databsaes file - demonstartion of it
+    # Once a day the system should update the databsaes file - demonstartion
+    # of it
     inventory.update_data()
     user_db.save_users()
     order_manager.save_orders()

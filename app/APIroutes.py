@@ -125,7 +125,8 @@ def add_to_cart() -> Any:
 
     items = INVENTORY.search_by(name=item_name)
     if not items or items[0].quantity <= quantity:
-        return jsonify({"error": "Item not available or insufficient stock"}), 400
+        return jsonify(
+            {"error": "Item not available or insufficient stock"}), 400
 
     # Check if item already exist in User ShoppingCart
 

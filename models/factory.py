@@ -3,7 +3,12 @@ import os
 from models.furniture import Chair, Sofa, Table, Bed, Closet
 from models.furniture import Furniture
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert(
+    0,
+    os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__),
+            "..")))
 
 # all the created furniture
 FURNITURE_CLASSES = {
@@ -75,12 +80,14 @@ class FurnitureFactory:
             )
 
         # TypeError for a specific type
-        FurnitureFactory._validate_furniture_specifics(furniture_type, furniture_desc)
+        FurnitureFactory._validate_furniture_specifics(
+            furniture_type, furniture_desc)
 
         try:
             return FURNITURE_CLASSES[furniture_type](**furniture_desc)
         except TypeError as e:
-            raise TypeError(f"Failed to create furniture '{furniture_type}': {e}")
+            raise TypeError(
+                f"Failed to create furniture '{furniture_type}': {e}")
 
     @staticmethod
     def _validate_furniture_specifics(furniture_type, furniture_desc):
@@ -107,5 +114,5 @@ class FurnitureFactory:
 
         if missing_specifics:
             raise ValueError(
-                f"{furniture_type} requires additional attributes: {', '.join(missing_specifics)}"
-            )
+                f"{furniture_type} requires additional attributes: {
+                    ', '.join(missing_specifics)}")

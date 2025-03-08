@@ -33,7 +33,11 @@ class Furniture(ABC):
 
     @property
     def __str__(self) -> str:
-        return f"{self.name} - {self.description} | Price: ${self.price} | Stock: {self.quantity}"
+        return f"{
+            self.name} - {
+            self.description} | Price: ${
+            self.price} | Stock: {
+                self.quantity}"
 
     def deduct_from_inventory(self, quantity):
         """
