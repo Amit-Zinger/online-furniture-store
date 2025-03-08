@@ -4,7 +4,7 @@ autopep8==2.3.1
 backcall==0.2.0
 bcrypt==3.1.7
 beautifulsoup4==4.12.3
-bleach==6.1.0
+bleach
 blinker==1.8.2
 build==1.2.2.post1
 certifi==2025.1.31
@@ -80,7 +80,7 @@ rpds-py==0.20.1
 six==1.17.0
 soupsieve==2.6
 stack-data==0.6.3
-tinycss2==1.4.0
+tinycss2
 tomli==2.2.1
 tornado==6.4.2
 traitlets==5.14.3
