@@ -40,10 +40,9 @@ jobs:
       - name: Run tests with coverage
         run: |
           pytest --cov=models --cov=app \
-                 --cov-report=term --cov-report=html \
+                 --cov-report=term --cov-report=html --cov-report=xml \
                  --cov-omit="tests/*" --cov-omit="*/__init__.py" --cov-omit="tests/regression.py"
 
-      - name: Upload coverage report
         uses: codecov/codecov-action@v4
         with:
           file: ./coverage.xml
