@@ -1,6 +1,6 @@
 import os
 import pytest
-from typing import Generator, Tuple
+from typing import Generator, Tuple, Dict, Union
 
 from models.factory import FurnitureFactory
 from models.inventory import Inventory
