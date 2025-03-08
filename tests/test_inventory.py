@@ -62,8 +62,7 @@ def setup_inventory() -> Generator[Tuple[Inventory, str], None, None]:
                         }
                     )
                 elif furniture_type == "Bed":
-                    furniture_desc.update(
-                        {"has_storage": i % 2 == 0, "has_back": True})
+                    furniture_desc.update({"has_storage": i % 2 == 0, "has_back": True})
                 elif furniture_type == "Closet":
                     furniture_desc.update(
                         {
@@ -163,8 +162,7 @@ def test_search_by_price_range(setup_inventory: Tuple[Inventory, str]) -> None:
     assert all(100 <= obj.price <= 300 for obj in results)
 
 
-def test_search_by_name_and_price(
-        setup_inventory: Tuple[Inventory, str]) -> None:
+def test_search_by_name_and_price(setup_inventory: Tuple[Inventory, str]) -> None:
     """Test searching for a furniture item by name and price range."""
     inventory, _ = setup_inventory
     chair_name = inventory.data["Chair"][0][1].name  # Selecting second chair
@@ -172,12 +170,10 @@ def test_search_by_name_and_price(
     results = inventory.search_by(name=chair_name, price_range=(100, 200))
 
     assert len(results) > 0
-    assert all(obj.name == chair_name and 100 <=
-               obj.price <= 200 for obj in results)
+    assert all(obj.name == chair_name and 100 <= obj.price <= 200 for obj in results)
 
 
-def test_search_by_category_and_price(
-        setup_inventory: Tuple[Inventory, str]) -> None:
+def test_search_by_category_and_price(setup_inventory: Tuple[Inventory, str]) -> None:
     """Test searching for furniture items by category and price range."""
     inventory, _ = setup_inventory
     results = inventory.search_by(category="Table", price_range=(100, 250))
@@ -185,8 +181,9 @@ def test_search_by_category_and_price(
     # Should find tables with prices 100, 150, 200, and 250
     expected_count = 4  # Since one price (300) is out of range
     assert len(results) == expected_count
-    assert all(type(obj).__name__ == "Table" and 100 <=
-               obj.price <= 250 for obj in results)
+    assert all(
+        type(obj).__name__ == "Table" and 100 <= obj.price <= 250 for obj in results
+    )
 
 
 def test_search_by_name_category_and_price(
@@ -222,8 +219,7 @@ def test_update_data(setup_inventory: Tuple[Inventory, str]) -> None:
     assert len(new_inventory.data["Chair"][0]) == 5
 
 
-def test_search_by_full_database(
-        setup_inventory: Tuple[Inventory, str]) -> None:
+def test_search_by_full_database(setup_inventory: Tuple[Inventory, str]) -> None:
     """Test retrieving all inventory items when no filters are applied."""
     inventory, _ = setup_inventory
 

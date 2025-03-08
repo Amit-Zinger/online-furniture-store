@@ -24,8 +24,7 @@ def mock_requests():
         def post_side_effect(url, **kwargs):
             _ = kwargs.get("json", {})
             if "/users" in url:
-                return mock_response(201,
-                                     {"message": "Registration successful!"})
+                return mock_response(201, {"message": "Registration successful!"})
             elif "/auth/token" in url:
                 return mock_response(
                     200, {"message": "Login successful!", "token": "mock_token"}
@@ -59,8 +58,7 @@ def mock_requests():
 
         def delete_side_effect(url, **kwargs):
             if "/cart/items" in url:
-                return mock_response(200,
-                                     {"message": "Item removed from cart"})
+                return mock_response(200, {"message": "Item removed from cart"})
             return mock_response(400, {"error": "Invalid DELETE request"})
 
         mock_post.side_effect = post_side_effect
@@ -97,10 +95,7 @@ def test_login():
 def test_add_to_cart():
     item_data = {"name": "Office Chair", "quantity": 2}
     headers = {"Authorization": "Bearer mock_token"}
-    response = requests.post(
-        f"{BASE_URL}/cart/items",
-        json=item_data,
-        headers=headers)
+    response = requests.post(f"{BASE_URL}/cart/items", json=item_data, headers=headers)
     assert response.status_code == 200
     assert "Item added to cart" in response.json()["message"]
 
@@ -118,10 +113,7 @@ def test_remove_from_cart():
 def test_checkout():
     checkout_data = {"payment_info": "dummy_payment_info"}
     headers = {"Authorization": "Bearer mock_token"}
-    response = requests.post(
-        f"{BASE_URL}/orders",
-        json=checkout_data,
-        headers=headers)
+    response = requests.post(f"{BASE_URL}/orders", json=checkout_data, headers=headers)
     assert response.status_code == 200
     assert "Checkout successful" in response.json()["message"]
 
