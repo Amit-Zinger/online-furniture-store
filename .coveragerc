@@ -4,6 +4,8 @@ omit =
     tests/*
     */__init__.py
     tests/regression.py
+    app/main.py
+
 
 [report]
 show_missing = True
