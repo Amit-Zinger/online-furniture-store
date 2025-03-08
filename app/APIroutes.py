@@ -67,7 +67,7 @@ def register() -> Any:
             username=data["username"],
             email=data["email"],
             password=data["password"],
-            address=data["address"]
+            address=data["address"],
         )
     elif data["kind"] == "Management":
         new_user = Management(
@@ -76,7 +76,7 @@ def register() -> Any:
             email=data["email"],
             password=data["password"],
             address=data["address"],
-            role=data["role"]
+            role=data["role"],
         )
     else:
         return jsonify({"error": "roll undefined"}), 400

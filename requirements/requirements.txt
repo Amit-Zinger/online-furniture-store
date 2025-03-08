@@ -90,6 +90,8 @@ pytz==2025.1
     # via pandas
 requests==2.32.3
     # via -r requirements/requirements.in
+ruff==0.9.10
+    # via -r requirements/requirements.in
 six==1.17.0
     # via python-dateutil
 typing-extensions==4.12.2

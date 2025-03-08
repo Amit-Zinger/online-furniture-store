@@ -5,12 +5,7 @@ from typing import Optional, Dict, List, Tuple, Union
 from models.factory import FurnitureFactory
 from models.furniture import Furniture
 
-sys.path.insert(
-    0,
-    os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__),
-            "..")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Define directory for inventory database
 
@@ -50,9 +45,9 @@ class Inventory:
                 self.update_data()
                 return
             self._load_data()
-        except Exception as e:
+        except Exception:
             raise Exception(
-                f"Failed to create Inventory object.\nChenk path to data file."
+                "Failed to create Inventory object.\nChenk path to data file."
             )
 
     def _load_data(self) -> bool:
@@ -83,8 +78,7 @@ class Inventory:
             print("Failed to update data to pickle file, check file path")
             return False
 
-    def add_item(
-            self, furniture_desc: Dict[str, Union[str, int, float]]) -> bool:
+    def add_item(self, furniture_desc: Dict[str, Union[str, int, float]]) -> bool:
         """
         Add a new furniture item to the inventory.
 
@@ -97,8 +91,7 @@ class Inventory:
         # Creates furniture attribute
         if "type" in furniture_desc.keys():
             furniture_type = furniture_desc["type"]
-            furniture_instance = FurnitureFactory.create_furniture(
-                furniture_desc)
+            furniture_instance = FurnitureFactory.create_furniture(furniture_desc)
             if furniture_instance and self.data is not None:
                 self.data.at[0, furniture_type].append(furniture_instance)
             else:
@@ -126,8 +119,7 @@ class Inventory:
         """
         if furniture_desc and furniture_atr is None:
             if "type" in furniture_desc.keys():
-                furniture_atr = FurnitureFactory.create_furniture(
-                    furniture_desc)
+                furniture_atr = FurnitureFactory.create_furniture(furniture_desc)
             else:
                 print("Basic attributes missing fail to create furniture object.")
                 return False
@@ -232,12 +224,10 @@ class Inventory:
                 for fc in furniture_classes:
                     category_data = self.data.get(fc, pd.DataFrame())
                     if not category_data.empty:
-                        temp_df = pd.DataFrame(
-                            {"object": category_data.iloc[0]})
+                        temp_df = pd.DataFrame({"object": category_data.iloc[0]})
                         filtered_data = temp_df["object"].apply(match_name)
                         temp_df = temp_df[filtered_data]
-                        result = pd.concat(
-                            [result, temp_df], ignore_index=True)
+                        result = pd.concat([result, temp_df], ignore_index=True)
             else:
                 filtered_data = result["object"].apply(match_name)
                 result = result[filtered_data]
@@ -249,13 +239,10 @@ class Inventory:
                 for fc in furniture_classes:
                     category_data = self.data.get(fc, pd.DataFrame())
                     if not category_data.empty:
-                        temp_df = pd.DataFrame(
-                            {"object": category_data.iloc[0]})
-                        filtered_data = temp_df["object"].apply(
-                            match_price_range)
+                        temp_df = pd.DataFrame({"object": category_data.iloc[0]})
+                        filtered_data = temp_df["object"].apply(match_price_range)
                         temp_df = temp_df[filtered_data]
-                        result = pd.concat(
-                            [result, temp_df], ignore_index=True)
+                        result = pd.concat([result, temp_df], ignore_index=True)
             else:
                 filtered_data = result["object"].apply(match_price_range)
                 result = result[filtered_data]

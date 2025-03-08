@@ -9,12 +9,7 @@ from models.furniture import Furniture
 from models.factory import FurnitureFactory
 
 # Ensure the parent directory is in the import path
-sys.path.insert(
-    0,
-    os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__),
-            "..")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
 # -------- Helper Func -------- #
@@ -102,12 +97,8 @@ class User(ABC):
     """
 
     def __init__(
-            self,
-            user_id: int,
-            username: str,
-            email: str,
-            password: str,
-            address: str) -> None:
+        self, user_id: int, username: str, email: str, password: str, address: str
+    ) -> None:
         """
         Initialize a User object.
 
@@ -203,12 +194,8 @@ class Client(User):
     """
 
     def __init__(
-            self,
-            user_id: int,
-            username: str,
-            email: str,
-            password: str,
-            address: str) -> None:
+        self, user_id: int, username: str, email: str, password: str, address: str
+    ) -> None:
         """
         Initialize a Client object.
 

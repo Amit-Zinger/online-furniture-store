@@ -3,8 +3,6 @@ from unittest.mock import MagicMock
 import pandas as pd
 import json
 import os
-import sys
-from io import StringIO
 from models.order import OrderManager
 from models.cart import ShoppingCart
 from models.furniture import Furniture

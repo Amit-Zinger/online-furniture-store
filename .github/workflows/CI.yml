@@ -31,8 +31,7 @@ jobs:
 
       - name: Run linting (flake8 & black)
         run: |
-          black --check .
-          flake8 .
+          ruff check --fix .
 
       - name: Run type checking (MyPy)
         run: mypy .
