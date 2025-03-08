@@ -32,13 +32,11 @@ def setup_inventory() -> Generator[Tuple[Inventory, str], None, None]:
             for i in range(5):
                 furniture_desc = {
                     "type": furniture_type,
-                    "name": f"{furniture_type} Model {
-                        i + 1}",
+                    "name": f"{furniture_type} Model {i + 1}",
                     "description": f"A stylish {furniture_type} for home or office.",
                     "price": 100 + i * 50,
                     "dimensions": "100x50x75 cm",
-                    "serial_number": f"SN{furniture_type}{
-                        i + 1}",
+                    "serial_number": f"SN{furniture_type}{i + 1}",
                     "quantity": 10 + i,
                     "weight": 20 + i * 5,
                     "manufacturing_country": "USA",
@@ -86,6 +84,17 @@ def setup_inventory() -> Generator[Tuple[Inventory, str], None, None]:
     if os.path.exists(test_file):
         os.remove(test_file)
 
+def test_load_data(setup_inventory: Tuple[Inventory, str]) -> None:
+    """Test adding an item to the inventory and checking if it is added correctly."""
+    _, test_file = setup_inventory
+    inventory = Inventory(test_file)
+
+    assert inventory.file_path is test_file
+    assert len(inventory.data["Chair"][0]) == 5
+    assert len(inventory.data["Sofa"][0]) == 5
+    assert len(inventory.data["Table"][0]) == 5
+    assert len(inventory.data["Bed"][0]) == 5
+    assert len(inventory.data["Closet"][0]) == 5
 
 def test_add_item(setup_inventory: Tuple[Inventory, str]) -> None:
     """Test adding an item to the inventory and checking if it is added correctly."""

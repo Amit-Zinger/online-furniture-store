@@ -44,6 +44,7 @@ class FurnitureFactory:
         :param furniture_desc: Dictionary containing furniture attributes.
         :return: An instance of the specified furniture class.
         :raises ValueError: If furniture type is missing or unknown.
+        :raises TypeError: If attribute types are incorrect.
         """
 
         # furniture type
@@ -75,38 +76,55 @@ class FurnitureFactory:
                 f"Missing required attributes: {', '.join(missing_attributes)}"
             )
 
-        # TypeError for a specific type
+        if not isinstance(furniture_desc["name"], str):
+            raise TypeError("Invalid type for 'name', expected string.")
+        if not isinstance(furniture_desc["description"], str):
+            raise TypeError("Invalid type for 'description', expected string.")
+        if not isinstance(furniture_desc["price"], (int, float)) or furniture_desc["price"] <= 0:
+            raise ValueError("Invalid value for 'price', must be a positive number.")
+        if not isinstance(furniture_desc["quantity"], int) or furniture_desc["quantity"] < 0:
+            raise ValueError("Invalid value for 'quantity', must be a non-negative integer.")
+        if not isinstance(furniture_desc["weight"], (int, float)) or furniture_desc["weight"] <= 0:
+            raise ValueError("Invalid value for 'weight', must be a positive number.")
+        if not isinstance(furniture_desc["manufacturing_country"], str):
+            raise TypeError("Invalid type for 'manufacturing_country', expected string.")
+
         FurnitureFactory._validate_furniture_specifics(furniture_type, furniture_desc)
 
         try:
             return FURNITURE_CLASSES[furniture_type](**furniture_desc)
         except TypeError as e:
-            raise TypeError(f"Failed to create furniture '{furniture_type}': {e}")
+            raise TypeError("Failed to create furniture")
 
     @staticmethod
     def _validate_furniture_specifics(furniture_type, furniture_desc):
         """
-        Ensures furniture-specific required attributes exist.
+        Ensures furniture-specific required attributes exist and have correct types.
 
         :param furniture_type: The type of furniture.
         :param furniture_desc: The dictionary containing furniture attributes.
         :raises ValueError: If required attributes for a specific furniture type are missing.
+        :raises TypeError: If an attribute has an incorrect type.
         """
         required_specifics = {
-            "Sofa": ["how_many_seats", "can_turn_to_bed"],
-            "Table": ["expandable", "how_many_seats", "can_fold"],
-            "Closet": ["has_mirrors", "number_of_shelves", "how_many_doors"],
-            "Chair": ["has_wheels", "how_many_legs"],
-            "Bed": ["has_storage", "has_back"],
+            "Sofa": [("how_many_seats", int), ("can_turn_to_bed", bool)],
+            "Table": [("expandable", bool), ("how_many_seats", int), ("can_fold", bool)],
+            "Closet": [("has_mirrors", bool), ("number_of_shelves", int), ("how_many_doors", int)],
+            "Chair": [("has_wheels", bool), ("how_many_legs", int)],
+            "Bed": [("has_storage", bool), ("has_back", bool)],
         }
 
         missing_specifics = [
-            attr
+            attr[0]
             for attr in required_specifics.get(furniture_type, [])
-            if attr not in furniture_desc
+            if attr[0] not in furniture_desc
         ]
 
         if missing_specifics:
             raise ValueError(
                 f"{furniture_type} requires additional attributes: {', '.join(missing_specifics)}"
             )
+
+        for attr, expected_type in required_specifics.get(furniture_type, []):
+            if attr in furniture_desc and not isinstance(furniture_desc[attr], expected_type):
+                raise TypeError(f"Invalid type for {attr}, expected {expected_type.__name__}.")
