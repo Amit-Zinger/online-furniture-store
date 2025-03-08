@@ -33,9 +33,14 @@ jobs:
         run: |
           ruff check --fix .
 
-      - name: Run tests with pytest and coverage
+      - name: Remove previous coverage data
+        run: coverage erase || true
+
+      - name: Run tests with coverage
         run: |
-          pytest --cov=app --cov=models --cov=tests --cov-report=html
+          pytest --cov=models --cov=app \
+                 --cov-report=term --cov-report=html \
+                 --cov-omit="tests/*" --cov-omit="*/__init__.py" --cov-omit="tests/regression.py"
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v4

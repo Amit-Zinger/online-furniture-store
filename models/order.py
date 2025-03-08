@@ -109,8 +109,10 @@ class OrderManager:
         }
 
         new_order_df = pd.DataFrame([order_data])
-        new_order_df = new_order_df.dropna(axis=1, how="all")  # Removing empty lines
-        self.orders = pd.concat([self.orders, new_order_df], ignore_index=True)
+        if not new_order_df.dropna(axis=1, how="all").empty:
+            new_order_df = new_order_df.dropna(axis=1, how="all")
+            self.orders = pd.concat([self.orders, new_order_df], ignore_index=True)
+
         self.save_orders()
 
     def get_order(self, order_id: str, client_id: str) -> Optional[Dict]:
