@@ -1,7 +1,9 @@
 import os
 import pytest
 import bcrypt
-from models.user import User, Client, Management, UserDB
+from models.user import User, Client, Management, UserDB, deserialize_furniture, serialize_furniture
+from models.factory import FurnitureFactory,Furniture
+
 
 # Directory for test database
 TEST_DB_FILE: str = "test_users.json"
@@ -26,6 +28,60 @@ def user_db() -> UserDB:
         os.remove(TEST_DB_FILE)
     if os.path.exists("data.users.json"):
         os.remove("data.users.json")
+
+
+# ---- Testing Helper Functions ---- #
+def test_serialize_furniture():
+    """Ensure furniture serialization returns correct dictionary format."""
+    furniture = FurnitureFactory.create_furniture(
+        {
+            "type": "Chair",
+            "name": "Office Chair",
+            "description": "Comfortable",
+            "price": 100.0,
+            "dimensions": "50x50x100 cm",
+            "serial_number": "C001",
+            "quantity": 10,
+            "weight": 15.0,
+            "manufacturing_country": "Germany",
+            "has_wheels": True,
+            "how_many_legs": 4,
+        }
+    )
+
+    serialized = serialize_furniture(furniture)
+    assert isinstance(serialized, dict)
+    assert serialized["name"] == "Office Chair"
+    assert serialized["type"] == "Chair"
+
+
+def test_deserialize_furniture():
+    """Ensure furniture deserialization correctly reconstructs objects."""
+    furniture_dict = {
+        "type": "Table",
+        "name": "Dining Table",
+        "description": "Wooden",
+        "price": 200.0,
+        "dimensions": "100x200x75 cm",
+        "serial_number": "T001",
+        "quantity": 5,
+        "weight": 25.0,
+        "manufacturing_country": "Sweden",
+        "expandable": True,
+        "how_many_seats": 6,
+        "can_fold": False,
+    }
+
+    furniture = deserialize_furniture(furniture_dict)
+    assert isinstance(furniture, Furniture)
+    assert furniture.name == "Dining Table"
+    assert furniture.expandable is True
+
+
+def test_deserialize_invalid_furniture():
+    """Ensure invalid furniture dictionary returns original dictionary."""
+    invalid_data = {"name": "Unknown Item"}
+    assert deserialize_furniture(invalid_data) == invalid_data
 
 
 def test_hash_password() -> None:
@@ -120,7 +176,7 @@ def test_delete_user(user_db: UserDB) -> None:
 def test_edit_management_role(user_db: UserDB) -> None:
     """Test editing a management user's role."""
     manager: Management = Management(
-        user_id=2,
+        user_id=1,
         username="admin",
         email="admin@example.com",
         password=User.hash_password("AdminPass123!"),
