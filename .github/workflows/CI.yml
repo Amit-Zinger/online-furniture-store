@@ -45,10 +45,11 @@ jobs:
           pytest --cov=models --cov=app \
                  --cov-report=term --cov-report=html
 
-      - name: Run regression tests
-        run: |
-          export PYTHONPATH=$(pwd)
-          python tests/regression.py
+        - name: Run regression tests
+          run: |
+            $env:PYTHONPATH = "$PWD"
+            python tests/regression.py
+
 
 
 
