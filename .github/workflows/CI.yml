@@ -46,6 +46,7 @@ jobs:
                  --cov-report=term --cov-report=html
 
       - name: Run regression tests
-        run: pytest tests/regression
+        run: python tests/regression.py
+
 
 
