@@ -20,9 +20,40 @@ A detailed **Wireframe** was created to visualize the user interface and functio
 
 ## Market Research
 A **market analysis** was conducted to compare features and user experiences of leading online furniture stores. Key insights include:
-- User expectations for **fast navigation** and **efficient filtering**
-- Placement of elements based on common UX patterns
-- Competitive advantages such as **discounted bundles and custom furniture options**
+User Experience Focus
+
+The interface is designed with a strong emphasis on ease of use and accessibility.
+Search Bar Placement
+
+Positioned at the top center of the page for maximum visibility.
+Chosen based on user habits, as they typically expect to find search functionality at the top of content-rich websites.
+Helps users quickly and efficiently find products.
+Store Name & Contact Information
+
+Displayed at the top of the page in a clear and visible location.
+Maintains a personal connection with users, even in an online shopping experience.
+Shopping Cart Placement
+
+Located in the upper left corner, next to the search bar.
+Follows industry standards for leading e-commerce websites.
+Ensures easy access throughout browsing and quick navigation back to the homepage.
+Main Menu & Categories
+
+Placed below the search bar for high visibility.
+Includes main categories like “Sofas” and “Tables.”
+Categories expand into subcategories, allowing users to filter products by size or type easily.
+Product Cards & Interaction
+
+Each product card features a "View Product" button at the bottom for direct access to more details.
+A heart icon is placed next to the button, allowing users to mark products as favorites.
+The heart icon follows familiar design patterns from other e-commerce platforms for easy recognition.
+Favorites Collection
+
+Favorited items are grouped under a dedicated icon next to the shopping cart at the top of the page.
+User Account Access
+
+A user profile icon is positioned in the upper left corner.
+This placement aligns with user expectations, as they typically find login options in this area, alongside their cart and favorite items.
 
 ## Backend Planning
 The backend architecture was designed with **performance, scalability, and security** in mind. We chose:
