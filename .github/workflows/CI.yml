@@ -47,8 +47,9 @@ jobs:
 
       - name: Run regression tests
         run: |
-          $env:PYTHONPATH = "$PWD"
+          export PYTHONPATH=$(pwd)
           python tests/regression.py
+
 
 
 
