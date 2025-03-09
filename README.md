@@ -20,40 +20,46 @@ A detailed **Wireframe** was created to visualize the user interface and functio
 
 ## Market Research
 A **market analysis** was conducted to compare features and user experiences of leading online furniture stores. Key insights include:
-User Experience Focus
+# User Interface Design Overview
 
-The interface is designed with a strong emphasis on ease of use and accessibility.
-Search Bar Placement
+This document outlines the key design considerations for the user interface, focusing on user experience, accessibility, and standard e-commerce practices.
 
-Positioned at the top center of the page for maximum visibility.
-Chosen based on user habits, as they typically expect to find search functionality at the top of content-rich websites.
-Helps users quickly and efficiently find products.
-Store Name & Contact Information
+# User Experience Focus
+The interface is designed with an emphasis on **ease of use** and **intuitive navigation**, ensuring a seamless shopping experience.
 
-Displayed at the top of the page in a clear and visible location.
-Maintains a personal connection with users, even in an online shopping experience.
-Shopping Cart Placement
+# Key Features and Design Decisions
 
-Located in the upper left corner, next to the search bar.
-Follows industry standards for leading e-commerce websites.
-Ensures easy access throughout browsing and quick navigation back to the homepage.
-Main Menu & Categories
+# Search Bar
+- Positioned at the **top center** of the page for maximum visibility.
+- Placed according to **user habits**, as search functionality is commonly expected at the top of content-rich websites.
+- Enhances **product search efficiency**.
 
-Placed below the search bar for high visibility.
-Includes main categories like “Sofas” and “Tables.”
-Categories expand into subcategories, allowing users to filter products by size or type easily.
-Product Cards & Interaction
+# Store Name & Contact Information
+- Displayed at the **top of the page** in a clear and accessible location.
+- Helps maintain a **personal connection** with users during their online shopping experience.
 
-Each product card features a "View Product" button at the bottom for direct access to more details.
-A heart icon is placed next to the button, allowing users to mark products as favorites.
-The heart icon follows familiar design patterns from other e-commerce platforms for easy recognition.
-Favorites Collection
+# Shopping Cart
+- Located in the **upper left corner**, next to the search bar.
+- Follows **industry standards** for e-commerce websites.
+- Ensures **easy access** throughout browsing and quick navigation to the homepage.
 
-Favorited items are grouped under a dedicated icon next to the shopping cart at the top of the page.
-User Account Access
+# Main Menu & Categories
+- Placed **below the search bar** for high visibility.
+- Includes main categories like **"Sofas"** and **"Tables."**
+- Categories expand into **subcategories**, allowing users to filter products by **size** or **type**.
 
-A user profile icon is positioned in the upper left corner.
-This placement aligns with user expectations, as they typically find login options in this area, alongside their cart and favorite items.
+# Product Cards
+- Each product card features a **"View Product"** button at the bottom for direct access to more details.
+- A **❤️ heart icon** allows users to **mark products as favorites**.
+- The heart icon follows familiar **design patterns** from other e-commerce platforms for easy recognition.
+
+# Favorites Collection
+- Favorited items are grouped under a **dedicated icon** next to the shopping cart at the top of the page.
+
+# User Account Access
+- A **user profile icon** is positioned in the **upper left corner**.
+- This placement follows **common UX standards**, as users typically find login options near their cart and favorite items.
+
 
 ## Backend Planning
 The backend architecture was designed with **performance, scalability, and security** in mind. We chose:
