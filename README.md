@@ -24,41 +24,66 @@ A **market analysis** was conducted to compare features and user experiences of 
 
 This document outlines the key design considerations for the user interface, focusing on user experience, accessibility, and standard e-commerce practices.
 
-# User Experience Focus
+## Market Research
+A **market analysis** was conducted to compare features and user experiences of leading online furniture stores. Key insights include:
+
+### User Interface Design Overview
+This document outlines the key design considerations for the user interface, focusing on user experience, accessibility, and standard e-commerce practices.
+
+#### User Experience Focus
 The interface is designed with an emphasis on **ease of use** and **intuitive navigation**, ensuring a seamless shopping experience.
 
-# Key Features and Design Decisions
+#### Key Features and Design Decisions
 
-# Search Bar
-- Positioned at the **top center** of the page for maximum visibility.
-- Placed according to **user habits**, as search functionality is commonly expected at the top of content-rich websites.
+##### Search Bar  
+- Positioned at the **top center** of the page for maximum visibility.  
+- Placed according to **user habits**, as search functionality is commonly expected at the top of content-rich websites.  
 - Enhances **product search efficiency**.
 
-# Store Name & Contact Information
-- Displayed at the **top of the page** in a clear and accessible location.
+##### Store Name & Contact Information  
+- Displayed at the **top of the page** in a clear and accessible location.  
 - Helps maintain a **personal connection** with users during their online shopping experience.
 
-# Shopping Cart
-- Located in the **upper left corner**, next to the search bar.
-- Follows **industry standards** for e-commerce websites.
+##### Shopping Cart  
+- Located in the **upper left corner**, next to the search bar.  
+- Follows **industry standards** for e-commerce websites.  
 - Ensures **easy access** throughout browsing and quick navigation to the homepage.
 
-# Main Menu & Categories
-- Placed **below the search bar** for high visibility.
-- Includes main categories like **"Sofas"** and **"Tables."**
+##### Main Menu & Categories  
+- Placed **below the search bar** for high visibility.  
+- Includes main categories like **"Sofas"** and **"Tables."**  
 - Categories expand into **subcategories**, allowing users to filter products by **size** or **type**.
 
-# Product Cards
-- Each product card features a **"View Product"** button at the bottom for direct access to more details.
-- A **❤️ heart icon** allows users to **mark products as favorites**.
+##### Product Cards  
+- Each product card features a **"View Product"** button at the bottom for direct access to more details.  
+- A **🖤 heart icon** allows users to **mark products as favorites**.  
 - The heart icon follows familiar **design patterns** from other e-commerce platforms for easy recognition.
 
-# Favorites Collection
+##### Favorites Collection  
 - Favorited items are grouped under a **dedicated icon** next to the shopping cart at the top of the page.
 
-# User Account Access
-- A **user profile icon** is positioned in the **upper left corner**.
+##### User Account Access  
+- A **user profile icon** is positioned in the **upper left corner**.  
 - This placement follows **common UX standards**, as users typically find login options near their cart and favorite items.
+
+### Backend Planning
+The backend architecture was designed with **performance, scalability, and security** in mind. The chosen technologies include:
+
+##### AWS CloudFront  
+- Used for static content delivery to improve speed and reliability.
+
+##### AWS Lambda  
+- Enables serverless computing to reduce costs and enhance performance.
+
+##### PostgreSQL on AWS RDS  
+- Provides scalable and reliable database management.
+
+##### API Gateway  
+- Manages communication between services efficiently.
+
+##### Amazon SES  
+- Handles email notifications, including order confirmations and registration emails.
+
 
 
 ## Backend Planning
