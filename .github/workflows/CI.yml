@@ -30,7 +30,7 @@ jobs:
           pip-compile requirements/requirements.in
           pip install -r requirements/requirements.txt
 
-      - name: Run linting (flake8 & black)
+      - name: Run linting (ruff)
         run: |
           ruff check --fix .
           
