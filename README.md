@@ -15,6 +15,8 @@ A detailed **Wireframe** was created to visualize the user interface and functio
 - Navigation structure
 - Shopping cart functionality
 - User authentication flow
+  ![image](https://github.com/user-attachments/assets/4fcc3810-3252-4165-bedb-2c7fcb2099c7)
+
 
 ## Market Research
 A **market analysis** was conducted to compare features and user experiences of leading online furniture stores. Key insights include:
