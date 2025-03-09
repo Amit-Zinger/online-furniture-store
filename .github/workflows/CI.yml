@@ -33,6 +33,9 @@ jobs:
       - name: Run linting (flake8 & black)
         run: |
           ruff check --fix .
+          
+      - name: Run unit tests
+        run: pytest --maxfail=1 --disable-warnings
 
       - name: Remove previous coverage data
         run: coverage erase || true
