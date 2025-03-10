@@ -76,22 +76,46 @@ The application will be accessible at `http://127.0.0.1:5000/`.
 
 ### User Authentication
 #### Register a new user (`POST /users`)
-Registers a new user in the system. The request must include a username, email, password, address, and user type (Client or Management). Management users must also provide a role. A successful request returns a confirmation message.
+- **Request Format:** JSON
+- **Request Data:** Requires user details including username, email, password, address, and user type (Client or Management). Management users must also provide a role.
+- **Functionality:** Registers a new user in the system.
+- **Response Format:** JSON
+- **Response Data:** Confirms successful registration or returns an error if the username is already registered or required fields are missing.
 
 #### User login (`POST /auth/login`)
-Authenticates a user with a username and password. On success, it returns a message indicating successful login along with session details.
+- **Request Format:** JSON
+- **Request Data:** Requires a username and password.
+- **Functionality:** Authenticates the user and starts a session.
+- **Response Format:** JSON
+- **Response Data:** Confirms successful login or returns an error if the credentials are incorrect.
 
 ### Inventory Management
 #### Search for products (`GET /inventory`)
-Allows searching for furniture in the inventory. Users can filter by product name, category, or price range. The response includes a list of matching furniture items with details such as name, price, and stock availability.
+- **Request Format:** JSON
+- **Request Data:** Allows filtering by product name, category, or price range.
+- **Functionality:** Retrieves products from the inventory based on the provided filters.
+- **Response Format:** JSON
+- **Response Data:** Returns a list of matching furniture items or an error if no products are found.
 
 ### Shopping Cart
 #### Add an item to the cart (`POST /cart/items`)
-Adds a specified quantity of a product to the user's shopping cart. The request must include the product name and quantity. If successful, the response confirms the item was added.
+- **Request Format:** JSON
+- **Request Data:** Requires product name and quantity.
+- **Functionality:** Adds the specified product to the user's shopping cart.
+- **Response Format:** JSON
+- **Response Data:** Confirms the addition or returns an error if the item is out of stock.
 
 #### Remove an item from the cart (`DELETE /cart/items`)
-Removes a specified product from the user's shopping cart. The request must include the product name. If the item exists in the cart, it is removed, and a confirmation message is returned.
+- **Request Format:** JSON
+- **Request Data:** Requires product name.
+- **Functionality:** Removes the specified product from the user's shopping cart.
+- **Response Format:** JSON
+- **Response Data:** Confirms the removal or returns an error if the item does not exist in the cart.
 
 ### Order Processing
 #### Checkout and place an order (`POST /orders`)
-Processes an order for all items in the user's cart. The request must include user credentials and payment details. If successful, the system confirms the order and provides an order ID.
+- **Request Format:** JSON
+- **Request Data:** Requires payment details.
+- **Functionality:** Processes an order for all items in the cart and updates inventory.
+- **Response Format:** JSON
+- **Response Data:** Confirms successful checkout or returns an error if the cart is empty or payment fails.
