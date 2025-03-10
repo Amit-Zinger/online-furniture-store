@@ -121,7 +121,7 @@ def add_to_cart() -> Any:
     Expected keys: "username", "password", "name" (of product), "quantity" (optional, default=1)
 
     Expected responses:
-    200 - "message": "Item added to cart"
+    200 - "message":"Item added to cart"
     401 - "error": "Request deny for Management user"
     401 - "error": "Invalid credentials"
     400 - "error": "Item not available or insufficient stock"
