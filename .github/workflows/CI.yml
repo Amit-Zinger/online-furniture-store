@@ -44,6 +44,9 @@ jobs:
         run: |
           pytest --cov=models --cov=app \
                  --cov-report=term --cov-report=html
+                 
+      - name: Cleanup test files
+        run: rm -f test_users.json
 
       - name: Run regression tests
         run: |
