@@ -9,106 +9,48 @@
 ## Project Overview
 This project is an **online furniture store** implemented in Python using Flask. It provides a platform for managing an inventory of furniture items, user authentication, shopping cart operations, and an order processing system.
 
-## Wireframe
-A detailed **Wireframe** was created to visualize the user interface and functionality of the platform. It includes:
-- Homepage layout
-- Navigation structure
-- Shopping cart functionality
-- User authentication flow
-  ![image](https://github.com/user-attachments/assets/4fcc3810-3252-4165-bedb-2c7fcb2099c7)
-
-
-## Market Research
-A **market analysis** was conducted to compare features and user experiences of leading online furniture stores. Key insights include:
-# User Interface Design Overview
-
-This document outlines the key design considerations for the user interface, focusing on user experience, accessibility, and standard e-commerce practices.
-
-## Market Research
-A **market analysis** was conducted to compare features and user experiences of leading online furniture stores. Key insights include:
-
-### User Interface Design Overview
-This document outlines the key design considerations for the user interface, focusing on user experience, accessibility, and standard e-commerce practices.
-
-#### User Experience Focus
-The interface is designed with an emphasis on **ease of use** and **intuitive navigation**, ensuring a seamless shopping experience.
-
-#### Key Features and Design Decisions
-
-##### Search Bar  
-- Positioned at the **top center** of the page for maximum visibility.  
-- Placed according to **user habits**, as search functionality is commonly expected at the top of content-rich websites.  
-- Enhances **product search efficiency**.
-
-##### Store Name & Contact Information  
-- Displayed at the **top of the page** in a clear and accessible location.  
-- Helps maintain a **personal connection** with users during their online shopping experience.
-
-##### Shopping Cart  
-- Located in the **upper left corner**, next to the search bar.  
-- Follows **industry standards** for e-commerce websites.  
-- Ensures **easy access** throughout browsing and quick navigation to the homepage.
-
-##### Main Menu & Categories  
-- Placed **below the search bar** for high visibility.  
-- Includes main categories like **"Sofas"** and **"Tables."**  
-- Categories expand into **subcategories**, allowing users to filter products by **size** or **type**.
-
-##### Product Cards  
-- Each product card features a **"View Product"** button at the bottom for direct access to more details.  
-- A **🖤 heart icon** allows users to **mark products as favorites**.  
-- The heart icon follows familiar **design patterns** from other e-commerce platforms for easy recognition.
-
-##### Favorites Collection  
-- Favorited items are grouped under a **dedicated icon** next to the shopping cart at the top of the page.
-
-##### User Account Access  
-- A **user profile icon** is positioned in the **upper left corner**.  
-- This placement follows **common UX standards**, as users typically find login options near their cart and favorite items.
-
-### Backend Planning
-The backend architecture was designed with **performance, scalability, and security** in mind. The chosen technologies include:
-
-##### AWS CloudFront  
-- Used for static content delivery to improve speed and reliability.
-
-##### AWS Lambda  
-- Enables serverless computing to reduce costs and enhance performance.
-
-##### PostgreSQL on AWS RDS  
-- Provides scalable and reliable database management.
-
-##### API Gateway  
-- Manages communication between services efficiently.
-
-##### Amazon SES  
-- Handles email notifications, including order confirmations and registration emails.
-
-
-
-## Backend Planning
-The backend architecture was designed with **performance, scalability, and security** in mind. We chose:
-- **AWS CloudFront** for static content delivery
-- **AWS Lambda** for serverless computing to reduce costs and improve performance
-- **PostgreSQL on AWS RDS** for scalable and reliable database management
-- **API Gateway** to manage communication between services
-- **Amazon SES** for email notifications (order confirmations, registration emails)
-
-### **Response Time Estimates**
-| Action | Expected Response Time (seconds) | Notes |
-|--------|--------------------------------|-------|
-| Page Load | 0.5 - 2.0 | Using image compression (WebP) |
-| User Login | 0.2 - 0.3 | Optimized authentication processing |
-| Add to Cart | 0.15 - 0.3 | Real-time cart update |
-| View Product Page | 0.7 - 2.5 | Cache used for static data |
-| Apply Filters | 0.5 - 2.0 | Indexed database queries |
-| Checkout Process | 1.0 - 5.0 | Includes payment processing |
-
-## Software Diagram
-A **UML class diagram** was created to model the relationships between the system components. Notable features:
-- **Standardized function naming conventions**
-- **Accurate arrows representing dependencies and data flow**
-- **Distinction between static and dynamic calls**
+## Project Structure
+```
+/
+├── .github/workflows/  # Contains CI/CD pipeline configuration
+│   ├── CI.yml          # Defines automated tests and deployment workflow
+│
+├── app/                # Core application logic
+│   ├── APIroutes.py    # Handles API endpoints for authentication, inventory, cart, and orders
+│   ├── __init__.py     # Package initializer for the app module
+│   ├── auth.py         # Manages user authentication and authorization
+│   ├── main.py         # Entry point to run the Flask application
+│
+├── models/             # Data models for the application
+│   ├── __init__.py     # Package initializer for the models module
+│   ├── cart.py         # Manages shopping cart operations
+│   ├── factory.py      # Implements factory pattern for creating furniture objects
+│   ├── furniture.py    # Defines furniture data structure
+│   ├── inventory.py    # Handles inventory management
+│   ├── order.py        # Manages order creation and processing
+│   ├── user.py         # Defines user-related operations (registration, login, etc.)
+│
+├── requirements/       # Dependency management
+│   ├── requirements.in # Raw dependencies
+│   ├── requirements.txt# List of required dependencies for installation
+│
+├── tests/              # Unit and integration tests
+│   ├── __init__.py     # Package initializer for the tests module
+│   ├── regression.py   # Runs regression tests for the system
+│   ├── test_APIroutes.py  # Tests API endpoints
+│   ├── test_auth.py       # Tests authentication logic
+│   ├── test_cart.py       # Tests cart operations
+│   ├── test_factory.py    # Tests furniture factory creation
+│   ├── test_furniture.py  # Tests furniture-related functionality
+│   ├── test_inventory.py  # Tests inventory operations
+│   ├── test_order.py      # Tests order processing
+│   ├── test_user.py       # Tests user management
+│
+├── .coveragerc         # Configuration for test coverage reports
+├── .gitignore          # Specifies ignored files in version control
+├── Final Project Design Document.pdf  # Project design documentation
+├── README.md           # Documentation for project usage and setup
+```
 
 ## Installation
 
@@ -131,31 +73,25 @@ python main.py
 The application will be accessible at `http://127.0.0.1:5000/`.
 
 ## API Documentation
+
 ### User Authentication
-| Method | Endpoint | Description | Expected Request Body | Expected Response |
-|--------|---------|-------------|------------------|------------------|
-| `POST` | `/users` | Register a new user | `{ "username": "JohnDoe", "email": "john@example.com", "password": "pass123", "address": "123 Street" }` | `{ "message": "Registration successful!" }` |
-| `POST` | `/auth/login` | Log in a user | `{ "username": "JohnDoe", "password": "pass123" }` | `{ "message": "Login successful!", "session": { "user_id": 1 } }` |
+#### Register a new user (`POST /users`)
+Registers a new user in the system. The request must include a username, email, password, address, and user type (Client or Management). Management users must also provide a role. A successful request returns a confirmation message.
+
+#### User login (`POST /auth/login`)
+Authenticates a user with a username and password. On success, it returns a message indicating successful login along with session details.
 
 ### Inventory Management
-| Method | Endpoint | Description | Expected Request Body | Expected Response |
-|--------|---------|-------------|------------------|------------------|
-| `GET` | `/inventory` | Get available furniture items | None | `[ { "name": "Table", "price": 100.0, "quantity": 5 } ]` |
-| `POST` | `/inventory` | Add a new furniture item | `{ "name": "Sofa", "price": 200.0, "quantity": 3 }` | `{ "message": "Item added successfully!" }` |
-| `DELETE` | `/inventory` | Remove a furniture item | `{ "name": "Sofa" }` | `{ "message": "Item removed successfully!" }` |
+#### Search for products (`GET /inventory`)
+Allows searching for furniture in the inventory. Users can filter by product name, category, or price range. The response includes a list of matching furniture items with details such as name, price, and stock availability.
 
 ### Shopping Cart
-| Method | Endpoint | Description | Expected Request Body | Expected Response |
-|--------|---------|-------------|------------------|------------------|
-| `POST` | `/cart/items` | Add item to cart | `{ "name": "Table", "quantity": 2 }` | `{ "message": "Item added to cart" }` |
-| `DELETE` | `/cart/items` | Remove item from cart | `{ "name": "Table" }` | `{ "message": "Item removed from cart" }` |
+#### Add an item to the cart (`POST /cart/items`)
+Adds a specified quantity of a product to the user's shopping cart. The request must include the product name and quantity. If successful, the response confirms the item was added.
+
+#### Remove an item from the cart (`DELETE /cart/items`)
+Removes a specified product from the user's shopping cart. The request must include the product name. If the item exists in the cart, it is removed, and a confirmation message is returned.
 
 ### Order Processing
-| Method | Endpoint | Description | Expected Request Body | Expected Response |
-|--------|---------|-------------|------------------|------------------|
-| `POST` | `/orders` | Checkout and place an order | `{ "payment_info": "Visa 1234" }` | `{ "message": "Checkout successful", "order_id": "abc123" }` |
-| `GET` | `/orders` | View order history | None | `[ { "order_id": "abc123", "total": 250.0, "status": "Processing" } ]` |
-
-## Contributors
-For any questions or contributions, feel free to open an issue or a pull request.
-
+#### Checkout and place an order (`POST /orders`)
+Processes an order for all items in the user's cart. The request must include user credentials and payment details. If successful, the system confirms the order and provides an order ID.
