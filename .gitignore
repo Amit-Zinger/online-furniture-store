@@ -166,3 +166,6 @@ mypy_report.txt
 /test_inventory.pkl
 /.ruff_cache
 
+.coverage
+
+
