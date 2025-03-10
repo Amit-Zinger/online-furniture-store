@@ -30,9 +30,12 @@ jobs:
           pip-compile requirements/requirements.in
           pip install -r requirements/requirements.txt
 
-      - name: Run linting (flake8 & black)
+      - name: Run linting (ruff)
         run: |
           ruff check --fix .
+          
+      - name: Run unit tests
+        run: pytest --maxfail=1 --disable-warnings
 
       - name: Remove previous coverage data
         run: coverage erase || true
@@ -41,3 +44,14 @@ jobs:
         run: |
           pytest --cov=models --cov=app \
                  --cov-report=term --cov-report=html
+
+      - name: Run regression tests
+        run: |
+          export PYTHONPATH=$(pwd)
+          python tests/regression.py
+
+
+
+
+
+
