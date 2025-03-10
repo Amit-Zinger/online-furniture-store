@@ -58,6 +58,10 @@ def register() -> Any:
     Expected keys: "username", "email", "password", "address", "kind" (Client or Management),
     optional "role" (for Management users)
 
+    Expected responses:
+    201 - "message": "Registration successful!"
+    400 - "error": "username already registered"
+    400 - "error": "roll undefined"
     """
 
     data = request.json
@@ -79,7 +83,7 @@ def register() -> Any:
             role=data["role"],
         )
     else:
-        return jsonify({"error": "roll undefined"}), 400
+        return jsonify({"error": "role undefined"}), 400
     if not USER_DB.add_user(new_user):
         return jsonify({"error": "username already registered"}), 400
     USER_DB.save_users()
@@ -93,6 +97,10 @@ def login() -> Any:
     Logs in a user and initializes a session.
 
     Expected keys: "username", "password"
+
+    Expected responses:
+    201 - "message": "Login successful!"
+    401 - "error": "Invalid credentials"
     """
     data = request.json
     user = authenticate_user(data["username"], data["password"])
@@ -111,6 +119,13 @@ def add_to_cart() -> Any:
     Adds an item to a user's shopping cart.
 
     Expected keys: "username", "password", "name" (of product), "quantity" (optional, default=1)
+
+    Expected responses:
+    200 - "message": "Item added to cart"
+    401 - "error": "Request deny for Management user"
+    401 - "error": "Invalid credentials"
+    400 - "error": "Item not available or insufficient stock"
+    400 - "error": "Item insufficient stock"
     """
     data = request.json
     user = authenticate_user(data["username"], data["password"])
@@ -149,6 +164,12 @@ def remove_from_cart() -> Any:
     Removes an item from a user's shopping cart.
 
     Expected keys: "username", "password", "name" (of product)
+
+    Expected responses:
+    200 - "message": "Item removed from cart"
+    401 - "error": "Request deny for Management user"
+    401 - "error": "Invalid credentials"
+    404 - "error": "Item not exist in user's cart"
     """
     data = request.json
     user = authenticate_user(data["username"], data["password"])
@@ -163,7 +184,7 @@ def remove_from_cart() -> Any:
     if cart.remove_item(item_name):
         return jsonify({"message": "Item removed from cart"}), 200
     else:
-        return jsonify({"message": "Item not exist in user's cart"}), 400
+        return jsonify({"message": "Item not exist in user's cart"}), 404
 
 
 # ---------------------- Checkout ----------------------
@@ -174,6 +195,14 @@ def checkout() -> Any:
     Processes the user's shopping cart checkout.
 
     Expected keys: "username", "password", "payment_info"
+
+    Expected responses:
+    201 - "message": "Checkout successful"
+    401 - "error": "Invalid credentials"
+    400 - "error": "Cart is empty"
+    400 - "error": "Some items are out of stock"
+    500 - "error": "Failed to calculate total price"
+    500 - "error": "Payment processing failed"
     """
 
     data = request.json
@@ -205,7 +234,7 @@ def checkout() -> Any:
     # Updating all DB after order made successfully
     helper_updating_DB()
 
-    return jsonify({"message": "Checkout successful"}), 200
+    return jsonify({"message": "Checkout successful"}), 201
 
 
 # ---------------------- Search Inventory ----------------------
@@ -216,6 +245,11 @@ def search_product() -> Any:
     Searches for products in the inventory.
 
     Expected keys: "username", "password" (of user), optional: "name", "category", "min_price", "max_price" (of product)
+
+    Expected responses:
+    200 - products details
+    401 - "error": "Invalid credentials"
+    404 - "message": "No products found"
     """
 
     data = request.json
